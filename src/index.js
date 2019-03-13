@@ -1,7 +1,6 @@
-const ecc = require('./helper/ecc')
-const { signTxData } = require('./helper/ecc')
-const { TxOp, ContractMode } = require('./helper/enum')
-const { switchEncoding, decodeTX } = require('./utils')
+const { signTxData } = require('icetea-common').ecc
+const { ecc, TxOp, ContractMode } = require('icetea-common')
+const { switchEncoding, decodeTX ,decodeEventData, decodeTags, decodeTxResult} = require('./utils')
 const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
 const WebSocketProvider = require('./providers/WebSocketProvider')
@@ -23,9 +22,9 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     }
 
     this.utils = {
-      decodeEventData: this.rpc.decodeEventData,
-      decodeTags: this.rpc.decodeTags,
-      decodeTxResult: this.rpc.decodeTxResult
+      decodeEventData,
+      decodeTags,
+      decodeTxResult
     }
     this.subscriptions = {}
     this.countSubscribeEvent = 0

@@ -1,6 +1,6 @@
 {
   "name": "iceteaweb3",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -11,15 +11,17 @@
     "type": "git",
     "url": "git+https://github.com/TradaTech/iceteaweb3.git"
   },
-  "author": "",
+  "author": "Trada Tech",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/TradaTech/iceteaweb3/issues"
   },
   "homepage": "https://github.com/TradaTech/iceteaweb3#readme",
   "dependencies": {
+    "@babel/polyfill": "^7.2.5",
     "deterministic-json": "^1.0.5",
     "eosjs-ecc": "^4.0.4",
+    "icetea-common": "^0.1.1",
     "msgpack-lite": "^0.1.26",
     "node-fetch": "^2.3.0",
     "path": "^0.12.7",

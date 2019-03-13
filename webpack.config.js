@@ -13,7 +13,7 @@ const outFile = path.basename(packageJson.main);
 
 module.exports = {
   mode: 'development',
-  entry: './src',
+  entry: ["@babel/polyfill", "./src"],
   output: {
     path: path.resolve(outDir),
     filename: outFile,
