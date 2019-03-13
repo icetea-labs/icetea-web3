@@ -1,0 +1,40 @@
+{
+  "name": "iceteaweb3",
+  "version": "1.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TradaTech/iceteaweb3.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TradaTech/iceteaweb3/issues"
+  },
+  "homepage": "https://github.com/TradaTech/iceteaweb3#readme",
+  "dependencies": {
+    "deterministic-json": "^1.0.5",
+    "eosjs-ecc": "^4.0.4",
+    "msgpack-lite": "^0.1.26",
+    "node-fetch": "^2.3.0",
+    "path": "^0.12.7",
+    "websocket": "^1.0.28",
+    "websocket-as-promised": "^0.9.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "7.2.2",
+    "@babel/preset-env": "7.3.1",
+    "babel-loader": "8.0.5",
+    "babel-plugin-runtyper": "^0.4.0",
+    "nodemon": "1.18.9",
+    "standard": "^12.0.1",
+    "webpack": "4.29.3",
+    "webpack-cli": "^3.2.3"
+  }
+}
