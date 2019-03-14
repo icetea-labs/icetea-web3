@@ -1,8 +1,9 @@
 {
   "name": "iceweb3",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "description": "",
   "main": "dist/index.js",
+  "browser": "dist/browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack"
@@ -21,10 +22,11 @@
     "@babel/polyfill": "^7.2.5",
     "deterministic-json": "^1.0.5",
     "eosjs-ecc": "^4.0.4",
-    "icetea-common": "^0.1.1",
+    "icetea-common": "^0.1.4",
     "msgpack-lite": "^0.1.26",
     "node-fetch": "^2.3.0",
     "path": "^0.12.7",
+    "webpack-node-externals": "^1.7.2",
     "websocket": "^1.0.28",
     "websocket-as-promised": "^0.9.0"
   },

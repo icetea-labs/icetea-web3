@@ -1,15 +1,12 @@
 const { signTxData } = require('icetea-common').ecc
 const { ecc, TxOp, ContractMode } = require('icetea-common')
+const utils = require('./utils')
 const { switchEncoding, decodeTX ,decodeEventData, decodeTags, decodeTxResult} = require('./utils')
 const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
 const WebSocketProvider = require('./providers/WebSocketProvider')
 
-exports.Utils = {
-  decodeEventData,
-  decodeTags,
-  decodeTxResult
-}
+exports.utils = utils
 
 /**
  * The IceTea web client.
