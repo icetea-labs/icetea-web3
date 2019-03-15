@@ -77,7 +77,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       throw new Error('hash is required')
     }
     return this.rpc.call('tx', { hash: switchEncoding(hash, 'hex', 'base64'), ...options })
-      .then(this.rpc.decodeTxResult)
+      .then(decodeTxResult)
   }
 
   /**
@@ -187,7 +187,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionCommit (tx, privateKey) {
     return this.rpc.send('broadcast_tx_commit', signTxData(tx, privateKey))
-      .then(this.rpc.decodeTxResult)
+      .then(decodeTxResult)
   }
 
   /**
@@ -272,7 +272,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
           if (isSystemEvent) {
             return callback(message)
           } else {
-            let events = this.rpc.decodeEventData(jsonMsg.result)
+            let events = decodeEventData(jsonMsg.result)
             events.forEach(event => {
               if (event.eventName && nonSystemEventName === event.eventName) {
                 let res = {}
