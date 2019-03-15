@@ -1,6 +1,6 @@
 const BaseProvider = require('./BaseProvider')
 
-const fetch = typeof fetch !== 'undefined' ? fetch : require('node-fetch')
+const _fetch = typeof fetch !== 'undefined' ? fetch : require('node-fetch')
 
 class HttpProvider extends BaseProvider {
   constructor (endpoint) {
@@ -16,7 +16,7 @@ class HttpProvider extends BaseProvider {
       params: this.sanitizeParams(params)
     }
 
-    return fetch(this.endpoint, {
+    return _fetch(this.endpoint, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

@@ -15,7 +15,7 @@ const babelPlugins = [runtyper].filter(Boolean);
 const outFile = path.basename(packageJson.browser)
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: "./src/index.js",
   output: {
     path: path.resolve(outDir),
