@@ -1,6 +1,6 @@
 {
-  "name": "iceweb3",
-  "version": "0.1.6",
+  "name": "iceteaweb3",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "browser": "dist/browser.js",
