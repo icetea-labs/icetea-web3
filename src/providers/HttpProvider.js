@@ -1,5 +1,6 @@
-const fetch = require('node-fetch')
 const BaseProvider = require('./BaseProvider')
+
+const fetch = typeof fetch !== 'undefined' ? fetch : require('node-fetch')
 
 class HttpProvider extends BaseProvider {
   constructor (endpoint) {

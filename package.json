@@ -1,8 +1,8 @@
 {
   "name": "icetea-web3",
   "version": "0.1.0",
-  "description": "",
-  "main": "dist/index.js",
+  "description": "A Web3-like client lib for icetea blockchain.",
+  "main": "src/index.js",
   "browser": "dist/browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,24 +10,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TradaTech/iceteaweb3.git"
+    "url": "git+https://github.com/TradaTech/icetea-web3.git"
   },
   "author": "Trada Tech",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TradaTech/iceteaweb3/issues"
+    "url": "https://github.com/TradaTech/icetea-web3/issues"
   },
-  "homepage": "https://github.com/TradaTech/iceteaweb3#readme",
+  "homepage": "https://github.com/TradaTech/icetea-web3#readme",
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "deterministic-json": "^1.0.5",
-    "eosjs-ecc": "^4.0.4",
-    "icetea-common": "^0.1.4",
-    "msgpack-lite": "^0.1.26",
+    "icetea-common": "github:TradaTech/icetea-common",
     "node-fetch": "^2.3.0",
-    "path": "^0.12.7",
-    "safe-buffer": "^5.1.2",
-    "webpack-node-externals": "^1.7.2",
     "websocket": "^1.0.28",
     "websocket-as-promised": "^0.9.0"
   },
@@ -40,6 +33,7 @@
     "nodemon": "1.18.9",
     "standard": "^12.0.1",
     "webpack": "4.29.3",
+    "webpack-bundle-analyzer": "^3.1.0",
     "webpack-cli": "^3.2.3"
   }
 }

@@ -1,4 +1,3 @@
-const Buffer = require('safe-buffer').Buffer
 const { codec } = require('icetea-common')
 
 exports.replaceAll = (text, search, replacement) => {

@@ -1,6 +1,7 @@
 const BaseProvider = require('./BaseProvider')
-const W3CWebSocket = require('websocket').w3cwebsocket
 const WebSocketAsPromised = require('websocket-as-promised')
+
+const W3CWebSocket = typeof WebSocket !== undefined ? WebSocket : require('websocket').w3cwebsocket
 
 class WebSocketProvider extends BaseProvider {
   constructor (endpoint, options) {
@@ -25,7 +26,7 @@ class WebSocketProvider extends BaseProvider {
     this.wsp[event].addListener(callback)
   }
 
-  async _call (method, params) {
+  _call (method, params) {
     const json = {
       jsonrpc: '2.0',
       method,
@@ -33,7 +34,7 @@ class WebSocketProvider extends BaseProvider {
     }
 
     if (!this.wsp.isOpened) {
-      await this.wsp.open()
+      return this.wsp.open().then(() => this.wsp.sendRequest(json))
     }
 
     return this.wsp.sendRequest(json)
