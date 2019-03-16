@@ -1,4 +1,4 @@
-/*! icetea-web3 v0.1.2 */
+/*! icetea-web3 v0.1.3 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2069,7 +2069,7 @@ function isnan (val) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! icetea-common v0.1.7 */
+/*! icetea-common v0.1.8 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -23627,7 +23627,7 @@ function () {
     this.value = parseFloat(value) || 0;
     this.fee = parseFloat(fee) || 0;
     this.data = data || {};
-    this.nonce = nonce || Date.now(); // FIXME
+    this.nonce = nonce || Date.now() + Math.random(); // FIXME
 
     if (this.value < 0 || this.fee < 0) {
       throw new Error('Value and fee cannot be negative.');
@@ -23716,8 +23716,7 @@ exports.stableStringify = stableStringify;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var Tx = __webpack_require__(/*! ./Tx */ "./src/Tx.js");
-
+/* WEBPACK VAR INJECTION */(function(Buffer) {//const Tx = require('./Tx')
 var randomBytes = __webpack_require__(/*! randombytes */ "./node_modules/randombytes/browser.js");
 
 var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-hash/browser.js");
@@ -23733,12 +23732,7 @@ var SEPARATOR = '_';
 
 function _ensureBuffer(text) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-
-  if (typeof text === 'string') {
-    return Buffer.from(text, enc);
-  }
-
-  return text;
+  return typeof text === 'string' ? Buffer.from(text, enc) : text;
 }
 
 var t = {
@@ -23772,11 +23766,6 @@ var t = {
   verify: function verify(signature, message, pubKey) {
     return secp256k1.verify(_ensureBuffer(message), _ensureBuffer(signature), _ensureBuffer(pubKey));
   },
-  verifyTxSignature: function verifyTxSignature(tx) {
-    if (!t.verify(tx.signature, tx.signatureMessage, tx.publicKey)) {
-      throw new Error('Invalid signature');
-    }
-  },
   generateKeyBuffer: function generateKeyBuffer() {
     var privKey;
 
@@ -23799,7 +23788,7 @@ var t = {
   },
   toAddress: function toAddress(publicKey) {
     var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-    var r160Buf = createHash('ripemd160').update(_ensureBuffer(publicKey)).digest();
+    var r160Buf = createHash('ripemd160').update(_ensureBuffer(publicKey, enc)).digest();
     return PREFIX + SEPARATOR + base58.encode(r160Buf);
   },
   toPubKeyAndAddress: function toPubKeyAndAddress(privKey) {
@@ -23827,21 +23816,6 @@ var t = {
   },
   sign: function sign(message, privateKey) {
     return secp256k1.sign(_ensureBuffer(message), _ensureBuffer(privateKey));
-  },
-  signTxData: function signTxData(txData, privateKey) {
-    txData.publicKey = t.toPublicKey();
-    var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
-    txData.signature = t.sign(tx.signatureMessage, privateKey);
-
-    if (!txData.nonce) {
-      txData.nonce = tx.nonce;
-    }
-
-    if (typeof txData.data !== 'string') {
-      txData.data = JSON.stringify(txData.data);
-    }
-
-    return txData;
   },
   stableHashObject: function stableHashObject(obj, enc) {
     if (typeof obj !== 'string') {
@@ -23876,8 +23850,7 @@ exports.ContractMode = Object.freeze({
 });
 exports.TxOp = Object.freeze({
   DEPLOY_CONTRACT: 0,
-  CALL_CONTRACT: 1,
-  VOTE: 2
+  CALL_CONTRACT: 1
 });
 
 /***/ }),
@@ -23899,11 +23872,102 @@ var _require = __webpack_require__(/*! ./enum */ "./src/enum.js"),
     ContractMode = _require.ContractMode,
     TxOp = _require.TxOp;
 
+var utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
+
 exports.codec = codec;
 exports.ecc = ecc;
 exports.Tx = Tx;
 exports.ContractMode = ContractMode;
 exports.TxOp = TxOp;
+exports.utils = utils;
+
+/***/ }),
+
+/***/ "./src/utils.js":
+/*!**********************!*\
+  !*** ./src/utils.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(Buffer) {var ecc = __webpack_require__(/*! ./ecc */ "./src/ecc.js");
+
+var Tx = __webpack_require__(/*! ./Tx */ "./src/Tx.js");
+
+function _ensureBuffer(text) {
+  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
+  return typeof text === 'string' ? Buffer.from(text, enc) : text;
+}
+
+function newAccount() {
+  return ecc.getAccount(ecc.generateKeyBuffer());
+}
+
+function getAccount(privateKey) {
+  var privateKeyEnc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
+
+  if (!privateKey || !(typeof privateKey === 'string' || Buffer.isBuffer(privateKey))) {
+    throw new Error('Invalid private key. Private key must be a Buffer or a string.');
+  }
+
+  privateKey = _ensureBuffer(privateKey, privateKeyEnc);
+
+  if (privateKey.length !== 32) {
+    throw new Error('Invalid private key length.');
+  }
+
+  var publicKey = ecc.toPublicKeyBuffer(privateKey);
+  var address = ecc.toAddress(publicKey);
+
+  var sign = function sign(message) {
+    return ecc.sign(message, privateKey);
+  };
+
+  var signTxData = function signTxData(txData) {
+    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
+    return ecc.signTxData(txData, privateKey, enc);
+  };
+
+  return {
+    address: address,
+    publicKey: publicKey,
+    privateKey: privateKey,
+    sign: sign,
+    signTxData: signTxData
+  };
+}
+
+function signTxData(txData, privateKey) {
+  var enc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'base64';
+  privateKey = _ensureBuffer(privateKey);
+  txData.publicKey = ecc.toPublicKey(privateKey);
+  var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
+  txData.signature = ecc.sign(tx.signatureMessage, privateKey).signature.toString(enc);
+
+  if (!txData.nonce) {
+    txData.nonce = tx.nonce;
+  }
+
+  if (typeof txData.data !== 'string') {
+    txData.data = JSON.stringify(txData.data);
+  }
+
+  return txData;
+}
+
+function verifyTxSignature(tx) {
+  if (!ecc.verify(tx.signature, tx.signatureMessage, tx.publicKey)) {
+    throw new Error('Invalid signature');
+  }
+}
+
+module.exports = {
+  signTxData: signTxData,
+  verifyTxSignature: verifyTxSignature,
+  newAccount: newAccount,
+  getAccount: getAccount
+};
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
