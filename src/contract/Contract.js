@@ -1,3 +1,5 @@
+const { TxOp } = require('icetea-common')
+
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
   var txData = {
