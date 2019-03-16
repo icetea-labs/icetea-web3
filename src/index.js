@@ -1,11 +1,12 @@
-const { ecc, TxOp, ContractMode } = require('icetea-common')
+const { utils: helper, ecc, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decodeTxResult } = require('./utils')
 const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
 const WebSocketProvider = require('./providers/WebSocketProvider')
 
-const { signTxData, toAddress } = ecc
+const { toAddress } = ecc
+const { signTxData } = helper
 
 exports.utils = utils
 
@@ -25,7 +26,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       this.rpc = new HttpProvider(endpoint)
     }
 
-    this.utils = {
+    this.utils = this.constructor.utils = {
+      decodeTX,
       decodeEventData,
       decodeTags,
       decodeTxResult

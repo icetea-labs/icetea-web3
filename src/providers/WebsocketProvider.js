@@ -1,7 +1,7 @@
 const BaseProvider = require('./BaseProvider')
 const WebSocketAsPromised = require('websocket-as-promised')
 
-const W3CWebSocket = typeof WebSocket !== undefined ? WebSocket : require('websocket').w3cwebsocket
+const W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : require('websocket').w3cwebsocket
 
 class WebSocketProvider extends BaseProvider {
   constructor (endpoint, options) {

@@ -46,6 +46,6 @@ module.exports = {
   },
   plugins: [
     new webpack.BannerPlugin(`${packageJson.name} v${packageJson.version}`),
-    new BundleAnalyzerPlugin()
+    //new BundleAnalyzerPlugin()
   ]
 }

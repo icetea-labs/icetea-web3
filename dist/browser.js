@@ -1,4 +1,4 @@
-/*! icetea-web3 v0.1.1 */
+/*! icetea-web3 v0.1.2 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -24197,6 +24197,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
+    helper = _require.utils,
     ecc = _require.ecc,
     TxOp = _require.TxOp,
     ContractMode = _require.ContractMode;
@@ -24216,8 +24217,8 @@ var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/pr
 
 var WebSocketProvider = __webpack_require__(/*! ./providers/WebSocketProvider */ "./src/providers/WebSocketProvider.js");
 
-var signTxData = ecc.signTxData,
-    toAddress = ecc.toAddress;
+var toAddress = ecc.toAddress;
+var signTxData = helper.signTxData;
 exports.utils = utils;
 /**
  * The IceTea web client.
@@ -24241,7 +24242,8 @@ function () {
       this.rpc = new HttpProvider(endpoint);
     }
 
-    this.utils = {
+    this.utils = this.constructor.utils = {
+      decodeTX: decodeTX,
       decodeEventData: decodeEventData,
       decodeTags: decodeTags,
       decodeTxResult: decodeTxResult
@@ -24910,6 +24912,8 @@ module.exports = HttpProvider;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -24930,13 +24934,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 var BaseProvider = __webpack_require__(/*! ./BaseProvider */ "./src/providers/BaseProvider.js");
 
 var WebSocketAsPromised = __webpack_require__(/*! websocket-as-promised */ "./node_modules/websocket-as-promised/dist/index.js");
 
-var W3CWebSocket = (typeof WebSocket === "undefined" ? "undefined" : _typeof(WebSocket)) !== undefined ? WebSocket : __webpack_require__(/*! websocket */ "websocket").w3cwebsocket;
+var W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : __webpack_require__(/*! websocket */ "websocket").w3cwebsocket;
 
 var WebSocketProvider =
 /*#__PURE__*/
@@ -25041,32 +25043,33 @@ exports.tryParseJson = function (p) {
     return p;
   }
 };
+/**
+ * Encode tx object to be sent to tendermint.
+ * @returns {string} encoded string.
+ */
 
-exports.tryStringifyJson = function (p) {
-  try {
-    return JSON.stringify(p);
-  } catch (e) {
-    // console.log("WARN: ", e);
-    return p;
-  }
-};
 
-exports.encodeTX = function (data) {
+exports.encodeTX = function (txObj) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-  return codec.encode(data).toString(enc);
+  return codec.encode(txObj).toString(enc);
+};
+/**
+ * Decode tx encoded string, obtained from tendermint when querying for transaction.
+ * @returns {object} the tx object.
+ */
+
+
+exports.decodeTX = function (data) {
+  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
+  return codec.decode(Buffer.from(data, enc));
 };
 
-exports.toBuffer = function (text, enc) {
-  return Buffer.from(text, enc);
+exports.ensureBuffer = function (buf, enc) {
+  return Buffer.isBuffer(buf) ? buf : Buffer.from(buf, enc);
 };
 
 exports.switchEncoding = function (str, from, to) {
   return Buffer.from(str, from).toString(to);
-};
-
-exports.decodeTX = function (data) {
-  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-  return codec.decode(exports.toBuffer(data, enc));
 };
 
 exports.decodeTags = function (tx) {

@@ -13,29 +13,28 @@ exports.tryParseJson = p => {
   }
 }
 
-exports.tryStringifyJson = p => {
-  try {
-    return JSON.stringify(p)
-  } catch (e) {
-    // console.log("WARN: ", e);
-    return p
-  }
+/**
+ * Encode tx object to be sent to tendermint.
+ * @returns {string} encoded string.
+ */
+exports.encodeTX = (txObj, enc = 'base64') => {
+  return codec.encode(txObj).toString(enc)
 }
 
-exports.encodeTX = (data, enc = 'base64') => {
-  return codec.encode(data).toString(enc)
+/**
+ * Decode tx encoded string, obtained from tendermint when querying for transaction.
+ * @returns {object} the tx object.
+ */
+exports.decodeTX = (data, enc = 'base64') => {
+  return codec.decode(Buffer.from(data, enc))
 }
 
-exports.toBuffer = (text, enc) => {
-  return Buffer.from(text, enc)
+exports.ensureBuffer = (buf, enc) => {
+  return Buffer.isBuffer(buf) ? buf : Buffer.from(buf, enc)
 }
 
 exports.switchEncoding = (str, from, to) => {
   return Buffer.from(str, from).toString(to)
-}
-
-exports.decodeTX = (data, enc = 'base64') => {
-  return codec.decode(exports.toBuffer(data, enc))
 }
 
 exports.decodeTags = (tx, keepEvents = false) => {
