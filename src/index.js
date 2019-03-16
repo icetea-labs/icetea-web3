@@ -5,7 +5,7 @@ const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
 const WebSocketProvider = require('./providers/WebSocketProvider')
 
-const { signTxData } = ecc
+const { signTxData, toAddress } = ecc
 
 exports.utils = utils
 
@@ -334,7 +334,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
 
   deploy(mode, src, privateKey, params = [], options = {}) {
-    let tx = this._serializeData(mode, src, privateKey, params, options)
+    let tx = this._serializeData(mode, src, params, options)
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => {
         return this.getTransaction(res.hash).then(result => {
@@ -350,7 +350,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
             height: result.height,
             address: result.tx_result.data,
             data: {
-              from: data.from,
+              from: toAddress(data.publicKey),
               to: result.tx_result.data,
               value: data.value,
               fee: data.fee
@@ -360,7 +360,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       })
   }
 
-  _serializeData(mode, src, privateKey, params, options) {
+  _serializeData(mode, src, params, options) {
     var formData = {}
     var txData = {
       op: TxOp.DEPLOY_CONTRACT,
@@ -370,9 +370,13 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
       txData.src = switchEncoding(src, 'utf8', 'base64')
     } else {
+      if (Buffer.isBuffer(src)) {
+        src = Buffer.toString('base64')
+      } else if (typeof src !== string) {
+        throw Error('Wasm binary must be in form of Buffer or base64-encoded string.')
+      }
       txData.src = src
     }
-    formData.from = ecc.toPublicKey(privateKey)
     formData.value = options.value || 0
     formData.fee = options.fee || 0
     formData.data = txData

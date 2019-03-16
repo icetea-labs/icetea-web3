@@ -1,6 +1,6 @@
 {
   "name": "icetea-web3",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Web3-like client lib for icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",
@@ -13,7 +13,7 @@
     "url": "git+https://github.com/TradaTech/icetea-web3.git"
   },
   "author": "Trada Tech",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/TradaTech/icetea-web3/issues"
   },
@@ -34,6 +34,6 @@
     "standard": "^12.0.1",
     "webpack": "4.29.3",
     "webpack-bundle-analyzer": "^3.1.0",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.3.0"
   }
 }

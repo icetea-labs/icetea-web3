@@ -1,13 +1,10 @@
-const { ecc, TxOp } = require('icetea-common')
-
-function _serializeData (address, method, privateKey, params = [], options = {}) {
+function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
   var txData = {
     op: TxOp.CALL_CONTRACT,
     name: method,
     params: params
   }
-  formData.from = ecc.toPublicKey(privateKey)
   formData.to = address
   formData.value = options.value || 0
   formData.fee = options.fee || 0
@@ -26,15 +23,15 @@ class Contract {
             return tweb3.callReadonlyContractMethod(address, method, params, options)
           },
           sendAsync: function (params, options) {
-            var tx = _serializeData(address, method, privateKey, params, options)
+            var tx = _serializeData(address, method, params, options)
             return tweb3.sendTransactionAsync(tx, privateKey)
           },
           sendSync: function (params, options) {
-            var tx = _serializeData(address, method, privateKey, params, options)
+            var tx = _serializeData(address, method, params, options)
             return tweb3.sendTransactionSync(tx, privateKey)
           },
           sendCommit: function (params, options) {
-            var tx = _serializeData(address, method, privateKey, params, options)
+            var tx = _serializeData(address, method, params, options)
             return tweb3.sendTransactionCommit(tx, privateKey)
           }
         }
