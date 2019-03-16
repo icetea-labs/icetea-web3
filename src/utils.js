@@ -13,6 +13,15 @@ exports.tryParseJson = p => {
   }
 }
 
+exports.tryStringifyJson = p => {
+  try {
+    return JSON.stringify(p)
+  } catch (e) {
+    // console.log("WARN: ", e);
+    return String(p)
+  }
+}
+
 /**
  * Encode tx object to be sent to tendermint.
  * @returns {string} encoded string.

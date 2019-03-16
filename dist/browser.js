@@ -1,4 +1,4 @@
-/*! icetea-web3 v0.1.3 */
+/*! icetea-web3 v0.1.4 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -25105,6 +25105,15 @@ exports.tryParseJson = function (p) {
   } catch (e) {
     // console.log("WARN: ", e);
     return p;
+  }
+};
+
+exports.tryStringifyJson = function (p) {
+  try {
+    return JSON.stringify(p);
+  } catch (e) {
+    // console.log("WARN: ", e);
+    return String(p);
   }
 };
 /**
