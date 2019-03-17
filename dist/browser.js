@@ -2069,7 +2069,7 @@ function isnan (val) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! icetea-common v0.1.8 */
+/*! icetea-common v0.1.10 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -23660,7 +23660,7 @@ function () {
       data: this.data,
       nonce: this.nonce
     };
-    this.signatureMessage = stableHashObject(content, 'base64');
+    this.signatureMessage = stableHashObject(content);
   }
 
   _createClass(_class, [{
@@ -23693,7 +23693,7 @@ function () {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-// Encapsulate codec logic here so we might change from msgpack to
+/* WEBPACK VAR INJECTION */(function(Buffer) {// Encapsulate codec logic here so we might change from msgpack to
 // others (protobuf3, amino, bson, RLP) if desired
 var msgpack = __webpack_require__(/*! msgpack-lite */ "./node_modules/msgpack-lite/lib/browser.js");
 
@@ -23702,10 +23702,76 @@ var stableStringify = __webpack_require__(/*! json-stable-stringify */ "./node_m
 var basex = __webpack_require__(/*! base-x */ "./node_modules/base-x/index.js");
 
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-exports.base58 = basex(ALPHABET);
+var base58 = basex(ALPHABET);
+var KEY_ENCODING = 'base58';
+var TX_ENCODING = 'msgpack';
+var DATA_ENCODING = 'base64'; // STRING to BUFFER, support base58
+
+var toBuffer = function toBuffer(text) {
+  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : KEY_ENCODING;
+  if (Buffer.isBuffer(text)) return text;
+
+  if (typeof text !== 'string') {
+    throw new Error('Text must be a string.');
+  }
+
+  if (enc === 'base58') {
+    return base58.decode(text);
+  }
+
+  return Buffer.from(text, enc);
+}; // BUFFER to STRING, support base58
+
+
+var toString = function toString(buf) {
+  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : KEY_ENCODING;
+  if (typeof buf === 'string') return buf;
+
+  if (!Buffer.isBuffer(buf)) {
+    throw new Error('Buf must be a buffer.');
+  }
+
+  if (enc === 'base58') {
+    return base58.encode(buf);
+  }
+
+  return buf.toString(enc);
+}; // Decode & encode of OBJECT <-> BUFFER
+// It is more space-efficient than OBJECT stringify to JSON then convert to Buffer utf8
+// Other candidates: protobuf3, amino, bson, RLP
+
+
+exports.TX_ENCODING = TX_ENCODING;
 exports.encode = msgpack.encode;
-exports.decode = msgpack.decode;
-exports.stableStringify = stableStringify;
+exports.decode = msgpack.decode; // Encode/decode of keys (pubic, private, address, hash) for displaying
+// base58 is shorter than hex and still readable
+
+exports.KEY_ENCODING = KEY_ENCODING;
+
+exports.toKeyBuffer = function (text) {
+  return toBuffer(text, KEY_ENCODING);
+};
+
+exports.toKeyString = function (buf) {
+  return toString(buf, KEY_ENCODING);
+};
+
+exports.DATA_ENCODING = DATA_ENCODING;
+
+exports.toDataBuffer = function (text) {
+  return toBuffer(text, DATA_ENCODING);
+};
+
+exports.toDataString = function (buf) {
+  return toString(buf, DATA_ENCODING);
+}; // OBJECT to JSON string, does not effected by Object.keys ordering
+
+
+exports.stableStringify = stableStringify; // STRING ,-> BUFFER, support base58
+
+exports.toBuffer = toBuffer;
+exports.toString = toString;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
@@ -23716,7 +23782,6 @@ exports.stableStringify = stableStringify;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {//const Tx = require('./Tx')
 var randomBytes = __webpack_require__(/*! randombytes */ "./node_modules/randombytes/browser.js");
 
 var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-hash/browser.js");
@@ -23724,17 +23789,15 @@ var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-h
 var secp256k1 = __webpack_require__(/*! secp256k1 */ "./node_modules/secp256k1/elliptic.js");
 
 var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
-    base58 = _require.base58,
-    stableStringify = _require.stableStringify;
+    toBuffer = _require.toBuffer,
+    toKeyBuffer = _require.toKeyBuffer,
+    toKeyString = _require.toKeyString,
+    toDataBuffer = _require.toDataBuffer,
+    stableStringify = _require.stableStringify,
+    DATA_ENCODING = _require.DATA_ENCODING;
 
 var PREFIX = 'tea';
 var SEPARATOR = '_';
-
-function _ensureBuffer(text) {
-  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-  return typeof text === 'string' ? Buffer.from(text, enc) : text;
-}
-
 var t = {
   validateAddress: function validateAddress(address) {
     var parts = address.split(SEPARATOR);
@@ -23753,7 +23816,7 @@ var t = {
     var len;
 
     try {
-      len = base58.decode(address).length;
+      len = toKeyBuffer(address).length;
     } catch (err) {
       err.message = 'Invalid address: ' + err.message;
       throw err;
@@ -23764,7 +23827,7 @@ var t = {
     }
   },
   verify: function verify(signature, message, pubKey) {
-    return secp256k1.verify(_ensureBuffer(message), _ensureBuffer(signature), _ensureBuffer(pubKey));
+    return secp256k1.verify(toDataBuffer(message), toDataBuffer(signature), toKeyBuffer(pubKey));
   },
   generateKeyBuffer: function generateKeyBuffer() {
     var privKey;
@@ -23776,63 +23839,77 @@ var t = {
     return privKey;
   },
   generateKey: function generateKey() {
-    var enc = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'base64';
-    return t.generateKeyBuffer().toString(enc);
+    return toKeyString(t.generateKeyBuffer());
   },
   toPublicKeyBuffer: function toPublicKeyBuffer(privateKey) {
-    return secp256k1.publicKeyCreate(_ensureBuffer(privateKey));
+    return secp256k1.publicKeyCreate(toKeyBuffer(privateKey));
   },
   toPublicKey: function toPublicKey(privateKey) {
-    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-    return t.toPublicKeyBuffer(privateKey).toString(enc);
+    return toKeyString(t.toPublicKeyBuffer(privateKey));
   },
   toAddress: function toAddress(publicKey) {
-    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-    var r160Buf = createHash('ripemd160').update(_ensureBuffer(publicKey, enc)).digest();
-    return PREFIX + SEPARATOR + base58.encode(r160Buf);
+    var r160Buf = createHash('ripemd160').update(toKeyBuffer(publicKey)).digest();
+    return PREFIX + SEPARATOR + toKeyString(r160Buf);
   },
-  toPubKeyAndAddress: function toPubKeyAndAddress(privKey) {
-    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
+  toPubKeyAndAddressBuffer: function toPubKeyAndAddressBuffer(privKey) {
     var publicKey = t.toPublicKeyBuffer(privKey);
     return {
-      publicKey: publicKey.toString(enc),
-      address: t.toAddress(publicKey, enc)
+      publicKey: publicKey,
+      address: t.toAddress(publicKey)
+    };
+  },
+  toPubKeyAndAddress: function toPubKeyAndAddress(privKey) {
+    var _t$toPubKeyAndAddress = t.toPubKeyAndAddressBuffer(privKey),
+        publicKey = _t$toPubKeyAndAddress.publicKey,
+        address = _t$toPubKeyAndAddress.address;
+
+    return {
+      publicKey: toKeyString(publicKey),
+      address: address
+    };
+  },
+  newKeyPairBuffer: function newKeyPairBuffer() {
+    var privateKey = t.generateKeyBuffer();
+    return {
+      publicKey: t.toPublicKeyBuffer(privateKey),
+      privateKey: privateKey
     };
   },
   newKeyPair: function newKeyPair() {
-    var enc = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'base64';
-    var privateKey = t.generateKeyBuffer();
+    var _t$newKeyPairBuffer = t.newKeyPairBuffer(),
+        publicKey = _t$newKeyPairBuffer.publicKey,
+        privateKey = _t$newKeyPairBuffer.privateKey;
+
     return {
-      publicKey: t.toPublicKey(privateKey, enc),
-      privateKey: privateKey.toString(enc)
+      publicKey: toKeyString(publicKey),
+      privateKey: toKeyString(privateKey)
     };
   },
-  newKeyPairWithAddress: function newKeyPairWithAddress() {
-    var enc = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'base64';
+  newKeyPairWithAddressBuffer: function newKeyPairWithAddressBuffer() {
     var privateKey = t.generateKeyBuffer();
-    var keys = t.toPubKeyAndAddress(privateKey, enc);
-    keys.privateKey = privateKey.toString(enc);
+    var keys = t.toPubKeyAndAddressBuffer(privateKey);
+    keys.privateKey = privateKey;
+    return keys;
+  },
+  newKeyPairWithAddress: function newKeyPairWithAddress() {
+    var privateKey = t.generateKeyBuffer();
+    var keys = t.toPubKeyAndAddress(privateKey);
+    keys.privateKey = toKeyString(privateKey);
     return keys;
   },
   sign: function sign(message, privateKey) {
-    return secp256k1.sign(_ensureBuffer(message), _ensureBuffer(privateKey));
+    return secp256k1.sign(toBuffer(message, 'utf8'), toKeyBuffer(privateKey));
   },
-  stableHashObject: function stableHashObject(obj, enc) {
+  stableHashObject: function stableHashObject(obj) {
     if (typeof obj !== 'string') {
       obj = stableStringify(obj);
     }
 
     var hash = createHash('sha256').update(obj);
-
-    if (enc) {
-      return hash.digest(enc); // Text
-    }
-
-    return hash.digest(); // Buffer
+    return hash.digest(DATA_ENCODING);
   }
 };
 module.exports = t;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
@@ -23894,38 +23971,35 @@ exports.utils = utils;
 
 var Tx = __webpack_require__(/*! ./Tx */ "./src/Tx.js");
 
-function _ensureBuffer(text) {
-  var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-  return typeof text === 'string' ? Buffer.from(text, enc) : text;
-}
+var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
+    toKeyBuffer = _require.toKeyBuffer,
+    toDataString = _require.toDataString;
 
 function newAccount() {
-  return ecc.getAccount(ecc.generateKeyBuffer());
+  return getAccount(ecc.generateKeyBuffer());
 }
 
 function getAccount(privateKey) {
-  var privateKeyEnc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-
   if (!privateKey || !(typeof privateKey === 'string' || Buffer.isBuffer(privateKey))) {
     throw new Error('Invalid private key. Private key must be a Buffer or a string.');
   }
 
-  privateKey = _ensureBuffer(privateKey, privateKeyEnc);
+  privateKey = toKeyBuffer(privateKey);
 
   if (privateKey.length !== 32) {
     throw new Error('Invalid private key length.');
   }
 
-  var publicKey = ecc.toPublicKeyBuffer(privateKey);
-  var address = ecc.toAddress(publicKey);
+  var _ecc$toPubKeyAndAddre = ecc.toPubKeyAndAddressBuffer(privateKey),
+      publicKey = _ecc$toPubKeyAndAddre.publicKey,
+      address = _ecc$toPubKeyAndAddre.address;
 
   var sign = function sign(message) {
     return ecc.sign(message, privateKey);
   };
 
-  var signTxData = function signTxData(txData) {
-    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
-    return ecc.signTxData(txData, privateKey, enc);
+  var signTx = function signTx(txData) {
+    return signTransaction(txData, privateKey);
   };
 
   return {
@@ -23933,16 +24007,15 @@ function getAccount(privateKey) {
     publicKey: publicKey,
     privateKey: privateKey,
     sign: sign,
-    signTxData: signTxData
+    signTransaction: signTx
   };
 }
 
-function signTxData(txData, privateKey) {
-  var enc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'base64';
-  privateKey = _ensureBuffer(privateKey);
+function signTransaction(txData, privateKey) {
+  privateKey = toKeyBuffer(privateKey);
   txData.publicKey = ecc.toPublicKey(privateKey);
   var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
-  txData.signature = ecc.sign(tx.signatureMessage, privateKey).signature.toString(enc);
+  txData.signature = toDataString(ecc.sign(tx.signatureMessage, privateKey).signature);
 
   if (!txData.nonce) {
     txData.nonce = tx.nonce;
@@ -23962,7 +24035,7 @@ function verifyTxSignature(tx) {
 }
 
 module.exports = {
-  signTxData: signTxData,
+  signTransaction: signTransaction,
   verifyTxSignature: verifyTxSignature,
   newAccount: newAccount,
   getAccount: getAccount
