@@ -6,7 +6,7 @@ const HttpProvider = require('./providers/HttpProvider')
 const WebSocketProvider = require('./providers/WebSocketProvider')
 
 const { toAddress } = ecc
-const { signTxData } = helper
+const { signTransaction } = helper
 
 exports.utils = utils
 
@@ -171,7 +171,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} privateKey private key used to sign
    */
   sendTransactionAsync(tx, privateKey) {
-    return this.rpc.send('broadcast_tx_async', signTxData(tx, privateKey))
+    return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
   /**
@@ -180,7 +180,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} privateKey private key used to sign
    */
   sendTransactionSync(tx, privateKey) {
-    return this.rpc.send('broadcast_tx_sync', signTxData(tx, privateKey))
+    return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
   /**
@@ -189,7 +189,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} privateKey private key used to sign
    */
   sendTransactionCommit(tx, privateKey) {
-    return this.rpc.send('broadcast_tx_commit', signTxData(tx, privateKey))
+    return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
       .then(decodeTxResult)
   }
 

@@ -24357,7 +24357,7 @@ var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/pr
 var WebSocketProvider = __webpack_require__(/*! ./providers/WebSocketProvider */ "./src/providers/WebSocketProvider.js");
 
 var toAddress = ecc.toAddress;
-var signTxData = helper.signTxData;
+var signTransaction = helper.signTransaction;
 exports.utils = utils;
 /**
  * The IceTea web client.
@@ -24561,7 +24561,7 @@ function () {
   }, {
     key: "sendTransactionAsync",
     value: function sendTransactionAsync(tx, privateKey) {
-      return this.rpc.send('broadcast_tx_async', signTxData(tx, privateKey));
+      return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
     }
     /**
      * Send a transaction and wait until it reach mempool.
@@ -24572,7 +24572,7 @@ function () {
   }, {
     key: "sendTransactionSync",
     value: function sendTransactionSync(tx, privateKey) {
-      return this.rpc.send('broadcast_tx_sync', signTxData(tx, privateKey));
+      return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
     }
     /**
      * Send a transaction and wait until it is included in a block.
@@ -24583,7 +24583,7 @@ function () {
   }, {
     key: "sendTransactionCommit",
     value: function sendTransactionCommit(tx, privateKey) {
-      return this.rpc.send('broadcast_tx_commit', signTxData(tx, privateKey)).then(decodeTxResult);
+      return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decodeTxResult);
     }
     /**
      * Call a readonly (@view) contract method or field.
