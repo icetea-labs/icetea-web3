@@ -23660,7 +23660,7 @@ function () {
       data: this.data,
       nonce: this.nonce
     };
-    this.signatureMessage = stableHashObject(content);
+    this.sigHash = stableHashObject(content);
   }
 
   _createClass(_class, [{
@@ -23789,7 +23789,6 @@ var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-h
 var secp256k1 = __webpack_require__(/*! secp256k1 */ "./node_modules/secp256k1/elliptic.js");
 
 var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
-    toBuffer = _require.toBuffer,
     toKeyBuffer = _require.toKeyBuffer,
     toKeyString = _require.toKeyString,
     toDataBuffer = _require.toDataBuffer,
@@ -23825,9 +23824,6 @@ var t = {
     if (len !== 20) {
       throw new Error('Invalid address length.');
     }
-  },
-  verify: function verify(signature, message, pubKey) {
-    return secp256k1.verify(toDataBuffer(message), toDataBuffer(signature), toKeyBuffer(pubKey));
   },
   generateKeyBuffer: function generateKeyBuffer() {
     var privKey;
@@ -23897,8 +23893,11 @@ var t = {
     keys.privateKey = toKeyString(privateKey);
     return keys;
   },
-  sign: function sign(message, privateKey) {
-    return secp256k1.sign(toBuffer(message, 'utf8'), toKeyBuffer(privateKey));
+  verify: function verify(hash32bytes, signature, pubKey) {
+    return secp256k1.verify(toDataBuffer(hash32bytes), toDataBuffer(signature), toKeyBuffer(pubKey));
+  },
+  sign: function sign(hash32bytes, privateKey) {
+    return secp256k1.sign(toDataBuffer(hash32bytes), toKeyBuffer(privateKey));
   },
   stableHashObject: function stableHashObject(obj) {
     if (typeof obj !== 'string') {
@@ -24015,7 +24014,7 @@ function signTransaction(txData, privateKey) {
   privateKey = toKeyBuffer(privateKey);
   txData.publicKey = ecc.toPublicKey(privateKey);
   var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
-  txData.signature = toDataString(ecc.sign(tx.signatureMessage, privateKey).signature);
+  txData.signature = toDataString(ecc.sign(tx.sigHash, privateKey).signature);
 
   if (!txData.nonce) {
     txData.nonce = tx.nonce;
@@ -24029,7 +24028,7 @@ function signTransaction(txData, privateKey) {
 }
 
 function verifyTxSignature(tx) {
-  if (!ecc.verify(tx.signature, tx.signatureMessage, tx.publicKey)) {
+  if (!ecc.verify(tx.sigHash, tx.signature, tx.publicKey)) {
     throw new Error('Invalid signature');
   }
 }
