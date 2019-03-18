@@ -5,8 +5,9 @@
   "main": "src/index.js",
   "browser": "dist/browser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "test": "standard",
+    "fix": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -14,6 +15,13 @@
   },
   "author": "Trada Tech",
   "license": "MIT",
+  "standard": {
+    "ignore": [
+      "**/tmp/",
+      "**/dist/",
+      "**/example/"
+    ]
+  },
   "bugs": {
     "url": "https://github.com/TradaTech/icetea-web3/issues"
   },

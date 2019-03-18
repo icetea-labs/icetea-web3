@@ -89,17 +89,6 @@ exports.decodeTags = (tx, keepEvents = false) => {
   return tags
 }
 
-exports.decodeTxResult = (result) => {
-  if (!result) return result
-  const name = result.tx_result ? 'tx_result' : 'deliver_tx'
-
-  if (result[name] && result[name].data) {
-    result[name].data = this.tryParseJson(this.switchEncoding(result[name].data, 'base64', 'utf8'))
-  }
-
-  return result
-}
-
 exports.decodeEventData = (tx) => {
   const EMPTY_RESULT = []
 
@@ -134,6 +123,25 @@ exports.decodeEventData = (tx) => {
     }
     return r
   }, [])
+
+  return result
+}
+
+exports.decode = (tx, keepEvents = false) => {
+  _decodeTxResult(tx)
+  if (tx.tx) tx.tx = this.decodeTX(tx.tx)
+  tx.events = this.decodeEventData(tx)
+  tx.tags = this.decodeTags(tx, keepEvents)
+  return tx
+}
+
+_decodeTxResult = (result) => {
+  if (!result) return result
+  const name = result.tx_result ? 'tx_result' : 'deliver_tx'
+
+  if (result[name] && result[name].data) {
+    result[name].data = this.tryParseJson(this.switchEncoding(result[name].data, 'base64', 'utf8'))
+  }
 
   return result
 }

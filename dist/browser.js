@@ -24346,7 +24346,7 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     decodeTX = _require2.decodeTX,
     decodeEventData = _require2.decodeEventData,
     decodeTags = _require2.decodeTags,
-    decodeTxResult = _require2.decodeTxResult;
+    decode = _require2.decode;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
@@ -24383,7 +24383,7 @@ function () {
       decodeTX: decodeTX,
       decodeEventData: decodeEventData,
       decodeTags: decodeTags,
-      decodeTxResult: decodeTxResult
+      decode: decode
     };
     this.subscriptions = {};
     this.countSubscribeEvent = 0;
@@ -24445,7 +24445,7 @@ function () {
 
       return this.rpc.call('tx', _objectSpread({
         hash: switchEncoding(hash, 'hex', 'base64')
-      }, options)).then(decodeTxResult);
+      }, options)).then(decode);
     }
     /**
      * Search for transactions met the query specified.
@@ -24581,7 +24581,7 @@ function () {
   }, {
     key: "sendTransactionCommit",
     value: function sendTransactionCommit(tx, privateKey) {
-      return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decodeTxResult);
+      return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
     }
     /**
      * Call a readonly (@view) contract method or field.
@@ -24789,17 +24789,16 @@ function () {
             throw err;
           }
 
-          var data = decodeTX(result.tx); // console.log("data1",data);
+          var data = result.tx; // decodeTX(result.tx)
 
           return {
             hash: result.hash,
             height: result.height,
             address: result.tx_result.data,
+            tx: result.tx,
             data: {
               from: toAddress(data.publicKey),
-              to: result.tx_result.data,
-              value: data.value,
-              fee: data.fee
+              to: result.tx_result.data
             }
           };
         });
@@ -25265,17 +25264,6 @@ exports.decodeTags = function (tx) {
   return tags;
 };
 
-exports.decodeTxResult = function (result) {
-  if (!result) return result;
-  var name = result.tx_result ? 'tx_result' : 'deliver_tx';
-
-  if (result[name] && result[name].data) {
-    result[name].data = _this.tryParseJson(_this.switchEncoding(result[name].data, 'base64', 'utf8'));
-  }
-
-  return result;
-};
-
 exports.decodeEventData = function (tx) {
   var EMPTY_RESULT = [];
 
@@ -25318,6 +25306,28 @@ exports.decodeEventData = function (tx) {
 
     return r;
   }, []);
+  return result;
+};
+
+exports.decode = function (tx) {
+  var keepEvents = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  _decodeTxResult(tx);
+
+  if (tx.tx) tx.tx = _this.decodeTX(tx.tx);
+  tx.events = _this.decodeEventData(tx);
+  tx.tags = _this.decodeTags(tx, keepEvents);
+  return tx;
+};
+
+_decodeTxResult = function _decodeTxResult(result) {
+  if (!result) return result;
+  var name = result.tx_result ? 'tx_result' : 'deliver_tx';
+
+  if (result[name] && result[name].data) {
+    result[name].data = _this.tryParseJson(_this.switchEncoding(result[name].data, 'base64', 'utf8'));
+  }
+
   return result;
 };
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))

@@ -1,6 +1,6 @@
 const { utils: helper, ecc, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
-const { switchEncoding, decodeTX, decodeEventData, decodeTags, decodeTxResult } = require('./utils')
+const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
 const WebsocketProvider = require('./providers/WebsocketProvider')
@@ -18,7 +18,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * Initialize the IceTeaWeb3 instance.
    * @param {string} endpoint tendermint endpoint, e.g. http://localhost:26657
    */
-  constructor(endpoint, options) {
+  constructor (endpoint, options) {
     this.isWebSocket = !!(endpoint.startsWith('ws://') || endpoint.startsWith('wss://'))
     if (this.isWebSocket) {
       this.rpc = new WebsocketProvider(endpoint, options)
@@ -30,13 +30,13 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       decodeTX,
       decodeEventData,
       decodeTags,
-      decodeTxResult
+      decode
     }
     this.subscriptions = {}
     this.countSubscribeEvent = 0
   }
 
-  close() {
+  close () {
     if (this.isWebSocket) {
       this.rpc.close()
     }
@@ -47,7 +47,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} address address of the account.
    * @returns {number} account balance.
    */
-  getBalance(address) {
+  getBalance (address) {
     return this.rpc.query('balance', address)
   }
 
@@ -56,7 +56,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {*} options example {height: 10}, skip to get latest block.
    * @returns the tendermint block.
    */
-  getBlock(options) {
+  getBlock (options) {
     return this.rpc.call('block', options)
   }
 
@@ -65,7 +65,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {*} options optional, e.g. {minHeight: 0, maxHeight: 10}
    * @returns {Array} an array of tendermint blocks
    */
-  getBlocks(options) {
+  getBlocks (options) {
     return this.rpc.call('blockchain', options)
   }
 
@@ -75,12 +75,12 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {*} options optional, e.g. {prove: true} to request proof.
    * @return {*} the tendermint transaction.
    */
-  getTransaction(hash, options) {
+  getTransaction (hash, options) {
     if (!hash) {
       throw new Error('hash is required')
     }
     return this.rpc.call('tx', { hash: switchEncoding(hash, 'hex', 'base64'), ...options })
-      .then(decodeTxResult)
+      .then(decode)
   }
 
   /**
@@ -89,7 +89,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
    * @returns {Array} Array of tendermint transactions.
    */
-  searchTransactions(query, options) {
+  searchTransactions (query, options) {
     if (!query) {
       throw new Error('query is required, example "tx.height>0"')
     }
@@ -107,7 +107,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
    * @returns {Array} Array of tendermint transactions containing the event.
    */
-  getPastEvents(eventName, emitter, conditions = {}, options) {
+  getPastEvents (eventName, emitter, conditions = {}, options) {
     let query = ''
     if (typeof conditions === 'string') {
       query = conditions
@@ -136,7 +136,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   /**
    * @return {string[]} Get all deployed smart contracts.
    */
-  getContracts() {
+  getContracts () {
     return this.rpc.query('contracts')
   }
 
@@ -145,7 +145,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} contractAddr the contract address.
    * @returns {string[]} methods and fields array.
    */
-  getMetadata(contractAddr) {
+  getMetadata (contractAddr) {
     return this.rpc.query('metadata', contractAddr)
   }
 
@@ -154,14 +154,14 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} contractAddr  the contract address.
    * @returns {{balance: number, code: string | Buffer, mode: number, deployedBy: string, system: boolean}} Contract metadata.
    */
-  getAccountInfo(contractAddr) {
+  getAccountInfo (contractAddr) {
     return this.rpc.query('account_info', contractAddr)
   }
 
   /**
    * @private
    */
-  getDebugState() {
+  getDebugState () {
     return this.rpc.query('state')
   }
 
@@ -170,7 +170,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionAsync(tx, privateKey) {
+  sendTransactionAsync (tx, privateKey) {
     return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
@@ -179,7 +179,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionSync(tx, privateKey) {
+  sendTransactionSync (tx, privateKey) {
     return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
@@ -188,9 +188,9 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionCommit(tx, privateKey) {
+  sendTransactionCommit (tx, privateKey) {
     return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
-      .then(decodeTxResult)
+      .then(decode)
   }
 
   /**
@@ -200,7 +200,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {Array} params method params, if any.
    * @param {*} options optional options, e.g. {from: 'xxx'}
    */
-  callReadonlyContractMethod(contract, method, params = [], options = {}) {
+  callReadonlyContractMethod (contract, method, params = [], options = {}) {
     return this.rpc.query('invokeView', { address: contract, name: method, params, options })
   }
 
@@ -211,7 +211,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {Array} params method params, if any.
    * @param {*} options optional options, e.g. {from: 'xxx'}
    */
-  callPureContractMethod(contract, method, params = [], options = {}) {
+  callPureContractMethod (contract, method, params = [], options = {}) {
     return this.rpc.query('invokePure', { address: contract, name: method, params, options })
   }
 
@@ -223,7 +223,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
      *
      * @param {MessageEvent} EventName
      */
-  subscribe(eventName, conditions = {}, callback) {
+  subscribe (eventName, conditions = {}, callback) {
     if (!this.isWebSocket) throw new Error('subscribe for WebSocket only')
     let systemEvent = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
     let isSystemEvent = true
@@ -300,7 +300,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    *
    * @param {SubscriptionId} subscriptionId
    */
-  unsubscribe(subscriptionId) {
+  unsubscribe (subscriptionId) {
     if (!this.isWebSocket) throw new Error('unsubscribe for WebSocket only')
     if (typeof this.subscriptions[subscriptionId] !== 'undefined') {
       return this.rpc.call('unsubscribe', { 'query': this.subscriptions[subscriptionId].query }).then((res) => {
@@ -311,31 +311,31 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return Promise.reject(new Error(`Error: Subscription with ID ${subscriptionId} does not exist.`))
   }
 
-  onMessage(callback) {
+  onMessage (callback) {
     if (!this.isWebSocket) throw new Error('onMessage for WebSocket only')
     this.rpc.registerEventListener('onMessage', callback)
   }
 
-  onResponse(callback) {
+  onResponse (callback) {
     if (!this.isWebSocket) throw new Error('onResponse for WebSocket only')
     this.rpc.registerEventListener('onResponse', callback)
   }
 
-  onError(callback) {
+  onError (callback) {
     if (!this.isWebSocket) throw new Error('onError for WebSocket only')
     this.rpc.registerEventListener('onError', callback)
   }
 
-  onClose(callback) {
+  onClose (callback) {
     if (!this.isWebSocket) throw new Error('onClose for WebSocket only')
     this.rpc.registerEventListener('onClose', callback)
   }
 
-  contract(address, privateKey) {
+  contract (address, privateKey) {
     return new Contract(this, address, privateKey)
   }
 
-  deploy(mode, src, privateKey, params = [], options = {}) {
+  deploy (mode, src, privateKey, params = [], options = {}) {
     let tx = this._serializeData(mode, src, params, options)
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => {
@@ -345,24 +345,23 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
             Object.assign(err, result)
             throw err
           }
-          const data = decodeTX(result.tx)
-          // console.log("data1",data);
+          const data = result.tx// decodeTX(result.tx)
+
           return {
             hash: result.hash,
             height: result.height,
             address: result.tx_result.data,
+            tx: result.tx,
             data: {
               from: toAddress(data.publicKey),
-              to: result.tx_result.data,
-              value: data.value,
-              fee: data.fee
+              to: result.tx_result.data
             }
           }
         })
       })
   }
 
-  _serializeData(mode, src, params, options) {
+  _serializeData (mode, src, params, options) {
     var formData = {}
     var txData = {
       op: TxOp.DEPLOY_CONTRACT,
