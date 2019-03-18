@@ -374,7 +374,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     } else {
       if (Buffer.isBuffer(src)) {
         src = Buffer.toString('base64')
-      } else if (typeof src !== string) {
+      } else if (typeof src !== 'string') {
         throw Error('Wasm binary must be in form of Buffer or base64-encoded string.')
       }
       txData.src = src

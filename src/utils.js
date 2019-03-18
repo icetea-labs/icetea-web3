@@ -43,7 +43,7 @@ exports.ensureBuffer = (buf, enc) => {
 }
 
 exports.switchEncoding = (str, from, to) => {
-  return Buffer.from(str, from).toString(to)
+  return exports.ensureBuffer(str, from).toString(to)
 }
 
 exports.decodeTags = (tx, keepEvents = false) => {
