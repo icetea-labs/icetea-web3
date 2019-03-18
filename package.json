@@ -1,6 +1,6 @@
 {
   "name": "icetea-web3",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A Web3-like client lib for icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",

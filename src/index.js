@@ -3,7 +3,7 @@ const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decodeTxResult } = require('./utils')
 const Contract = require('./contract/Contract')
 const HttpProvider = require('./providers/HttpProvider')
-const WebSocketProvider = require('./providers/WebSocketProvider')
+const WebsocketProvider = require('./providers/WebsocketProvider')
 
 const { toAddress } = ecc
 const { signTransaction } = helper
@@ -21,7 +21,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   constructor(endpoint, options) {
     this.isWebSocket = !!(endpoint.startsWith('ws://') || endpoint.startsWith('wss://'))
     if (this.isWebSocket) {
-      this.rpc = new WebSocketProvider(endpoint, options)
+      this.rpc = new WebsocketProvider(endpoint, options)
     } else {
       this.rpc = new HttpProvider(endpoint)
     }

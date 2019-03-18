@@ -1,4 +1,4 @@
-/*! icetea-web3 v0.1.4 */
+/*! icetea-web3 v0.1.5 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -24352,7 +24352,7 @@ var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Co
 
 var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/providers/HttpProvider.js");
 
-var WebSocketProvider = __webpack_require__(/*! ./providers/WebSocketProvider */ "./src/providers/WebSocketProvider.js");
+var WebsocketProvider = __webpack_require__(/*! ./providers/WebsocketProvider */ "./src/providers/WebsocketProvider.js");
 
 var toAddress = ecc.toAddress;
 var signTransaction = helper.signTransaction;
@@ -24374,7 +24374,7 @@ function () {
     this.isWebSocket = !!(endpoint.startsWith('ws://') || endpoint.startsWith('wss://'));
 
     if (this.isWebSocket) {
-      this.rpc = new WebSocketProvider(endpoint, options);
+      this.rpc = new WebsocketProvider(endpoint, options);
     } else {
       this.rpc = new HttpProvider(endpoint);
     }
@@ -25042,9 +25042,9 @@ module.exports = HttpProvider;
 
 /***/ }),
 
-/***/ "./src/providers/WebSocketProvider.js":
+/***/ "./src/providers/WebsocketProvider.js":
 /*!********************************************!*\
-  !*** ./src/providers/WebSocketProvider.js ***!
+  !*** ./src/providers/WebsocketProvider.js ***!
   \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -25073,21 +25073,21 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 var BaseProvider = __webpack_require__(/*! ./BaseProvider */ "./src/providers/BaseProvider.js");
 
-var WebSocketAsPromised = __webpack_require__(/*! websocket-as-promised */ "./node_modules/websocket-as-promised/dist/index.js");
+var WebsocketAsPromised = __webpack_require__(/*! websocket-as-promised */ "./node_modules/websocket-as-promised/dist/index.js");
 
 var W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : __webpack_require__(/*! websocket */ "websocket").w3cwebsocket;
 
-var WebSocketProvider =
+var WebsocketProvider =
 /*#__PURE__*/
 function (_BaseProvider) {
-  _inherits(WebSocketProvider, _BaseProvider);
+  _inherits(WebsocketProvider, _BaseProvider);
 
-  function WebSocketProvider(endpoint, options) {
+  function WebsocketProvider(endpoint, options) {
     var _this;
 
-    _classCallCheck(this, WebSocketProvider);
+    _classCallCheck(this, WebsocketProvider);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(WebSocketProvider).call(this));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(WebsocketProvider).call(this));
     _this.endpoint = endpoint;
     _this.options = options || {
       createWebSocket: function createWebSocket(url) {
@@ -25109,11 +25109,11 @@ function (_BaseProvider) {
       } // timeout: 10000,
 
     };
-    _this.wsp = new WebSocketAsPromised(_this.endpoint, _this.options);
+    _this.wsp = new WebsocketAsPromised(_this.endpoint, _this.options);
     return _this;
   }
 
-  _createClass(WebSocketProvider, [{
+  _createClass(WebsocketProvider, [{
     key: "close",
     value: function close() {
       this.wsp.close();
@@ -25145,14 +25145,14 @@ function (_BaseProvider) {
   }, {
     key: "sanitizeParams",
     value: function sanitizeParams(params) {
-      return _get(_getPrototypeOf(WebSocketProvider.prototype), "sanitizeParams", this).call(this, params);
+      return _get(_getPrototypeOf(WebsocketProvider.prototype), "sanitizeParams", this).call(this, params);
     }
   }]);
 
-  return WebSocketProvider;
+  return WebsocketProvider;
 }(BaseProvider);
 
-module.exports = WebSocketProvider;
+module.exports = WebsocketProvider;
 
 /***/ }),
 

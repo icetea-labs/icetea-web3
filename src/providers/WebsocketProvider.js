@@ -1,9 +1,9 @@
 const BaseProvider = require('./BaseProvider')
-const WebSocketAsPromised = require('websocket-as-promised')
+const WebsocketAsPromised = require('websocket-as-promised')
 
 const W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : require('websocket').w3cwebsocket
 
-class WebSocketProvider extends BaseProvider {
+class WebsocketProvider extends BaseProvider {
   constructor (endpoint, options) {
     super()
     this.endpoint = endpoint
@@ -15,7 +15,7 @@ class WebSocketProvider extends BaseProvider {
       extractRequestId: data => data.id
       // timeout: 10000,
     }
-    this.wsp = new WebSocketAsPromised(this.endpoint, this.options)
+    this.wsp = new WebsocketAsPromised(this.endpoint, this.options)
   }
 
   close () {
@@ -45,4 +45,4 @@ class WebSocketProvider extends BaseProvider {
   }
 }
 
-module.exports = WebSocketProvider
+module.exports = WebsocketProvider
