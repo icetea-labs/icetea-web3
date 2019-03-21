@@ -24260,6 +24260,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     TxOp = _require.TxOp;
 
+function sanitizeParams(params) {
+  params = params || {};
+  Object.keys(params).forEach(function (k) {
+    var v = params[k];
+
+    if (typeof v === 'number') {
+      params[k] = String(v);
+    }
+  });
+  return params;
+}
+
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -24267,52 +24279,75 @@ function _serializeData(address, method) {
   var txData = {
     op: TxOp.CALL_CONTRACT,
     name: method,
-    params: params
+    params: sanitizeParams(params)
   };
   formData.to = address;
   formData.value = options.value || 0;
   formData.fee = options.fee || 0;
   formData.data = txData;
   return formData;
-}
+} // contract
 
-var Contract = function Contract(tweb3, address, privateKey) {
+
+var Contract = function Contract(tweb3, address) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
   _classCallCheck(this, Contract);
 
-  // this.iweb3 = iweb3;
-  // this.address = address;
+  this.options = options; // default options
+
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
-      return {
-        call: function call() {
-          var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-          var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-          return tweb3.callReadonlyContractMethod(address, method, params, options);
-        },
-        callPure: function callPure() {
-          var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-          var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-          return tweb3.callPureContractMethod(address, method, params, options);
-        },
-        sendAsync: function sendAsync(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionAsync(tx, privateKey);
-        },
-        sendSync: function sendSync(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionSync(tx, privateKey);
-        },
-        sendCommit: function sendCommit(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionCommit(tx, privateKey);
+      return function () {
+        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+          params[_key] = arguments[_key];
         }
+
+        return {
+          call: function call() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options));
+          },
+          callPure: function callPure() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            return tweb3.callPureContractMethod(address, method, params, Object.assign({}, this.options, options));
+          },
+          getMetadata: function getMetadata() {
+            return tweb3.getMetadata(params);
+          },
+          sendAsync: function sendAsync() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            return tweb3.sendTransactionAsync(tx, privateKey);
+          },
+          sendSync: function sendSync() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            console.log('params', params);
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            console.log('tx', tx);
+            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            console.log('sendSync1', privateKey);
+            privateKey = 'CJUPdD38vwc2wMC3hDsySB7YQ6AFLGuU6QYQYaiSeBsK'; //Buffer.from(privateKey, 'base64'); // Ta-da
+
+            console.log('sendSync2', privateKey);
+            return;
+            return tweb3.sendTransactionSync(tx, privateKey);
+          },
+          sendCommit: function sendCommit() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            return tweb3.sendTransactionCommit(tx, privateKey);
+          }
+        };
       };
-    },
-    set: function set() {
-      throw new Error('Cannot change methods.');
     }
   });
 };
@@ -25374,6 +25409,8 @@ function getFromStorage() {
 function saveToStorage(account) {
   var accountsLocal = getFromStorage(); // accountsLocal[account.address] = account
 
+  account.privateKey = account.privateKey.toString('base64');
+  account.publicKey = account.publicKey.toString('base64');
   accountsLocal.push(account);
   localStorage.setItem('accounts', JSON.stringify(accountsLocal));
 }
@@ -25401,8 +25438,11 @@ function () {
     value: function importAccount(privateKey) {
       var account = getAccount(privateKey); // accounts[account.address]= account
 
-      this.accounts.push(account);
-      saveToStorage(account);
+      if (!this.getAccountByAddress(account.address)) {
+        this.accounts.push(account);
+        saveToStorage(account);
+      }
+
       return account;
     }
   }, {

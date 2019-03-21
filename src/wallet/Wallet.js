@@ -13,6 +13,8 @@ function getFromStorage () {
 function saveToStorage (account) {
   var accountsLocal = getFromStorage()
   // accountsLocal[account.address] = account
+  account.privateKey = account.privateKey.toString('base64')
+  account.publicKey = account.publicKey.toString('base64')
   accountsLocal.push(account)
   localStorage.setItem('accounts', JSON.stringify(accountsLocal))
 }
@@ -33,8 +35,10 @@ class Wallet {
   importAccount (privateKey) {
     var account = getAccount(privateKey)
     // accounts[account.address]= account
-    this.accounts.push(account)
-    saveToStorage(account)
+    if (!this.getAccountByAddress(account.address)) {
+      this.accounts.push(account)
+      saveToStorage(account)
+    }
     return account
   }
 
