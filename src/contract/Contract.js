@@ -24,6 +24,9 @@ class Contract {
           call: function (params = [], options = {}) {
             return tweb3.callReadonlyContractMethod(address, method, params, options)
           },
+          callPure: function (params = [], options = {}) {
+            return tweb3.callPureContractMethod(address, method, params, options)
+          },
           sendAsync: function (params, options) {
             var tx = _serializeData(address, method, params, options)
             return tweb3.sendTransactionAsync(tx, privateKey)
