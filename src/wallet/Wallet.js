@@ -53,7 +53,7 @@ class Wallet {
 
   getAccountByAddress (address) {
     var accountsLocal = getFromStorage()
-    for (i = 0; i < accountsLocal.length; i++) {      
+    for (i = 0; i < accountsLocal.length; i++) {
       if (accountsLocal[i].address == address) {
          return accountsLocal[i]
       }

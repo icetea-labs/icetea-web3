@@ -24792,8 +24792,8 @@ function () {
     }
   }, {
     key: "contract",
-    value: function contract(address, privateKey) {
-      return new Contract(this, address, privateKey);
+    value: function contract(address) {
+      return new Contract(this, address);
     }
   }, {
     key: "deploy",
