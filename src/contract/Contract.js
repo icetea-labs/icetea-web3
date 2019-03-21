@@ -1,22 +1,11 @@
 const { TxOp } = require('icetea-common')
 
-function sanitizeParams (params) {
-  params = params || {}
-  Object.keys(params).forEach(k => {
-    let v = params[k]
-    if (typeof v === 'number') {
-      params[k] = String(v)
-    }
-  })
-  return params
-}
-
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
   var txData = {
     op: TxOp.CALL_CONTRACT,
     name: method,
-    params: sanitizeParams(params)
+    params: params
   }
   formData.to = address
   formData.value = options.value || 0
@@ -48,15 +37,8 @@ class Contract {
               return tweb3.sendTransactionAsync(tx, privateKey)
             },
             sendSync: function (options = {}) {
-              console.log('params', params)
               var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              console.log('tx', tx)
               var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey
-              console.log('sendSync1', privateKey)
-              privateKey = 'CJUPdD38vwc2wMC3hDsySB7YQ6AFLGuU6QYQYaiSeBsK'//Buffer.from(privateKey, 'base64'); // Ta-da
-              console.log('sendSync2', privateKey)
-
-              return;
               return tweb3.sendTransactionSync(tx, privateKey)
             },
             sendCommit: function (options = {}) {

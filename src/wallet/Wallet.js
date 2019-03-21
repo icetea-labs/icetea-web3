@@ -1,9 +1,14 @@
 const { newAccount, getAccount } = require('icetea-common').utils
+const { codec } = require('icetea-common')
 
 function getFromStorage () {
   var dataLocal = localStorage.getItem('accounts')
   if (dataLocal) {
     dataLocal = JSON.parse(dataLocal)
+    Object.keys(dataLocal).forEach(k => {
+      dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey,'base64')
+      dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey,'base64')
+    })
   } else {
     dataLocal = []
   }
@@ -13,8 +18,8 @@ function getFromStorage () {
 function saveToStorage (account) {
   var accountsLocal = getFromStorage()
   // accountsLocal[account.address] = account
-  account.privateKey = account.privateKey.toString('base64')
-  account.publicKey = account.publicKey.toString('base64')
+  account.privateKey = codec.toString(account.privateKey,'base64')
+  account.publicKey = codec.toString(account.publicKey,'base64')
   accountsLocal.push(account)
   localStorage.setItem('accounts', JSON.stringify(accountsLocal))
 }

@@ -24260,18 +24260,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     TxOp = _require.TxOp;
 
-function sanitizeParams(params) {
-  params = params || {};
-  Object.keys(params).forEach(function (k) {
-    var v = params[k];
-
-    if (typeof v === 'number') {
-      params[k] = String(v);
-    }
-  });
-  return params;
-}
-
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -24279,7 +24267,7 @@ function _serializeData(address, method) {
   var txData = {
     op: TxOp.CALL_CONTRACT,
     name: method,
-    params: sanitizeParams(params)
+    params: params
   };
   formData.to = address;
   formData.value = options.value || 0;
@@ -24325,17 +24313,12 @@ var Contract = function Contract(tweb3, address) {
           },
           sendSync: function sendSync() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            console.log('params', params);
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            console.log('tx', tx);
-            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
-            console.log('sendSync1', privateKey);
-            privateKey = 'CJUPdD38vwc2wMC3hDsySB7YQ6AFLGuU6QYQYaiSeBsK'; //Buffer.from(privateKey, 'base64'); // Ta-da
+            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey; // privateKey = Buffer.from(privateKey, 'base64'); // Ta-da
+            // return;
 
-            console.log('sendSync2', privateKey);
-            return;
             return tweb3.sendTransactionSync(tx, privateKey);
           },
           sendCommit: function sendCommit() {
@@ -25394,11 +25377,18 @@ var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/ic
     newAccount = _require$utils.newAccount,
     getAccount = _require$utils.getAccount;
 
+var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
+    codec = _require.codec;
+
 function getFromStorage() {
   var dataLocal = localStorage.getItem('accounts');
 
   if (dataLocal) {
     dataLocal = JSON.parse(dataLocal);
+    Object.keys(dataLocal).forEach(function (k) {
+      dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey, 'base64');
+      dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey, 'base64');
+    });
   } else {
     dataLocal = [];
   }
@@ -25409,8 +25399,8 @@ function getFromStorage() {
 function saveToStorage(account) {
   var accountsLocal = getFromStorage(); // accountsLocal[account.address] = account
 
-  account.privateKey = account.privateKey.toString('base64');
-  account.publicKey = account.publicKey.toString('base64');
+  account.privateKey = codec.toString(account.privateKey, 'base64');
+  account.publicKey = codec.toString(account.publicKey, 'base64');
   accountsLocal.push(account);
   localStorage.setItem('accounts', JSON.stringify(accountsLocal));
 }
