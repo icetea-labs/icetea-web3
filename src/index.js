@@ -2,6 +2,7 @@ const { utils: helper, ecc, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')
+const Wallet = require('./wallet/Wallet')
 const HttpProvider = require('./providers/HttpProvider')
 const WebsocketProvider = require('./providers/WebsocketProvider')
 
@@ -34,6 +35,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     }
     this.subscriptions = {}
     this.countSubscribeEvent = 0
+    this.wallet = new Wallet()
   }
 
   close () {

@@ -24350,6 +24350,8 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
+var Wallet = __webpack_require__(/*! ./wallet/Wallet */ "./src/wallet/Wallet.js");
+
 var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/providers/HttpProvider.js");
 
 var WebsocketProvider = __webpack_require__(/*! ./providers/WebsocketProvider */ "./src/providers/WebsocketProvider.js");
@@ -24387,6 +24389,7 @@ function () {
     };
     this.subscriptions = {};
     this.countSubscribeEvent = 0;
+    this.wallet = new Wallet();
   }
 
   _createClass(IceTeaWeb3, [{
@@ -25331,6 +25334,92 @@ _decodeTxResult = function _decodeTxResult(result) {
   return result;
 };
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
+
+/***/ }),
+
+/***/ "./src/wallet/Wallet.js":
+/*!******************************!*\
+  !*** ./src/wallet/Wallet.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js").utils,
+    newAccount = _require$utils.newAccount,
+    getAccount = _require$utils.getAccount; // var accounts = {}
+
+
+function getFromStorage() {
+  var dataLocal = localStorage.getItem('accounts');
+
+  if (dataLocal) {
+    dataLocal = JSON.parse(dataLocal);
+  } else {
+    dataLocal = {};
+  }
+
+  return dataLocal;
+}
+
+function saveToStorage(account) {
+  var accountsLocal = getFromStorage();
+  accountsLocal[account.address] = account;
+  localStorage.setItem('accounts', JSON.stringify(accountsLocal));
+}
+
+var Wallet =
+/*#__PURE__*/
+function () {
+  function Wallet() {
+    _classCallCheck(this, Wallet);
+  }
+
+  _createClass(Wallet, [{
+    key: "createAccount",
+    value: function createAccount() {
+      var account = newAccount(); // accounts[account.address]= account
+
+      saveToStorage(account);
+      return account;
+    }
+  }, {
+    key: "importAccount",
+    value: function importAccount(privateKey) {
+      var account = getAccount(privateKey); // accounts[account.address]= account
+
+      saveToStorage(account);
+      return account;
+    }
+  }, {
+    key: "getAccountByPrivateKey",
+    value: function getAccountByPrivateKey(privateKey) {
+      return getAccount(privateKey);
+    }
+  }, {
+    key: "getAccountByAddress",
+    value: function getAccountByAddress(address) {
+      var accountsLocal = getFromStorage();
+      return accountsLocal[address];
+    } // getAccountsByIndex (index) {
+    // }
+
+  }, {
+    key: "getListAccounts",
+    value: function getListAccounts() {
+      return getFromStorage();
+    }
+  }]);
+
+  return Wallet;
+}();
+
+module.exports = Wallet;
 
 /***/ }),
 
