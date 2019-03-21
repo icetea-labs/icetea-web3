@@ -24289,6 +24289,11 @@ var Contract = function Contract(tweb3, address, privateKey) {
           var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
           return tweb3.callReadonlyContractMethod(address, method, params, options);
         },
+        callPure: function callPure() {
+          var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+          return tweb3.callPureContractMethod(address, method, params, options);
+        },
         sendAsync: function sendAsync(params, options) {
           var tx = _serializeData(address, method, params, options);
 
@@ -25352,8 +25357,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js").utils,
     newAccount = _require$utils.newAccount,
-    getAccount = _require$utils.getAccount; // var accounts = {}
-
+    getAccount = _require$utils.getAccount;
 
 function getFromStorage() {
   var dataLocal = localStorage.getItem('accounts');
@@ -25361,15 +25365,16 @@ function getFromStorage() {
   if (dataLocal) {
     dataLocal = JSON.parse(dataLocal);
   } else {
-    dataLocal = {};
+    dataLocal = [];
   }
 
   return dataLocal;
 }
 
 function saveToStorage(account) {
-  var accountsLocal = getFromStorage();
-  accountsLocal[account.address] = account;
+  var accountsLocal = getFromStorage(); // accountsLocal[account.address] = account
+
+  accountsLocal.push(account);
   localStorage.setItem('accounts', JSON.stringify(accountsLocal));
 }
 
@@ -25378,6 +25383,8 @@ var Wallet =
 function () {
   function Wallet() {
     _classCallCheck(this, Wallet);
+
+    this.accounts = getFromStorage();
   }
 
   _createClass(Wallet, [{
@@ -25385,6 +25392,7 @@ function () {
     value: function createAccount() {
       var account = newAccount(); // accounts[account.address]= account
 
+      this.accounts.push(account);
       saveToStorage(account);
       return account;
     }
@@ -25393,6 +25401,7 @@ function () {
     value: function importAccount(privateKey) {
       var account = getAccount(privateKey); // accounts[account.address]= account
 
+      this.accounts.push(account);
       saveToStorage(account);
       return account;
     }
@@ -25405,14 +25414,12 @@ function () {
     key: "getAccountByAddress",
     value: function getAccountByAddress(address) {
       var accountsLocal = getFromStorage();
-      return accountsLocal[address];
-    } // getAccountsByIndex (index) {
-    // }
 
-  }, {
-    key: "getListAccounts",
-    value: function getListAccounts() {
-      return getFromStorage();
+      for (i = 0; i < accountsLocal.length; i++) {
+        if (accountsLocal[i].address == address) {
+          return accountsLocal[i];
+        }
+      }
     }
   }]);
 
