@@ -24316,9 +24316,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey; // privateKey = Buffer.from(privateKey, 'base64'); // Ta-da
-            // return;
-
+            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
             return tweb3.sendTransactionSync(tx, privateKey);
           },
           sendCommit: function sendCommit() {
