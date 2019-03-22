@@ -20,7 +20,7 @@ class Contract {
     this.options = options // default options
     this.methods = new Proxy({}, {
       get (obj, method) {
-        return function (params) { // ...params
+        return function (...params) { // ...params
           return {
             call: function (options = {}) {
               return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options))

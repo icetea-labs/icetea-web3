@@ -24286,7 +24286,11 @@ var Contract = function Contract(tweb3, address) {
 
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
-      return function (params) {
+      return function () {
+        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+          params[_key] = arguments[_key];
+        }
+
         // ...params
         return {
           call: function call() {
@@ -25441,8 +25445,8 @@ function () {
     value: function getAccountByAddress(address) {
       var accountsLocal = getFromStorage();
 
-      for (i = 0; i < accountsLocal.length; i++) {
-        if (accountsLocal[i].address == address) {
+      for (var i = 0; i < accountsLocal.length; i++) {
+        if (accountsLocal[i].address === address) {
           return accountsLocal[i];
         }
       }
