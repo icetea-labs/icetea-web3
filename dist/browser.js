@@ -24800,11 +24800,11 @@ function () {
   }, {
     key: "contract",
     value: function contract() {
-      for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
-        params[_key] = arguments[_key];
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
-      return _construct(Contract, params);
+      return _construct(Contract, [this].concat(args));
     }
   }, {
     key: "deploy",

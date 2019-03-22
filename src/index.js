@@ -333,8 +333,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     this.rpc.registerEventListener('onClose', callback)
   }
 
-  contract (...params) {
-    return new Contract(...params)
+  contract (...args) {
+    return new Contract(this, ...args)
   }
 
   deploy (mode, src, params = [], options = {}) {
