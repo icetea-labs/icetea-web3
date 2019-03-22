@@ -6,8 +6,8 @@ function getFromStorage () {
   if (dataLocal) {
     dataLocal = JSON.parse(dataLocal)
     Object.keys(dataLocal).forEach(k => {
-      dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey,'base64')
-      dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey,'base64')
+      dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey, 'base64')
+      dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey, 'base64')
     })
   } else {
     dataLocal = []
@@ -18,8 +18,8 @@ function getFromStorage () {
 function saveToStorage (account) {
   var accountsLocal = getFromStorage()
   // accountsLocal[account.address] = account
-  account.privateKey = codec.toString(account.privateKey,'base64')
-  account.publicKey = codec.toString(account.publicKey,'base64')
+  account.privateKey = codec.toString(account.privateKey, 'base64')
+  account.publicKey = codec.toString(account.publicKey, 'base64')
   accountsLocal.push(account)
   localStorage.setItem('accounts', JSON.stringify(accountsLocal))
 }
@@ -53,9 +53,9 @@ class Wallet {
 
   getAccountByAddress (address) {
     var accountsLocal = getFromStorage()
-    for (i = 0; i < accountsLocal.length; i++) {
-      if (accountsLocal[i].address == address) {
-         return accountsLocal[i]
+    for (var i = 0; i < accountsLocal.length; i++) {
+      if (accountsLocal[i].address === address) {
+        return accountsLocal[i]
       }
     }
   }

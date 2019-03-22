@@ -337,8 +337,9 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return new Contract(this, address)
   }
 
-  deploy (mode, src, privateKey, params = [], options = {}) {
+  deploy (mode, src, params = [], options = {}) {
     let tx = this._serializeData(mode, src, params, options)
+    let privateKey = this.wallet.getAccountByAddress(options.from).privateKey
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => {
         return this.getTransaction(res.hash).then(result => {

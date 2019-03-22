@@ -16,13 +16,13 @@ function _serializeData (address, method, params = [], options = {}) {
 
 // contract
 class Contract {
-  constructor(tweb3, address, options = {}) {
+  constructor (tweb3, address, options = {}) {
     this.options = options // default options
     this.methods = new Proxy({}, {
-      get(obj, method) {
-        return function(...params) {
+      get (obj, method) {
+        return function (params) { // ...params
           return {
-            call: function(options = {}) {
+            call: function (options = {}) {
               return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options))
             },
             callPure: function (options = {}) {

@@ -24286,11 +24286,8 @@ var Contract = function Contract(tweb3, address) {
 
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
-      return function () {
-        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
-          params[_key] = arguments[_key];
-        }
-
+      return function (params) {
+        // ...params
         return {
           call: function call() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -24797,14 +24794,15 @@ function () {
     }
   }, {
     key: "deploy",
-    value: function deploy(mode, src, privateKey) {
+    value: function deploy(mode, src) {
       var _this3 = this;
 
-      var params = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-      var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
       var tx = this._serializeData(mode, src, params, options);
 
+      var privateKey = this.wallet.getAccountByAddress(options.from).privateKey;
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
         return _this3.getTransaction(res.hash).then(function (result) {
           if (result.tx_result.code) {
