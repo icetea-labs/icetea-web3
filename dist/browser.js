@@ -24309,7 +24309,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionAsync(tx, privateKey);
           },
           sendSync: function sendSync() {
@@ -24317,7 +24317,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionSync(tx, privateKey);
           },
           sendCommit: function sendCommit() {
@@ -24325,7 +24325,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.wallet.getAccountByAddress(options.from).privateKey;
+            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionCommit(tx, privateKey);
           }
         };
@@ -24816,7 +24816,7 @@ function () {
 
       var tx = this._serializeData(mode, src, params, options);
 
-      var privateKey = this.wallet.getAccountByAddress(options.from).privateKey;
+      var privateKey = this.wallet.getPrivateKeyByAddress(options.from);
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
         return _this3.getTransaction(res.hash).then(function (result) {
           if (result.tx_result.code) {
@@ -25390,57 +25390,90 @@ var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/ic
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     codec = _require.codec;
 
-function getFromStorage() {
-  var dataLocal = localStorage.getItem('accounts');
+var _localStorage = localStorage;
+var _storage = {
+  set defaultAccount(value) {
+    var local = _storage.getData();
 
-  if (dataLocal) {
-    dataLocal = JSON.parse(dataLocal);
-    Object.keys(dataLocal).forEach(function (k) {
-      dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey, 'base64');
-      dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey, 'base64');
-    });
-  } else {
-    dataLocal = [];
+    if (!local) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
+
+    var isExist = false;
+
+    for (var i = 0; i < local.accounts.length; i++) {
+      if (local.accounts[i].address === value) {
+        isExist = true;
+        break;
+      }
+    }
+
+    if (isExist) {
+      local.defaultAccount = value;
+
+      _storage.saveData(local);
+    } else {
+      throw new Error("Address don't exist in wallet");
+    }
+  },
+
+  get defaultAccount() {
+    var local = _storage.getData();
+
+    if (local.defaultAccount) {
+      return local.defaultAccount;
+    } else if (local.accounts.length > 0) {
+      _storage.defaultAccount = local.accounts[0].address;
+      return local.accounts[0].address;
+    } else {
+      throw new Error('Please import account before get defaultAccount!');
+    }
+  },
+
+  addAccount: function addAccount(account) {
+    var local = _storage.getData();
+
+    account.privateKey = codec.toString(account.privateKey, 'base58');
+    account.publicKey = codec.toString(account.publicKey, 'base58');
+    local.accounts.push(account);
+
+    _storage.saveData(local);
+  },
+  getAccounts: function getAccounts() {
+    return _storage.getData().accounts;
+  },
+  saveData: function saveData(data) {
+    _localStorage.setItem('accounts', JSON.stringify(data));
+  },
+  getData: function getData() {
+    var dataLocal = _localStorage.getItem('accounts');
+
+    if (!dataLocal) dataLocal = "{\"defaultAccount\":\"\",\"accounts\":[]}";
+    return JSON.parse(dataLocal);
   }
-
-  return dataLocal;
-}
-
-function saveToStorage(account) {
-  var accountsLocal = getFromStorage(); // accountsLocal[account.address] = account
-
-  account.privateKey = codec.toString(account.privateKey, 'base64');
-  account.publicKey = codec.toString(account.publicKey, 'base64');
-  accountsLocal.push(account);
-  localStorage.setItem('accounts', JSON.stringify(accountsLocal));
-}
+};
 
 var Wallet =
 /*#__PURE__*/
 function () {
   function Wallet() {
     _classCallCheck(this, Wallet);
-
-    this.accounts = getFromStorage();
   }
 
   _createClass(Wallet, [{
     key: "createAccount",
     value: function createAccount() {
-      var account = newAccount(); // accounts[account.address]= account
+      var account = newAccount();
 
-      this.accounts.push(account);
-      saveToStorage(account);
+      _storage.addAccount(account);
+
       return account;
     }
   }, {
     key: "importAccount",
     value: function importAccount(privateKey) {
-      var account = getAccount(privateKey); // accounts[account.address]= account
+      var account = getAccount(privateKey);
 
       if (!this.getAccountByAddress(account.address)) {
-        this.accounts.push(account);
-        saveToStorage(account);
+        _storage.addAccount(account);
       }
 
       return account;
@@ -25453,13 +25486,38 @@ function () {
   }, {
     key: "getAccountByAddress",
     value: function getAccountByAddress(address) {
-      var accountsLocal = getFromStorage();
+      var accounts = _storage.getAccounts();
 
-      for (var i = 0; i < accountsLocal.length; i++) {
-        if (accountsLocal[i].address === address) {
-          return accountsLocal[i];
+      for (var i = 0; i < accounts.length; i++) {
+        if (accounts[i].address === address) {
+          return accounts[i];
         }
       }
+    }
+  }, {
+    key: "getPrivateKeyByAddress",
+    value: function getPrivateKeyByAddress(from) {
+      var privateKey = '';
+
+      if (!from) {
+        from = defaultAccount;
+      }
+
+      privateKey = getAccountByAddress(from).privateKey;
+      return privateKey;
+    }
+  }, {
+    key: "defaultAccount",
+    set: function set(value) {
+      _storage.defaultAccount = value;
+    },
+    get: function get() {
+      return _storage.defaultAccount;
+    }
+  }, {
+    key: "accounts",
+    get: function get() {
+      return _storage.getAccounts();
     }
   }]);
 

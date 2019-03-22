@@ -1,28 +1,6 @@
 const { newAccount, getAccount } = require('icetea-common').utils
 const { codec } = require('icetea-common')
 
-// function getFromStorage () {
-//   var dataLocal = localStorage.getItem('accounts')
-//   if (dataLocal) {
-//     dataLocal = JSON.parse(dataLocal)
-//     // Object.keys(dataLocal).forEach(k => {
-//     //   dataLocal[k].privateKey = codec.toBuffer(dataLocal[k].privateKey, 'base64')
-//     //   dataLocal[k].publicKey = codec.toBuffer(dataLocal[k].publicKey, 'base64')
-//     // })
-//   } else {
-//     dataLocal = {defaultAccount:'', accounts:[] }
-//   }
-//   return dataLocal
-// }
-
-// function saveToStorage (account) {
-//   var local = getFromStorage()
-//   account.privateKey = codec.toString(account.privateKey, 'base58')
-//   account.publicKey = codec.toString(account.publicKey, 'base58')
-//   local.accounts.push(account)
-//   if(local.defaultAccount == '') local.defaultAccount = local.accounts[0].address
-//   localStorage.setItem('accounts', JSON.stringify(local))
-// }
 const _localStorage = localStorage
 const _storage = {
   set defaultAccount (value) {
@@ -112,6 +90,15 @@ class Wallet {
         return accounts[i]
       }
     }
+  }
+
+  getPrivateKeyByAddress (from) {
+    var privateKey = ''
+    if (!from) {
+      from = defaultAccount
+    }
+    privateKey = getAccountByAddress(from).privateKey
+    return privateKey
   }
 }
 
