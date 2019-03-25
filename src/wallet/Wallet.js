@@ -95,9 +95,9 @@ class Wallet {
   getPrivateKeyByAddress (from) {
     var privateKey = ''
     if (!from) {
-      from = defaultAccount
+      from = this.defaultAccount
     }
-    privateKey = getAccountByAddress(from).privateKey
+    privateKey = this.getAccountByAddress(from).privateKey
     return privateKey
   }
 }
