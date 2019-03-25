@@ -24589,7 +24589,8 @@ function () {
 
   }, {
     key: "sendTransactionAsync",
-    value: function sendTransactionAsync(tx, privateKey) {
+    value: function sendTransactionAsync(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
     }
     /**
@@ -24600,7 +24601,8 @@ function () {
 
   }, {
     key: "sendTransactionSync",
-    value: function sendTransactionSync(tx, privateKey) {
+    value: function sendTransactionSync(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
     }
     /**
@@ -24611,7 +24613,8 @@ function () {
 
   }, {
     key: "sendTransactionCommit",
-    value: function sendTransactionCommit(tx, privateKey) {
+    value: function sendTransactionCommit(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
     }
     /**
@@ -25390,6 +25393,50 @@ var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/ic
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     codec = _require.codec;
 
+var wallet = {
+  defaultAccount: '',
+  accounts: []
+};
+var _ram = {
+  set defaultAccount(value) {
+    if (!wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
+
+    var isExist = false;
+
+    for (var i = 0; i < wallet.accounts.length; i++) {
+      if (wallet.accounts[i].address === value) {
+        isExist = true;
+        break;
+      }
+    }
+
+    if (isExist) {
+      wallet.defaultAccount = value; // _storage.saveData(local)
+    } else {
+      throw new Error("Address " + value + " don't exist in wallet");
+    }
+  },
+
+  get defaultAccount() {
+    if (wallet.defaultAccount && wallet.defaultAccount != '') {
+      return wallet.defaultAccount;
+    } else if (wallet.accounts.length > 0) {
+      _ram.defaultAccount = wallet.accounts[0].address;
+      return wallet.accounts[0].address;
+    } else {
+      throw new Error('Please import account before get defaultAccount!');
+    }
+  },
+
+  addAccount: function addAccount(account) {
+    account.privateKey = codec.toString(account.privateKey, 'base58');
+    account.publicKey = codec.toString(account.publicKey, 'base58');
+    wallet.accounts.push(account);
+  },
+  getAccounts: function getAccounts() {
+    return wallet.accounts;
+  }
+};
 var _localStorage = localStorage;
 var _storage = {
   set defaultAccount(value) {
@@ -25461,9 +25508,9 @@ function () {
   _createClass(Wallet, [{
     key: "createAccount",
     value: function createAccount() {
-      var account = newAccount();
+      var account = newAccount(); // _storage.addAccount(account)
 
-      _storage.addAccount(account);
+      _ram.addAccount(account);
 
       return account;
     }
@@ -25473,7 +25520,8 @@ function () {
       var account = getAccount(privateKey);
 
       if (!this.getAccountByAddress(account.address)) {
-        _storage.addAccount(account);
+        // _storage.addAccount(account)
+        _ram.addAccount(account);
       }
 
       return account;
@@ -25486,38 +25534,59 @@ function () {
   }, {
     key: "getAccountByAddress",
     value: function getAccountByAddress(address) {
-      var accounts = _storage.getAccounts();
+      // var accounts = _storage.getAccounts()
+      var accounts = _ram.getAccounts();
 
       for (var i = 0; i < accounts.length; i++) {
-        if (accounts[i].address === address) {
+        if (accounts[i].address === address || accounts[i].publicKey === address) {
           return accounts[i];
         }
       }
     }
   }, {
     key: "getPrivateKeyByAddress",
-    value: function getPrivateKeyByAddress(from) {
+    value: function getPrivateKeyByAddress(fromAddress) {
       var privateKey = '';
 
-      if (!from) {
-        from = this.defaultAccount;
+      if (!fromAddress) {
+        fromAddress = this.defaultAccount;
       }
 
-      privateKey = this.getAccountByAddress(from).privateKey;
+      var account = this.getAccountByAddress(fromAddress);
+
+      if (account) {
+        privateKey = account.privateKey;
+      } else {
+        throw new Error('Address ' + fromAddress + " don't exist in wallet");
+      }
+
       return privateKey;
+    }
+  }, {
+    key: "saveToStorage",
+    value: function saveToStorage() {
+      _storage.saveData(wallet);
+    }
+  }, {
+    key: "loadFromStorage",
+    value: function loadFromStorage() {
+      wallet = _storage.getData();
     }
   }, {
     key: "defaultAccount",
     set: function set(value) {
-      _storage.defaultAccount = value;
+      // _storage.defaultAccount = value
+      _ram.defaultAccount = value;
     },
     get: function get() {
-      return _storage.defaultAccount;
+      // return _storage.defaultAccount
+      return _ram.defaultAccount;
     }
   }, {
     key: "accounts",
     get: function get() {
-      return _storage.getAccounts();
+      // return _storage.getAccounts()
+      return _ram.getAccounts();
     }
   }]);
 

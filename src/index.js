@@ -172,7 +172,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionAsync (tx, privateKey) {
+  sendTransactionAsync (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
@@ -181,7 +182,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionSync (tx, privateKey) {
+  sendTransactionSync (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
@@ -190,7 +192,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionCommit (tx, privateKey) {
+  sendTransactionCommit (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
       .then(decode)
   }

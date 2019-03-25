@@ -1,6 +1,45 @@
 const { newAccount, getAccount } = require('icetea-common').utils
 const { codec } = require('icetea-common')
 
+var wallet = { defaultAccount: '', accounts: [] }
+const _ram = {
+  set defaultAccount (value) {
+    if (!wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!')
+    // check address in wallet
+    var isExist = false
+    for (var i = 0; i < wallet.accounts.length; i++) {
+      if (wallet.accounts[i].address === value) {
+        isExist = true
+        break
+      }
+    }
+    if (isExist) {
+      wallet.defaultAccount = value
+      // _storage.saveData(local)
+    } else {
+      throw new Error("Address "+ value +" don't exist in wallet")
+    }
+  },
+  get defaultAccount () {
+    if (wallet.defaultAccount && wallet.defaultAccount != '') {
+      return wallet.defaultAccount
+    } else if (wallet.accounts.length > 0) {
+      _ram.defaultAccount = wallet.accounts[0].address
+      return wallet.accounts[0].address
+    } else {
+      throw new Error('Please import account before get defaultAccount!')
+    }
+  },
+  addAccount (account) {
+    account.privateKey = codec.toString(account.privateKey, 'base58')
+    account.publicKey = codec.toString(account.publicKey, 'base58')
+    wallet.accounts.push(account)
+  },
+  getAccounts () {
+    return wallet.accounts
+  }
+}
+
 const _localStorage = localStorage
 const _storage = {
   set defaultAccount (value) {
@@ -54,23 +93,27 @@ const _storage = {
 
 class Wallet {
   set defaultAccount (value) {
-    _storage.defaultAccount = value
+    // _storage.defaultAccount = value
+    _ram.defaultAccount = value
   }
 
   get defaultAccount () {
-    return _storage.defaultAccount
+    // return _storage.defaultAccount
+    return _ram.defaultAccount
   }
 
   createAccount () {
     var account = newAccount()
-    _storage.addAccount(account)
+    // _storage.addAccount(account)
+    _ram.addAccount(account)
     return account
   }
 
   importAccount (privateKey) {
     var account = getAccount(privateKey)
     if (!this.getAccountByAddress(account.address)) {
-      _storage.addAccount(account)
+      // _storage.addAccount(account)
+      _ram.addAccount(account)
     }
     return account
   }
@@ -80,25 +123,40 @@ class Wallet {
   }
 
   get accounts () {
-    return _storage.getAccounts()
+    // return _storage.getAccounts()
+    return _ram.getAccounts()
   }
 
   getAccountByAddress (address) {
-    var accounts = _storage.getAccounts()
+    // var accounts = _storage.getAccounts()
+    var accounts = _ram.getAccounts()
     for (var i = 0; i < accounts.length; i++) {
-      if (accounts[i].address === address) {
+      if (accounts[i].address === address || accounts[i].publicKey === address) {
         return accounts[i]
       }
     }
   }
 
-  getPrivateKeyByAddress (from) {
+  getPrivateKeyByAddress (fromAddress) {
     var privateKey = ''
-    if (!from) {
-      from = this.defaultAccount
+    if (!fromAddress) {
+      fromAddress = this.defaultAccount
     }
-    privateKey = this.getAccountByAddress(from).privateKey
+    var account = this.getAccountByAddress(fromAddress)
+    if (account) {
+      privateKey = account.privateKey
+    } else {
+      throw new Error('Address ' + fromAddress + " don't exist in wallet")
+    }
     return privateKey
+  }
+
+  saveToStorage () {
+    _storage.saveData(wallet)
+  }
+
+  loadFromStorage () {
+    wallet = _storage.getData()
   }
 }
 
