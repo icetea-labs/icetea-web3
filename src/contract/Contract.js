@@ -33,17 +33,17 @@ class Contract {
             },
             sendAsync: function (options = {}) {
               var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.getPrivateKeyByAddress(options.from)
+              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
               return tweb3.sendTransactionAsync(tx, privateKey)
             },
             sendSync: function (options = {}) {
               var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.getPrivateKeyByAddress(options.from)
+              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
               return tweb3.sendTransactionSync(tx, privateKey)
             },
             sendCommit: function (options = {}) {
               var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.getPrivateKeyByAddress(options.from)
+              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
               return tweb3.sendTransactionCommit(tx, privateKey)
             }
           }

@@ -24309,7 +24309,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionAsync(tx, privateKey);
           },
           sendSync: function sendSync() {
@@ -24317,7 +24317,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionSync(tx, privateKey);
           },
           sendCommit: function sendCommit() {
@@ -24325,7 +24325,7 @@ var Contract = function Contract(tweb3, address) {
 
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
-            var privateKey = tweb3.getPrivateKeyByAddress(options.from);
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
             return tweb3.sendTransactionCommit(tx, privateKey);
           }
         };
