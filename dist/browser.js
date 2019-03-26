@@ -24274,40 +24274,62 @@ function _serializeData(address, method) {
   formData.fee = options.fee || 0;
   formData.data = txData;
   return formData;
-}
+} // contract
 
-var Contract = function Contract(tweb3, address, privateKey) {
+
+var Contract = function Contract(tweb3, address) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
   _classCallCheck(this, Contract);
 
-  // this.iweb3 = iweb3;
-  // this.address = address;
+  this.options = options; // default options
+
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
-      return {
-        call: function call() {
-          var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-          var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-          return tweb3.callReadonlyContractMethod(address, method, params, options);
-        },
-        sendAsync: function sendAsync(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionAsync(tx, privateKey);
-        },
-        sendSync: function sendSync(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionSync(tx, privateKey);
-        },
-        sendCommit: function sendCommit(params, options) {
-          var tx = _serializeData(address, method, params, options);
-
-          return tweb3.sendTransactionCommit(tx, privateKey);
+      return function () {
+        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+          params[_key] = arguments[_key];
         }
+
+        // ...params
+        return {
+          call: function call() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options));
+          },
+          callPure: function callPure() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            return tweb3.callPureContractMethod(address, method, params, Object.assign({}, this.options, options));
+          },
+          getMetadata: function getMetadata() {
+            return tweb3.getMetadata(params);
+          },
+          sendAsync: function sendAsync() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            return tweb3.sendTransactionAsync(tx, privateKey);
+          },
+          sendSync: function sendSync() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            return tweb3.sendTransactionSync(tx, privateKey);
+          },
+          sendCommit: function sendCommit() {
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+
+            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            return tweb3.sendTransactionCommit(tx, privateKey);
+          }
+        };
       };
-    },
-    set: function set() {
-      throw new Error('Cannot change methods.');
     }
   });
 };
@@ -24323,7 +24345,13 @@ module.exports = Contract;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+/* WEBPACK VAR INJECTION */(function(Buffer) {function isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -24349,6 +24377,8 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     decode = _require2.decode;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
+
+var Wallet = __webpack_require__(/*! ./wallet/Wallet */ "./src/wallet/Wallet.js");
 
 var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/providers/HttpProvider.js");
 
@@ -24387,6 +24417,7 @@ function () {
     };
     this.subscriptions = {};
     this.countSubscribeEvent = 0;
+    this.wallet = new Wallet();
   }
 
   _createClass(IceTeaWeb3, [{
@@ -24559,7 +24590,8 @@ function () {
 
   }, {
     key: "sendTransactionAsync",
-    value: function sendTransactionAsync(tx, privateKey) {
+    value: function sendTransactionAsync(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
     }
     /**
@@ -24570,7 +24602,8 @@ function () {
 
   }, {
     key: "sendTransactionSync",
-    value: function sendTransactionSync(tx, privateKey) {
+    value: function sendTransactionSync(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
     }
     /**
@@ -24581,7 +24614,8 @@ function () {
 
   }, {
     key: "sendTransactionCommit",
-    value: function sendTransactionCommit(tx, privateKey) {
+    value: function sendTransactionCommit(tx) {
+      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
       return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
     }
     /**
@@ -24769,19 +24803,24 @@ function () {
     }
   }, {
     key: "contract",
-    value: function contract(address, privateKey) {
-      return new Contract(this, address, privateKey);
+    value: function contract() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return _construct(Contract, [this].concat(args));
     }
   }, {
     key: "deploy",
-    value: function deploy(mode, src, privateKey) {
+    value: function deploy(mode, src) {
       var _this3 = this;
 
-      var params = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
-      var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
       var tx = this._serializeData(mode, src, params, options);
 
+      var privateKey = this.wallet.getPrivateKeyByAddress(options.from);
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
         return _this3.getTransaction(res.hash).then(function (result) {
           if (result.tx_result.code) {
@@ -25332,6 +25371,230 @@ _decodeTxResult = function _decodeTxResult(result) {
   return result;
 };
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
+
+/***/ }),
+
+/***/ "./src/wallet/Wallet.js":
+/*!******************************!*\
+  !*** ./src/wallet/Wallet.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var _require$utils = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js").utils,
+    newAccount = _require$utils.newAccount,
+    getAccount = _require$utils.getAccount;
+
+var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
+    codec = _require.codec;
+
+var wallet = {
+  defaultAccount: '',
+  accounts: []
+};
+var _ram = {
+  set defaultAccount(value) {
+    if (!wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
+
+    var isExist = false;
+
+    for (var i = 0; i < wallet.accounts.length; i++) {
+      if (wallet.accounts[i].address === value) {
+        isExist = true;
+        break;
+      }
+    }
+
+    if (isExist) {
+      wallet.defaultAccount = value; // _storage.saveData(local)
+    } else {
+      throw new Error("Address " + value + " don't exist in wallet");
+    }
+  },
+
+  get defaultAccount() {
+    if (wallet.defaultAccount && wallet.defaultAccount != '') {
+      return wallet.defaultAccount;
+    } else if (wallet.accounts.length > 0) {
+      _ram.defaultAccount = wallet.accounts[0].address;
+      return wallet.accounts[0].address;
+    } else {
+      throw new Error('Please import account before get defaultAccount!');
+    }
+  },
+
+  addAccount: function addAccount(account) {
+    account.privateKey = codec.toString(account.privateKey, 'base58');
+    account.publicKey = codec.toString(account.publicKey, 'base58');
+    wallet.accounts.push(account);
+  },
+  getAccounts: function getAccounts() {
+    return wallet.accounts;
+  }
+};
+var _localStorage = localStorage;
+var _storage = {
+  set defaultAccount(value) {
+    var local = _storage.getData();
+
+    if (!local) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
+
+    var isExist = false;
+
+    for (var i = 0; i < local.accounts.length; i++) {
+      if (local.accounts[i].address === value) {
+        isExist = true;
+        break;
+      }
+    }
+
+    if (isExist) {
+      local.defaultAccount = value;
+
+      _storage.saveData(local);
+    } else {
+      throw new Error("Address don't exist in wallet");
+    }
+  },
+
+  get defaultAccount() {
+    var local = _storage.getData();
+
+    if (local.defaultAccount) {
+      return local.defaultAccount;
+    } else if (local.accounts.length > 0) {
+      _storage.defaultAccount = local.accounts[0].address;
+      return local.accounts[0].address;
+    } else {
+      throw new Error('Please import account before get defaultAccount!');
+    }
+  },
+
+  addAccount: function addAccount(account) {
+    var local = _storage.getData();
+
+    account.privateKey = codec.toString(account.privateKey, 'base58');
+    account.publicKey = codec.toString(account.publicKey, 'base58');
+    local.accounts.push(account);
+
+    _storage.saveData(local);
+  },
+  getAccounts: function getAccounts() {
+    return _storage.getData().accounts;
+  },
+  saveData: function saveData(data) {
+    _localStorage.setItem('accounts', JSON.stringify(data));
+  },
+  getData: function getData() {
+    var dataLocal = _localStorage.getItem('accounts');
+
+    if (!dataLocal) dataLocal = "{\"defaultAccount\":\"\",\"accounts\":[]}";
+    return JSON.parse(dataLocal);
+  }
+};
+
+var Wallet =
+/*#__PURE__*/
+function () {
+  function Wallet() {
+    _classCallCheck(this, Wallet);
+  }
+
+  _createClass(Wallet, [{
+    key: "createAccount",
+    value: function createAccount() {
+      var account = newAccount(); // _storage.addAccount(account)
+
+      _ram.addAccount(account);
+
+      return account;
+    }
+  }, {
+    key: "importAccount",
+    value: function importAccount(privateKey) {
+      var account = getAccount(privateKey);
+
+      if (!this.getAccountByAddress(account.address)) {
+        // _storage.addAccount(account)
+        _ram.addAccount(account);
+      }
+
+      return account;
+    }
+  }, {
+    key: "getAccountByPrivateKey",
+    value: function getAccountByPrivateKey(privateKey) {
+      return getAccount(privateKey);
+    }
+  }, {
+    key: "getAccountByAddress",
+    value: function getAccountByAddress(address) {
+      // var accounts = _storage.getAccounts()
+      var accounts = _ram.getAccounts();
+
+      for (var i = 0; i < accounts.length; i++) {
+        if (accounts[i].address === address || accounts[i].publicKey === address) {
+          return accounts[i];
+        }
+      }
+    }
+  }, {
+    key: "getPrivateKeyByAddress",
+    value: function getPrivateKeyByAddress(fromAddress) {
+      var privateKey = '';
+
+      if (!fromAddress) {
+        fromAddress = this.defaultAccount;
+      }
+
+      var account = this.getAccountByAddress(fromAddress);
+
+      if (account) {
+        privateKey = account.privateKey;
+      } else {
+        throw new Error('Address ' + fromAddress + " don't exist in wallet");
+      }
+
+      return privateKey;
+    }
+  }, {
+    key: "saveToStorage",
+    value: function saveToStorage() {
+      _storage.saveData(wallet);
+    }
+  }, {
+    key: "loadFromStorage",
+    value: function loadFromStorage() {
+      wallet = _storage.getData();
+    }
+  }, {
+    key: "defaultAccount",
+    set: function set(value) {
+      // _storage.defaultAccount = value
+      _ram.defaultAccount = value;
+    },
+    get: function get() {
+      // return _storage.defaultAccount
+      return _ram.defaultAccount;
+    }
+  }, {
+    key: "accounts",
+    get: function get() {
+      // return _storage.getAccounts()
+      return _ram.getAccounts();
+    }
+  }]);
+
+  return Wallet;
+}();
+
+module.exports = Wallet;
 
 /***/ }),
 
