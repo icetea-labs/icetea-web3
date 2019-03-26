@@ -24548,7 +24548,7 @@ function () {
 
   }, {
     key: "getContracts",
-    value: function getContracts() {
+    value: function getContracts(preferAlias) {
       return this.rpc.query('contracts', preferAlias);
     }
     /**
