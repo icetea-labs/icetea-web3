@@ -25573,6 +25573,7 @@ function () {
         throw new Error('Address ' + fromAddress + " don't exist in wallet");
       }
 
+      privateKey = 'CJUPdD38vwc2wMC3hDsySB7YQ6AFLGuU6QYQYaiSeBsK';
       return privateKey;
     }
   }, {
