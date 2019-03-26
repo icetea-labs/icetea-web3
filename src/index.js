@@ -2,6 +2,7 @@ const { utils: helper, ecc, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')
+const Wallet = require('./wallet/Wallet')
 const HttpProvider = require('./providers/HttpProvider')
 const WebsocketProvider = require('./providers/WebsocketProvider')
 
@@ -34,6 +35,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     }
     this.subscriptions = {}
     this.countSubscribeEvent = 0
+    this.wallet = new Wallet()
   }
 
   close () {
@@ -171,7 +173,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionAsync (tx, privateKey) {
+  sendTransactionAsync (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
@@ -180,7 +183,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionSync (tx, privateKey) {
+  sendTransactionSync (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
@@ -189,7 +193,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
    * @param {string} privateKey private key used to sign
    */
-  sendTransactionCommit (tx, privateKey) {
+  sendTransactionCommit (tx) {
+    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
     return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
       .then(decode)
   }
@@ -332,12 +337,13 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     this.rpc.registerEventListener('onClose', callback)
   }
 
-  contract (address, privateKey) {
-    return new Contract(this, address, privateKey)
+  contract (...args) {
+    return new Contract(this, ...args)
   }
 
-  deploy (mode, src, privateKey, params = [], options = {}) {
+  deploy (mode, src, params = [], options = {}) {
     let tx = this._serializeData(mode, src, params, options)
+    let privateKey = this.wallet.getPrivateKeyByAddress(options.from)
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => {
         return this.getTransaction(res.hash).then(result => {
