@@ -25438,7 +25438,19 @@ var _ram = {
     return wallet.accounts;
   }
 };
-var _localStorage = localStorage;
+
+function getStorage() {
+  if (typeof localStorage !== 'undefined') {
+    return localStorage;
+  }
+
+  var LocalStorage = __webpack_require__(/*! node-localstorage */ "node-localstorage").LocalStorage;
+
+  return new LocalStorage('./localStorage');
+}
+
+var _localStorage = getStorage();
+
 var _storage = {
   set defaultAccount(value) {
     var local = _storage.getData();
@@ -25606,6 +25618,17 @@ module.exports = Wallet;
 /***/ (function(module, exports) {
 
 module.exports = fetch;
+
+/***/ }),
+
+/***/ "node-localstorage":
+/*!*******************************!*\
+  !*** external "localStorage" ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = localStorage;
 
 /***/ }),
 

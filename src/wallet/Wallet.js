@@ -40,7 +40,16 @@ const _ram = {
   }
 }
 
-const _localStorage = localStorage
+function getStorage() {
+  if (typeof localStorage !== 'undefined') {
+    return localStorage
+  }
+
+  const LocalStorage = require('node-localstorage').LocalStorage
+  return new LocalStorage('./localStorage')
+}
+
+const _localStorage = getStorage()
 const _storage = {
   set defaultAccount (value) {
     var local = _storage.getData()

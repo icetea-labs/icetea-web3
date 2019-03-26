@@ -27,7 +27,8 @@ module.exports = {
   devtool: 'source-map',
   externals: {
     websocket: 'root WebSocket',
-    'node-fetch': 'root fetch'
+    'node-fetch': 'root fetch',
+    'node-localstorage': 'root localStorage'
   },
   module: {
     rules: [
