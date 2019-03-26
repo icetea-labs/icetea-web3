@@ -134,10 +134,11 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
 
   /**
+   * @param {boolean} preferAlias whether to prefer alias, or just return address.
    * @return {string[]} Get all deployed smart contracts.
    */
   getContracts () {
-    return this.rpc.query('contracts')
+    return this.rpc.query('contracts', preferAlias)
   }
 
   /**

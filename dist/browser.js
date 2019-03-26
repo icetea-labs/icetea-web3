@@ -24511,13 +24511,14 @@ function () {
       return this.searchTransactions(query, options);
     }
     /**
+     * @param {boolean} preferAlias whether to prefer alias, or just return address.
      * @return {string[]} Get all deployed smart contracts.
      */
 
   }, {
     key: "getContracts",
     value: function getContracts() {
-      return this.rpc.query('contracts');
+      return this.rpc.query('contracts', preferAlias);
     }
     /**
      * Get contract metadata.
