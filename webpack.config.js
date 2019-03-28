@@ -30,6 +30,9 @@ module.exports = {
     'node-fetch': 'root fetch',
     'node-localstorage': 'root localStorage'
   },
+  node: {
+    fs: "empty"
+  },
   module: {
     rules: [
       {
