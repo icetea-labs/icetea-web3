@@ -59984,6 +59984,7 @@ var Contract = function Contract(tweb3, address) {
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
             var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
             return tweb3.sendTransactionAsync(tx, privateKey);
           },
           sendSync: function sendSync() {
@@ -59992,6 +59993,7 @@ var Contract = function Contract(tweb3, address) {
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
             var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
             return tweb3.sendTransactionSync(tx, privateKey);
           },
           sendCommit: function sendCommit() {
@@ -60000,6 +60002,7 @@ var Contract = function Contract(tweb3, address) {
             var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
 
             var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
+            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
             return tweb3.sendTransactionCommit(tx, privateKey);
           }
         };
@@ -60266,6 +60269,7 @@ function () {
     key: "sendTransactionAsync",
     value: function sendTransactionAsync(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
+      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
       return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
     }
     /**
@@ -60278,6 +60282,7 @@ function () {
     key: "sendTransactionSync",
     value: function sendTransactionSync(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
+      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
       return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
     }
     /**
@@ -60290,6 +60295,7 @@ function () {
     key: "sendTransactionCommit",
     value: function sendTransactionCommit(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
+      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
       return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
     }
     /**
@@ -60495,6 +60501,7 @@ function () {
       var tx = this._serializeData(mode, src, params, options);
 
       var privateKey = this.wallet.getPrivateKeyByAddress(options.from);
+      if (!privateKey) throw new Error('Deploy is failed because privateKey empty');
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
         return _this3.getTransaction(res.hash).then(function (result) {
           if (result.tx_result.code) {
@@ -61090,7 +61097,7 @@ var _ram = {
     }
 
     if (isExist) {
-      wallet.defaultAccount = value; // _storage.saveData(local)
+      wallet.defaultAccount = value;
     } else {
       throw new Error("Address " + value + " don't exist in wallet");
     }
@@ -61100,10 +61107,9 @@ var _ram = {
     if (wallet.defaultAccount && wallet.defaultAccount != '') {
       return wallet.defaultAccount;
     } else if (wallet.accounts.length > 0) {
-      _ram.defaultAccount = wallet.accounts[0].address;
-      return wallet.accounts[0].address;
-    } else {
-      throw new Error('Please import account before get defaultAccount!');
+      // set defaultAccount is address of first account
+      wallet.defaultAccount = wallet.accounts[0].address;
+      return wallet.defaultAccount;
     }
   },
 
@@ -61229,9 +61235,19 @@ function () {
       return getAccount(privateKey);
     }
   }, {
+    key: "getPrivateKeyByAddress",
+    value: function getPrivateKeyByAddress(fromAddress) {
+      if (!fromAddress) {
+        fromAddress = this.defaultAccount;
+      }
+
+      var account = this.getAccountByAddress(fromAddress);
+      if (account) return account.privateKey;
+    }
+  }, {
     key: "getAccountByAddress",
     value: function getAccountByAddress(address) {
-      var accounts = _ram.getAccounts();
+      var accounts = this.accounts;
 
       for (var i = 0; i < accounts.length; i++) {
         if (accounts[i].address === address || accounts[i].publicKey === address) {
@@ -61240,28 +61256,9 @@ function () {
       }
     }
   }, {
-    key: "getPrivateKeyByAddress",
-    value: function getPrivateKeyByAddress(fromAddress) {
-      var privateKey = '';
-
-      if (!fromAddress) {
-        fromAddress = this.defaultAccount;
-      }
-
-      var account = this.getAccountByAddress(fromAddress);
-
-      if (account) {
-        privateKey = account.privateKey;
-      } else {
-        throw new Error('Address ' + fromAddress + " don't exist in wallet");
-      }
-
-      return privateKey;
-    }
-  }, {
     key: "saveToStorage",
-    value: function saveToStorage() {
-      var password = prompt("Please enter your password");
+    value: function saveToStorage(password) {
+      if (!password) password = prompt("Please enter your password");
 
       var walletStogare = _storage.encode(password);
 
@@ -61271,19 +61268,19 @@ function () {
     }
   }, {
     key: "loadFromStorage",
-    value: function loadFromStorage() {
+    value: function loadFromStorage(password) {
       var walletStogare = _storage.getData();
 
       if (walletStogare && walletStogare.accounts.length > 0) {
-        var password = prompt("Please enter your password");
+        if (!password) password = prompt("Please enter your password");
 
         var wallettmp = _storage.decode(password, walletStogare);
 
         wallet = wallettmp;
-        console.log('wallet', wallet);
-      } else {
-        throw new Error('Data in Storage is empty');
+        console.log('Load wallet from storage', wallet);
       }
+
+      return wallet.accounts.length;
     }
   }, {
     key: "defaultAccount",

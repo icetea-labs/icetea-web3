@@ -17,7 +17,6 @@ const _ram = {
     }
     if (isExist) {
       wallet.defaultAccount = value
-      // _storage.saveData(local)
     } else {
       throw new Error("Address "+ value +" don't exist in wallet")
     }
@@ -26,10 +25,9 @@ const _ram = {
     if (wallet.defaultAccount && wallet.defaultAccount != '') {
       return wallet.defaultAccount
     } else if (wallet.accounts.length > 0) {
-      _ram.defaultAccount = wallet.accounts[0].address
-      return wallet.accounts[0].address
-    } else {
-      throw new Error('Please import account before get defaultAccount!')
+      // set defaultAccount is address of first account
+      wallet.defaultAccount = wallet.accounts[0].address
+      return wallet.defaultAccount
     }
   },
   addAccount (account) {
@@ -119,6 +117,10 @@ class Wallet {
   get defaultAccount () {
     return _ram.defaultAccount
   }
+  
+  get accounts () {
+    return _ram.getAccounts()
+  }
 
   createAccount () {
     var account = newAccount()
@@ -136,12 +138,16 @@ class Wallet {
     return getAccount(privateKey)
   }
 
-  get accounts () {
-    return _ram.getAccounts()
+  getPrivateKeyByAddress (fromAddress) {
+    if (!fromAddress) {
+      fromAddress = this.defaultAccount
+    }
+    var account = this.getAccountByAddress(fromAddress)
+    if (account) return account.privateKey
   }
 
   getAccountByAddress (address) {
-    var accounts = _ram.getAccounts()
+    var accounts = this.accounts
     for (var i = 0; i < accounts.length; i++) {
       if (accounts[i].address === address || accounts[i].publicKey === address) {
         return accounts[i]
@@ -149,37 +155,22 @@ class Wallet {
     }
   }
 
-  getPrivateKeyByAddress (fromAddress) {
-    var privateKey = ''
-    if (!fromAddress) {
-      fromAddress = this.defaultAccount
-    }
-    var account = this.getAccountByAddress(fromAddress)
-    if (account) {
-      privateKey = account.privateKey
-    } else {
-      throw new Error('Address ' + fromAddress + " don't exist in wallet")
-    }
-    return privateKey
-  }
-
-  saveToStorage () {
-    var password = prompt("Please enter your password");
+  saveToStorage (password) {
+    if(!password) password = prompt("Please enter your password");
     var walletStogare = _storage.encode(password)
     _storage.saveData(walletStogare)
     return walletStogare.accounts.length
   }
 
-  loadFromStorage () {
+  loadFromStorage (password) {
     var walletStogare = _storage.getData()
     if (walletStogare && walletStogare.accounts.length > 0) {
-      var password = prompt("Please enter your password");
+      if(!password) password = prompt("Please enter your password");
       var wallettmp = _storage.decode(password, walletStogare)
       wallet = wallettmp
-      console.log('wallet', wallet)
-    } else {
-      throw new Error('Data in Storage is empty')
+      console.log('Load wallet from storage', wallet)
     }
+    return wallet.accounts.length
   }
 }
 
