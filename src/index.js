@@ -43,6 +43,23 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       this.rpc.close()
     }
   }
+  /**
+   * Direct call tendermint.
+   * @param {string} method required.   
+   * @param {*} options optional
+   * @return {*} the tendermint infor.
+   */
+  rawCall (method, options) {
+    return this.rpc.call(method, options)
+  }
+  /**
+   * Get a single validators
+   * @param {*} options example {height: 10}, skip to get latest block.
+   * @returns the validators block.
+   */
+  getValidators (options) {
+    return this.rpc.call('validators', options)
+  }
 
   /**
    * Get account balance.

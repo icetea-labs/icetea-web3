@@ -60105,6 +60105,29 @@ function () {
       }
     }
     /**
+     * Direct call tendermint.
+     * @param {string} method required.   
+     * @param {*} options optional
+     * @return {*} the tendermint infor.
+     */
+
+  }, {
+    key: "rawCall",
+    value: function rawCall(method, options) {
+      return this.rpc.call(method, options);
+    }
+    /**
+     * Get a single validators
+     * @param {*} options example {height: 10}, skip to get latest block.
+     * @returns the validators block.
+     */
+
+  }, {
+    key: "getValidators",
+    value: function getValidators(options) {
+      return this.rpc.call('validators', options);
+    }
+    /**
      * Get account balance.
      * @param {string} address address of the account.
      * @returns {number} account balance.
