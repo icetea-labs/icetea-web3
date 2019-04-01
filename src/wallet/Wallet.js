@@ -1,54 +1,60 @@
 const { newAccount, getAccount } = require('icetea-common').utils
 const { codec } = require('icetea-common')
-const keythereum = require("keythereum")
+const keythereum = require('keythereum')
 const randomBytes = require('randombytes')
 
-var wallet = { defaultAccount: '', accounts: [] }
+var _wallet = { defaultAccount: '', accounts: [] }
 const _ram = {
+  set wallet (value) {
+    _wallet = value
+  },
+  get wallet () {
+    return _wallet
+  },
   set defaultAccount (value) {
-    if (!wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!')
+    if (!_ram.wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!')
     // check address in wallet
     var isExist = false
-    for (var i = 0; i < wallet.accounts.length; i++) {
-      if (wallet.accounts[i].address === value) {
+    for (var i = 0; i < _ram.wallet.accounts.length; i++) {
+      if (_ram.wallet.accounts[i].address === value) {
         isExist = true
         break
       }
     }
     if (isExist) {
-      wallet.defaultAccount = value
+      _ram.wallet.defaultAccount = value
     } else {
-      throw new Error("Address "+ value +" don't exist in wallet")
+      throw new Error('Address ' + value + ` don't exist in wallet`)
     }
   },
   get defaultAccount () {
-    if (wallet.defaultAccount && wallet.defaultAccount != '') {
-      return wallet.defaultAccount
-    } else if (wallet.accounts.length > 0) {
+    if (_ram.wallet.defaultAccount && _ram.wallet.defaultAccount !== '') {
+      return _ram.wallet.defaultAccount
+    } else if (_ram.wallet.accounts.length > 0) {
       // set defaultAccount is address of first account
-      wallet.defaultAccount = wallet.accounts[0].address
-      return wallet.defaultAccount
+      _ram.wallet.defaultAccount = _ram.wallet.accounts[0].address
+      return _ram.wallet.defaultAccount
     }
   },
   addAccount (account) {
     // check private exsit before add account
     var isExist = false
-    for (var i = 0; i < wallet.accounts.length; i++) {
-      if (wallet.accounts[i].privateKey === account.privateKey) {
+    for (var i = 0; i < _ram.wallet.accounts.length; i++) {
+      if (_ram.wallet.accounts[i].privateKey === account.privateKey) {
         isExist = true
         break
       }
     }
-    if (!isExist) wallet.accounts.push(account)
+    if (!isExist) _ram.wallet.accounts.push(account)
   },
   getAccounts () {
-    return wallet.accounts
+    return _ram.wallet.accounts
   }
 }
 
-function getStorage() {
+function getStorage () {
   if (typeof localStorage !== 'undefined') {
-    return localStorage
+    return window.localStorage
   }
 
   const LocalStorage = require('node-localstorage').LocalStorage
@@ -67,23 +73,23 @@ const _storage = {
   },
   encode (password) {
     var options = {
-      kdf: "pbkdf2",
-      cipher: "aes-128-ctr",
+      kdf: 'pbkdf2',
+      cipher: 'aes-128-ctr',
       kdfparams: {
         c: 262144,
         dklen: 32,
-        prf: "hmac-sha256"
+        prf: 'hmac-sha256'
       }
     }
 
     var dk = _utils.createRandom()
     var walletStogare = { defaultAccount: '', accounts: [] }
-    wallet.accounts.forEach(item => {
+    _ram.wallet.accounts.forEach(item => {
       var privateKey = codec.toBuffer(item.privateKey)
-      var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options);
+      var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options)
       walletStogare.accounts.push(keyObject)
     })
-    walletStogare.defaultAccount = wallet.defaultAccount
+    walletStogare.defaultAccount = _ram.wallet.defaultAccount
     return walletStogare
   },
   decode (password, walletStogare) {
@@ -99,13 +105,14 @@ const _storage = {
 }
 
 const _utils = {
-  createRandom: function() {
-    var keyBytes = 32, ivBytes = 16
+  createRandom: function () {
+    var keyBytes = 32
+    var ivBytes = 16
     var random = randomBytes(keyBytes + ivBytes + keyBytes)
     return {
       iv: random.slice(keyBytes, keyBytes + ivBytes),
       salt: random.slice(keyBytes + ivBytes)
-    };
+    }
   }
 }
 
@@ -117,7 +124,7 @@ class Wallet {
   get defaultAccount () {
     return _ram.defaultAccount
   }
-  
+
   get accounts () {
     return _ram.getAccounts()
   }
@@ -130,7 +137,7 @@ class Wallet {
 
   importAccount (privateKey) {
     var account = getAccount(privateKey)
-      _ram.addAccount(account)
+    _ram.addAccount(account)
     return account
   }
 
@@ -156,7 +163,7 @@ class Wallet {
   }
 
   saveToStorage (password) {
-    if(!password) password = prompt("Please enter your password");
+    if (!password) password = window.prompt('Please enter your password')
     var walletStogare = _storage.encode(password)
     _storage.saveData(walletStogare)
     return walletStogare.accounts.length
@@ -165,12 +172,13 @@ class Wallet {
   loadFromStorage (password) {
     var walletStogare = _storage.getData()
     if (walletStogare && walletStogare.accounts.length > 0) {
-      if(!password) password = prompt("Please enter your password");
+      if (!password) password = window.prompt('Please enter your password')
       var wallettmp = _storage.decode(password, walletStogare)
-      wallet = wallettmp
-      console.log('Load wallet from storage', wallet)
+      // load data from localstorage and set on wallet in ram
+      _ram.wallet = wallettmp
+      console.log('Load wallet from storage', _ram.wallet)
     }
-    return wallet.accounts.length
+    return _ram.wallet.accounts.length
   }
 }
 

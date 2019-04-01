@@ -60106,7 +60106,7 @@ function () {
     }
     /**
      * Direct call tendermint.
-     * @param {string} method required.   
+     * @param {string} method required.
      * @param {*} options optional
      * @return {*} the tendermint infor.
      */
@@ -61102,37 +61102,45 @@ var keythereum = __webpack_require__(/*! keythereum */ "./node_modules/keythereu
 
 var randomBytes = __webpack_require__(/*! randombytes */ "./node_modules/randombytes/browser.js");
 
-var wallet = {
+var _wallet = {
   defaultAccount: '',
   accounts: []
 };
 var _ram = {
+  set wallet(value) {
+    _wallet = value;
+  },
+
+  get wallet() {
+    return _wallet;
+  },
+
   set defaultAccount(value) {
-    if (!wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
+    if (!_ram.wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!'); // check address in wallet
 
     var isExist = false;
 
-    for (var i = 0; i < wallet.accounts.length; i++) {
-      if (wallet.accounts[i].address === value) {
+    for (var i = 0; i < _ram.wallet.accounts.length; i++) {
+      if (_ram.wallet.accounts[i].address === value) {
         isExist = true;
         break;
       }
     }
 
     if (isExist) {
-      wallet.defaultAccount = value;
+      _ram.wallet.defaultAccount = value;
     } else {
-      throw new Error("Address " + value + " don't exist in wallet");
+      throw new Error('Address ' + value + " don't exist in wallet");
     }
   },
 
   get defaultAccount() {
-    if (wallet.defaultAccount && wallet.defaultAccount != '') {
-      return wallet.defaultAccount;
-    } else if (wallet.accounts.length > 0) {
+    if (_ram.wallet.defaultAccount && _ram.wallet.defaultAccount !== '') {
+      return _ram.wallet.defaultAccount;
+    } else if (_ram.wallet.accounts.length > 0) {
       // set defaultAccount is address of first account
-      wallet.defaultAccount = wallet.accounts[0].address;
-      return wallet.defaultAccount;
+      _ram.wallet.defaultAccount = _ram.wallet.accounts[0].address;
+      return _ram.wallet.defaultAccount;
     }
   },
 
@@ -61140,23 +61148,23 @@ var _ram = {
     // check private exsit before add account
     var isExist = false;
 
-    for (var i = 0; i < wallet.accounts.length; i++) {
-      if (wallet.accounts[i].privateKey === account.privateKey) {
+    for (var i = 0; i < _ram.wallet.accounts.length; i++) {
+      if (_ram.wallet.accounts[i].privateKey === account.privateKey) {
         isExist = true;
         break;
       }
     }
 
-    if (!isExist) wallet.accounts.push(account);
+    if (!isExist) _ram.wallet.accounts.push(account);
   },
   getAccounts: function getAccounts() {
-    return wallet.accounts;
+    return _ram.wallet.accounts;
   }
 };
 
 function getStorage() {
   if (typeof localStorage !== 'undefined') {
-    return localStorage;
+    return window.localStorage;
   }
 
   var LocalStorage = __webpack_require__(/*! node-localstorage */ "node-localstorage").LocalStorage;
@@ -61178,12 +61186,12 @@ var _storage = {
   },
   encode: function encode(password) {
     var options = {
-      kdf: "pbkdf2",
-      cipher: "aes-128-ctr",
+      kdf: 'pbkdf2',
+      cipher: 'aes-128-ctr',
       kdfparams: {
         c: 262144,
         dklen: 32,
-        prf: "hmac-sha256"
+        prf: 'hmac-sha256'
       }
     };
 
@@ -61193,12 +61201,14 @@ var _storage = {
       defaultAccount: '',
       accounts: []
     };
-    wallet.accounts.forEach(function (item) {
+
+    _ram.wallet.accounts.forEach(function (item) {
       var privateKey = codec.toBuffer(item.privateKey);
       var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options);
       walletStogare.accounts.push(keyObject);
     });
-    walletStogare.defaultAccount = wallet.defaultAccount;
+
+    walletStogare.defaultAccount = _ram.wallet.defaultAccount;
     return walletStogare;
   },
   decode: function decode(password, walletStogare) {
@@ -61217,8 +61227,8 @@ var _storage = {
 };
 var _utils = {
   createRandom: function createRandom() {
-    var keyBytes = 32,
-        ivBytes = 16;
+    var keyBytes = 32;
+    var ivBytes = 16;
     var random = randomBytes(keyBytes + ivBytes + keyBytes);
     return {
       iv: random.slice(keyBytes, keyBytes + ivBytes),
@@ -61281,7 +61291,7 @@ function () {
   }, {
     key: "saveToStorage",
     value: function saveToStorage(password) {
-      if (!password) password = prompt("Please enter your password");
+      if (!password) password = window.prompt('Please enter your password');
 
       var walletStogare = _storage.encode(password);
 
@@ -61295,15 +61305,16 @@ function () {
       var walletStogare = _storage.getData();
 
       if (walletStogare && walletStogare.accounts.length > 0) {
-        if (!password) password = prompt("Please enter your password");
+        if (!password) password = window.prompt('Please enter your password');
 
-        var wallettmp = _storage.decode(password, walletStogare);
+        var wallettmp = _storage.decode(password, walletStogare); // load data from localstorage and set on wallet in ram
 
-        wallet = wallettmp;
-        console.log('Load wallet from storage', wallet);
+
+        _ram.wallet = wallettmp;
+        console.log('Load wallet from storage', _ram.wallet);
       }
 
-      return wallet.accounts.length;
+      return _ram.wallet.accounts.length;
     }
   }, {
     key: "defaultAccount",
