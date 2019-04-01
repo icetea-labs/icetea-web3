@@ -45,7 +45,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
   /**
    * Direct call tendermint.
-   * @param {string} method required.   
+   * @param {string} method required.
    * @param {*} options optional
    * @return {*} the tendermint infor.
    */
@@ -192,7 +192,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionAsync (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if(!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
     return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
@@ -203,7 +203,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionSync (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if(!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
     return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
@@ -214,7 +214,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionCommit (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if(!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
     return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
       .then(decode)
   }
@@ -364,7 +364,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   deploy (mode, src, params = [], options = {}) {
     let tx = this._serializeData(mode, src, params, options)
     let privateKey = this.wallet.getPrivateKeyByAddress(options.from)
-    if(!privateKey) throw new Error('Deploy is failed because privateKey empty')
+    if (!privateKey) throw new Error('Deploy is failed because privateKey empty')
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => {
         return this.getTransaction(res.hash).then(result => {

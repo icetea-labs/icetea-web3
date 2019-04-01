@@ -31,7 +31,7 @@ module.exports = {
     'node-localstorage': 'root localStorage'
   },
   node: {
-    fs: "empty"
+    fs: 'empty'
   },
   module: {
     rules: [
