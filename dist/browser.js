@@ -60689,7 +60689,7 @@ function () {
 
       var tx = _serializeData(mode, src, params, options);
 
-      return this.sendTransactionCommit(tx, privateKey).then(function (res) {
+      return this.sendTransactionCommit(tx).then(function (res) {
         return _this3.contract(res);
       });
     }
@@ -60726,7 +60726,7 @@ function () {
         };
       }
 
-      return this.sendTransactionCommit(tx, privateKey);
+      return this.sendTransactionCommit(tx);
     }
   }]);
 
