@@ -65,10 +65,6 @@ class BaseProvider {
         throw Object.assign(new Error(log), result)
       }
 
-      if (result.deliver_tx.data) {
-        result.result = tryParseJson(result.deliver_tx.data)
-      }
-
       return result
     })
   }

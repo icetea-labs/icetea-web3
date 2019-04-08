@@ -1,4 +1,4 @@
-const { utils: helper, ecc, TxOp, ContractMode } = require('icetea-common')
+const { utils: helper, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')
@@ -6,7 +6,6 @@ const Wallet = require('./wallet/Wallet')
 const HttpProvider = require('./providers/HttpProvider')
 const WebsocketProvider = require('./providers/WebsocketProvider')
 
-const { toAddress } = ecc
 const { signTransaction } = helper
 
 exports.utils = utils

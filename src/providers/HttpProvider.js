@@ -1,3 +1,5 @@
+/* global fetch */
+
 const BaseProvider = require('./BaseProvider')
 
 const _fetch = typeof fetch !== 'undefined' ? fetch : require('node-fetch')

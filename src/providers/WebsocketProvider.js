@@ -1,3 +1,5 @@
+/* global WebSocket */
+
 const BaseProvider = require('./BaseProvider')
 const WebsocketAsPromised = require('websocket-as-promised')
 

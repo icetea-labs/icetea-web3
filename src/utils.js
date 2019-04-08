@@ -135,12 +135,12 @@ exports.decode = (tx, keepEvents = false) => {
   return tx
 }
 
-_decodeTxResult = (result) => {
+const _decodeTxResult = (result) => {
   if (!result) return result
   const name = result.tx_result ? 'tx_result' : 'deliver_tx'
 
   if (result[name] && result[name].data) {
-    result[name].data = this.tryParseJson(this.switchEncoding(result[name].data, 'base64', 'utf8'))
+    result.result = this.tryParseJson(this.switchEncoding(result[name].data, 'base64', 'utf8'))
   }
 
   return result

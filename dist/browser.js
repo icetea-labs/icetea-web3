@@ -15068,10 +15068,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh","/keythereum/secp256k1","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
+module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_development":true,"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
 
 /***/ }),
 
@@ -39012,14 +39012,12 @@ var t = {
     return secp256k1.sign(toDataBuffer(hash32bytes), toKeyBuffer(privateKey));
   },
   stableHashObject: function stableHashObject(obj) {
-    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DATA_ENCODING;
-
     if (typeof obj !== 'string') {
       obj = stableStringify(obj);
     }
 
     var hash = createHash('sha256').update(obj);
-    return enc ? hash.digest(enc) : hash.digest();
+    return hash.digest(DATA_ENCODING);
   }
 };
 module.exports = t;
@@ -59958,6 +59956,14 @@ var Contract = function Contract(tweb3, address) {
 
   this.options = options; // default options
 
+  if (typeof address === 'string') {
+    this.address = address;
+  } else {
+    this.address = address.address || address.result;
+    this.hash = address.hash;
+    this.height = address.height;
+  }
+
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
       return function () {
@@ -60040,7 +60046,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     helper = _require.utils,
-    ecc = _require.ecc,
     TxOp = _require.TxOp,
     ContractMode = _require.ContractMode;
 
@@ -60061,7 +60066,6 @@ var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/pr
 
 var WebsocketProvider = __webpack_require__(/*! ./providers/WebsocketProvider */ "./src/providers/WebsocketProvider.js");
 
-var toAddress = ecc.toAddress;
 var signTransaction = helper.signTransaction;
 exports.utils = utils;
 /**
@@ -60526,26 +60530,7 @@ function () {
       var privateKey = this.wallet.getPrivateKeyByAddress(options.from);
       if (!privateKey) throw new Error('Deploy is failed because privateKey empty');
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
-        return _this3.getTransaction(res.hash).then(function (result) {
-          if (result.tx_result.code) {
-            var err = new Error(result.tx_result.log);
-            Object.assign(err, result);
-            throw err;
-          }
-
-          var data = result.tx; // decodeTX(result.tx)
-
-          return {
-            hash: result.hash,
-            height: result.height,
-            address: result.tx_result.data,
-            tx: result.tx,
-            data: {
-              from: toAddress(data.publicKey),
-              to: result.tx_result.data
-            }
-          };
-        });
+        return _this3.contract(res);
       });
     }
   }, {
@@ -60627,16 +60612,16 @@ function () {
     }
   }, {
     key: "_call",
-    value: function _call(method, params) {} // call a jsonrpc, normally to query blockchain (block, tx, validator, consensus, etc.) data
+    value: function _call(method, params) {
+      throw new Error('BaseProvider._call is not implemented.');
+    } // call a jsonrpc, normally to query blockchain (block, tx, validator, consensus, etc.) data
 
   }, {
     key: "call",
     value: function call(method, params) {
       return this._call(method, params).then(function (resp) {
         if (resp.error) {
-          var err = new Error(resp.error.message);
-          Object.assign(err, resp.error);
-          throw err;
+          throw Object.assign(new Error(resp.error.message), resp.error);
         }
 
         if (resp.id) resp.result.id = resp.id;
@@ -60659,21 +60644,18 @@ function () {
         params.data = switchEncoding(data, 'utf8', 'hex');
       }
 
-      return this._call('abci_query', params).then(function (resp) {
-        if (resp.error) {
-          var err = new Error(resp.error.message);
-          Object.assign(err, resp.error);
+      return this.call('abci_query', params).then(function (result) {
+        var r = result.response;
+        var info = tryParseJson(r.info);
+
+        if (r.code) {
+          var err = new Error(String(info && info.message || data));
+          err.code = r.code;
+          err.info = info;
           throw err;
-        } // decode query data embeded in info
-
-
-        var r = resp.result;
-
-        if (r && r.response && r.response.info) {
-          r = tryParseJson(r.response.info);
         }
 
-        return r;
+        return info;
       });
     } // send a transaction (write)
 
@@ -60685,10 +60667,11 @@ function () {
         // for query string (REST), encode in 'hex' (or 'utf8' inside quotes)
         tx: encodeTX(tx, 'base64')
       }).then(function (result) {
-        if (result.code) {
-          var err = new Error(result.log);
-          Object.assign(err, result);
-          throw err;
+        var code = result.code || result.check_tx && result.check_tx.code || result.deliver_tx && result.deliver_tx.code;
+
+        if (code) {
+          var log = result.log || result.check_tx && result.check_tx.log || result.deliver_tx && result.deliver_tx.log;
+          throw Object.assign(new Error(log), result);
         }
 
         return result;
@@ -60732,6 +60715,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+/* global fetch */
 var BaseProvider = __webpack_require__(/*! ./BaseProvider */ "./src/providers/BaseProvider.js");
 
 var _fetch = typeof fetch !== 'undefined' ? fetch : __webpack_require__(/*! node-fetch */ "node-fetch");
@@ -60814,6 +60798,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+/* global WebSocket */
 var BaseProvider = __webpack_require__(/*! ./BaseProvider */ "./src/providers/BaseProvider.js");
 
 var WebsocketAsPromised = __webpack_require__(/*! websocket-as-promised */ "./node_modules/websocket-as-promised/dist/index.js");
@@ -61064,12 +61049,12 @@ exports.decode = function (tx) {
   return tx;
 };
 
-_decodeTxResult = function _decodeTxResult(result) {
+var _decodeTxResult = function _decodeTxResult(result) {
   if (!result) return result;
   var name = result.tx_result ? 'tx_result' : 'deliver_tx';
 
   if (result[name] && result[name].data) {
-    result[name].data = _this.tryParseJson(_this.switchEncoding(result[name].data, 'base64', 'utf8'));
+    result.result = _this.tryParseJson(_this.switchEncoding(result[name].data, 'base64', 'utf8'));
   }
 
   return result;
