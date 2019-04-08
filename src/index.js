@@ -191,7 +191,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionAsync (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('No private key available.')
     return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
   }
 
@@ -202,7 +202,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionSync (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('No private key available.')
     return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
   }
 
@@ -213,7 +213,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    */
   sendTransactionCommit (tx) {
     let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
+    if (!privateKey) throw new Error('No private key available.')
     return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
       .then(decode)
   }
@@ -361,33 +361,48 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
 
   deploy (mode, src, params = [], options = {}) {
-    let tx = this._serializeData(mode, src, params, options)
-    let privateKey = this.wallet.getPrivateKeyByAddress(options.from)
-    if (!privateKey) throw new Error('Deploy is failed because privateKey empty')
+    const tx = _serializeData(mode, src, params, options)
     return this.sendTransactionCommit(tx, privateKey)
       .then(res => this.contract(res))
   }
 
-  _serializeData (mode, src, params, options) {
-    var formData = {}
-    var txData = {
-      op: TxOp.DEPLOY_CONTRACT,
-      mode: mode,
-      params: params
-    }
-    if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
-      txData.src = switchEncoding(src, 'utf8', 'base64')
-    } else {
-      if (Buffer.isBuffer(src)) {
-        src = Buffer.toString('base64')
-      } else if (typeof src !== 'string') {
-        throw Error('Wasm binary must be in form of Buffer or base64-encoded string.')
-      }
-      txData.src = src
-    }
-    formData.value = options.value || 0
-    formData.fee = options.fee || 0
-    formData.data = txData
-    return formData
+  deployJs (src, params = [], options = {}) {
+    return this.deploy(ContractMode.JS_RAW, src, params, options)
   }
+
+  deployWasm (wasmBuffer, params = [], options = {}) {
+    return this.deploy(ContractMode.WASM, wasmBuffer, params, options)
+  }
+
+  transfer (to, value, params = undefined, options = {}) {
+    const tx = { to, value, fee: options.fee, from: options.from }
+    if (params) {
+      tx.data = { params } // params for __on_received
+    }
+    return this.sendTransactionCommit(tx, privateKey)
+  }
+}
+
+function _serializeData (mode, src, params, options) {
+  var formData = {}
+  var txData = {
+    op: TxOp.DEPLOY_CONTRACT,
+    mode: mode,
+    params: params
+  }
+  if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
+    txData.src = switchEncoding(src, 'utf8', 'base64')
+  } else {
+    if (Buffer.isBuffer(src)) {
+      src = Buffer.toString('base64')
+    } else if (typeof src !== 'string') {
+      throw Error('Wasm binary must be in form of Buffer or base64-encoded string.')
+    }
+    txData.src = src
+  }
+  formData.from = options.from
+  formData.value = options.value || 0
+  formData.fee = options.fee || 0
+  formData.data = txData
+  return formData
 }

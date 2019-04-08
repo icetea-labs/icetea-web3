@@ -15068,10 +15068,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh","/keythereum/secp256k1","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
+module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_development":true,"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
 
 /***/ }),
 
@@ -60458,7 +60458,7 @@ function () {
     key: "sendTransactionAsync",
     value: function sendTransactionAsync(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
+      if (!privateKey) throw new Error('No private key available.');
       return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
     }
     /**
@@ -60471,7 +60471,7 @@ function () {
     key: "sendTransactionSync",
     value: function sendTransactionSync(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
+      if (!privateKey) throw new Error('No private key available.');
       return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
     }
     /**
@@ -60484,7 +60484,7 @@ function () {
     key: "sendTransactionCommit",
     value: function sendTransactionCommit(tx) {
       var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
+      if (!privateKey) throw new Error('No private key available.');
       return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
     }
     /**
@@ -60687,45 +60687,78 @@ function () {
       var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-      var tx = this._serializeData(mode, src, params, options);
+      var tx = _serializeData(mode, src, params, options);
 
-      var privateKey = this.wallet.getPrivateKeyByAddress(options.from);
-      if (!privateKey) throw new Error('Deploy is failed because privateKey empty');
       return this.sendTransactionCommit(tx, privateKey).then(function (res) {
         return _this3.contract(res);
       });
     }
   }, {
-    key: "_serializeData",
-    value: function _serializeData(mode, src, params, options) {
-      var formData = {};
-      var txData = {
-        op: TxOp.DEPLOY_CONTRACT,
-        mode: mode,
-        params: params
+    key: "deployJs",
+    value: function deployJs(src) {
+      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.deploy(ContractMode.JS_RAW, src, params, options);
+    }
+  }, {
+    key: "deployWasm",
+    value: function deployWasm(wasmBuffer) {
+      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return this.deploy(ContractMode.WASM, wasmBuffer, params, options);
+    }
+  }, {
+    key: "transfer",
+    value: function transfer(to, value) {
+      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
+      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+      var tx = {
+        to: to,
+        value: value,
+        fee: options.fee,
+        from: options.from
       };
 
-      if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
-        txData.src = switchEncoding(src, 'utf8', 'base64');
-      } else {
-        if (Buffer.isBuffer(src)) {
-          src = Buffer.toString('base64');
-        } else if (typeof src !== 'string') {
-          throw Error('Wasm binary must be in form of Buffer or base64-encoded string.');
-        }
+      if (params) {
+        tx.data = {
+          params: params // params for __on_received
 
-        txData.src = src;
+        };
       }
 
-      formData.value = options.value || 0;
-      formData.fee = options.fee || 0;
-      formData.data = txData;
-      return formData;
+      return this.sendTransactionCommit(tx, privateKey);
     }
   }]);
 
   return IceTeaWeb3;
 }();
+
+function _serializeData(mode, src, params, options) {
+  var formData = {};
+  var txData = {
+    op: TxOp.DEPLOY_CONTRACT,
+    mode: mode,
+    params: params
+  };
+
+  if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
+    txData.src = switchEncoding(src, 'utf8', 'base64');
+  } else {
+    if (Buffer.isBuffer(src)) {
+      src = Buffer.toString('base64');
+    } else if (typeof src !== 'string') {
+      throw Error('Wasm binary must be in form of Buffer or base64-encoded string.');
+    }
+
+    txData.src = src;
+  }
+
+  formData.from = options.from;
+  formData.value = options.value || 0;
+  formData.fee = options.fee || 0;
+  formData.data = txData;
+  return formData;
+}
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
