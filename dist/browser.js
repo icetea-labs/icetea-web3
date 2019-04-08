@@ -15068,10 +15068,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_development":true,"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
+module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/iceteaweb3"]],"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh","/keythereum/secp256k1","/secp256k1"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/iceteaweb3","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
 
 /***/ }),
 
@@ -27319,10 +27319,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_from":"elliptic@^6.0.0","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"elliptic@^6.0.0","name":"elliptic","escapedName":"elliptic","rawSpec":"^6.0.0","saveSpec":null,"fetchSpec":"^6.0.0"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_spec":"elliptic@^6.0.0","_where":"/Users/thi/Documents/GitHub/icetea-common/node_modules/browserify-sign","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"bundleDependencies":false,"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"deprecated":false,"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
+module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/icetea-common"]],"_development":true,"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/icetea-common","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
 
 /***/ }),
 
@@ -38798,6 +38798,136 @@ function () {
 
 /***/ }),
 
+/***/ "./src/bech32.js":
+/*!***********************!*\
+  !*** ./src/bech32.js ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+var GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+module.exports = {
+  decode: decode,
+  encode: encode
+};
+
+function polymod(values) {
+  var chk = 1;
+
+  for (var p = 0; p < values.length; ++p) {
+    var top = chk >> 25;
+    chk = (chk & 0x1ffffff) << 5 ^ values[p];
+
+    for (var i = 0; i < 5; ++i) {
+      if (top >> i & 1) {
+        chk ^= GENERATOR[i];
+      }
+    }
+  }
+
+  return chk;
+}
+
+function hrpExpand(hrp) {
+  var ret = [];
+  var p;
+
+  for (p = 0; p < hrp.length; ++p) {
+    ret.push(hrp.charCodeAt(p) >> 5);
+  }
+
+  ret.push(0);
+
+  for (p = 0; p < hrp.length; ++p) {
+    ret.push(hrp.charCodeAt(p) & 31);
+  }
+
+  return ret;
+}
+
+function verifyChecksum(hrp, data) {
+  return polymod(hrpExpand(hrp).concat(data)) === 1;
+}
+
+function createChecksum(hrp, data) {
+  var values = hrpExpand(hrp).concat(data).concat([0, 0, 0, 0, 0, 0]);
+  var mod = polymod(values) ^ 1;
+  var ret = [];
+
+  for (var p = 0; p < 6; ++p) {
+    ret.push(mod >> 5 * (5 - p) & 31);
+  }
+
+  return ret;
+}
+
+function encode(hrp, data) {
+  var combined = data.concat(createChecksum(hrp, data));
+  var ret = hrp + '1';
+
+  for (var p = 0; p < combined.length; ++p) {
+    ret += CHARSET.charAt(combined[p]);
+  }
+
+  return ret;
+}
+
+function decode(bechString) {
+  var p;
+  var has_lower = false;
+  var has_upper = false;
+
+  for (p = 0; p < bechString.length; ++p) {
+    if (bechString.charCodeAt(p) < 33 || bechString.charCodeAt(p) > 126) {
+      return null;
+    }
+
+    if (bechString.charCodeAt(p) >= 97 && bechString.charCodeAt(p) <= 122) {
+      has_lower = true;
+    }
+
+    if (bechString.charCodeAt(p) >= 65 && bechString.charCodeAt(p) <= 90) {
+      has_upper = true;
+    }
+  }
+
+  if (has_lower && has_upper) {
+    return null;
+  }
+
+  bechString = bechString.toLowerCase();
+  var pos = bechString.lastIndexOf('1');
+
+  if (pos < 1 || pos + 7 > bechString.length || bechString.length > 90) {
+    return null;
+  }
+
+  var hrp = bechString.substring(0, pos);
+  var data = [];
+
+  for (p = pos + 1; p < bechString.length; ++p) {
+    var d = CHARSET.indexOf(bechString.charAt(p));
+
+    if (d === -1) {
+      return null;
+    }
+
+    data.push(d);
+  }
+
+  if (!verifyChecksum(hrp, data)) {
+    return null;
+  }
+
+  return {
+    hrp: hrp,
+    data: data.slice(0, data.length - 6)
+  };
+}
+
+/***/ }),
+
 /***/ "./src/codec.js":
 /*!**********************!*\
   !*** ./src/codec.js ***!
@@ -38848,6 +38978,31 @@ var toString = function toString(buf) {
   }
 
   return buf.toString(enc);
+}; // BUFFER to ARRAY (8bits to 5bits)
+
+
+var base32Encode = function base32Encode(buffer) {
+  var length = buffer.byteLength;
+  var view = new Uint8Array(buffer);
+  var bits = 0;
+  var value = 0;
+  var output = [];
+
+  for (var i = 0; i < length; i++) {
+    value = value << 8 | view[i];
+    bits += 8;
+
+    while (bits >= 5) {
+      output.push(value >>> bits - 5 & 31);
+      bits -= 5;
+    }
+  }
+
+  if (bits > 0) {
+    output.push(value << 5 - bits & 31);
+  }
+
+  return output;
 }; // Decode & encode of OBJECT <-> BUFFER
 // It is more space-efficient than OBJECT stringify to JSON then convert to Buffer utf8
 // Other candidates: protobuf3, amino, bson, RLP
@@ -38866,6 +39021,10 @@ exports.toKeyBuffer = function (text) {
 
 exports.toKeyString = function (buf) {
   return toString(buf, KEY_ENCODING);
+};
+
+exports.base32Encode = function (buf) {
+  return base32Encode(buf);
 };
 
 exports.DATA_ENCODING = DATA_ENCODING;
@@ -38900,42 +39059,42 @@ var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-h
 
 var secp256k1 = __webpack_require__(/*! secp256k1 */ "./node_modules/secp256k1/elliptic.js");
 
-var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
-    toKeyBuffer = _require.toKeyBuffer,
-    toKeyString = _require.toKeyString,
-    toDataBuffer = _require.toDataBuffer,
-    stableStringify = _require.stableStringify,
-    DATA_ENCODING = _require.DATA_ENCODING;
+var _require = __webpack_require__(/*! ./bech32 */ "./src/bech32.js"),
+    encode = _require.encode,
+    decode = _require.decode;
+
+var _require2 = __webpack_require__(/*! ./codec */ "./src/codec.js"),
+    toKeyBuffer = _require2.toKeyBuffer,
+    toKeyString = _require2.toKeyString,
+    base32Encode = _require2.base32Encode,
+    toDataBuffer = _require2.toDataBuffer,
+    stableStringify = _require2.stableStringify,
+    DATA_ENCODING = _require2.DATA_ENCODING;
 
 var PREFIX = 'tea';
-var SEPARATOR = '_';
 var t = {
   validateAddress: function validateAddress(address) {
-    var parts = address.split(SEPARATOR);
-
-    if (parts.length !== 2) {
-      throw new Error('Invalid address prefix.');
-    }
-
-    var prefix = parts[0];
-    address = parts[1];
-
-    if (prefix !== PREFIX && !/^\d+$/.test(prefix)) {
-      throw new Error('Invalid address prefix.');
-    }
-
     var len;
 
     try {
-      len = toKeyBuffer(address).length;
+      var result = decode(address);
+      var prefix = result.hrp;
+
+      if (prefix !== PREFIX && !/^\d+$/.test(prefix)) {
+        throw new Error('Invalid address prefix.');
+      }
+
+      len = result.data.length;
     } catch (err) {
       err.message = 'Invalid address: ' + err.message;
       throw err;
     }
 
-    if (len !== 20) {
+    if (len !== 32) {
       throw new Error('Invalid address length.');
     }
+
+    return true;
   },
   generateKeyBuffer: function generateKeyBuffer() {
     var privKey;
@@ -38957,7 +39116,8 @@ var t = {
   },
   toAddress: function toAddress(publicKey) {
     var r160Buf = createHash('ripemd160').update(toKeyBuffer(publicKey)).digest();
-    return PREFIX + SEPARATOR + toKeyString(r160Buf);
+    var data = base32Encode(r160Buf);
+    return encode(PREFIX, data);
   },
   toPubKeyAndAddressBuffer: function toPubKeyAndAddressBuffer(privKey) {
     var publicKey = t.toPublicKeyBuffer(privKey);
@@ -39012,12 +39172,14 @@ var t = {
     return secp256k1.sign(toDataBuffer(hash32bytes), toKeyBuffer(privateKey));
   },
   stableHashObject: function stableHashObject(obj) {
+    var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DATA_ENCODING;
+
     if (typeof obj !== 'string') {
       obj = stableStringify(obj);
     }
 
     var hash = createHash('sha256').update(obj);
-    return hash.digest(DATA_ENCODING);
+    return enc ? hash.digest(enc) : hash.digest();
   }
 };
 module.exports = t;
