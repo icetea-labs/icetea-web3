@@ -18,6 +18,15 @@ function _serializeData (address, method, params = [], options = {}) {
 class Contract {
   constructor (tweb3, address, options = {}) {
     this.options = options // default options
+
+    if (typeof address === 'string') {
+      this.address = address
+    } else {
+      this.address = address.address || address.result
+      this.hash = address.hash
+      this.height = address.height
+    }
+
     this.methods = new Proxy({}, {
       get (obj, method) {
         return function (...params) { // ...params
@@ -50,6 +59,7 @@ class Contract {
         }
       }
     })
+
   }
 }
 

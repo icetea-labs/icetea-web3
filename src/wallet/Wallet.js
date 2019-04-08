@@ -17,7 +17,7 @@ const _ram = {
       wallet.defaultAccount = value
       // _storage.saveData(local)
     } else {
-      throw new Error("Address "+ value +" don't exist in wallet")
+      throw new Error('Address ' + value + " don't exist in wallet")
     }
   },
   get defaultAccount () {
@@ -40,7 +40,7 @@ const _ram = {
   }
 }
 
-function getStorage() {
+function getStorage () {
   if (typeof localStorage !== 'undefined') {
     return localStorage
   }

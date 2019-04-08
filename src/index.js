@@ -345,27 +345,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     let tx = this._serializeData(mode, src, params, options)
     let privateKey = this.wallet.getPrivateKeyByAddress(options.from)
     return this.sendTransactionCommit(tx, privateKey)
-      .then(res => {
-        return this.getTransaction(res.hash).then(result => {
-          if (result.tx_result.code) {
-            const err = new Error(result.tx_result.log)
-            Object.assign(err, result)
-            throw err
-          }
-          const data = result.tx// decodeTX(result.tx)
-
-          return {
-            hash: result.hash,
-            height: result.height,
-            address: result.tx_result.data,
-            tx: result.tx,
-            data: {
-              from: toAddress(data.publicKey),
-              to: result.tx_result.data
-            }
-          }
-        })
-      })
+      .then(res => this.contract(res))
   }
 
   _serializeData (mode, src, params, options) {

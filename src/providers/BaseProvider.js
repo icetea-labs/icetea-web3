@@ -12,15 +12,15 @@ class BaseProvider {
     return params
   }
 
-  _call (method, params) {}
+  _call (method, params) {
+    throw new Error('BaseProvider._call is not implemented.')
+  }
 
   // call a jsonrpc, normally to query blockchain (block, tx, validator, consensus, etc.) data
   call (method, params) {
     return this._call(method, params).then(resp => {
       if (resp.error) {
-        const err = new Error(resp.error.message)
-        Object.assign(err, resp.error)
-        throw err
+        throw Object.assign(new Error(resp.error.message), resp.error)
       }
       if (resp.id) resp.result.id = resp.id
       return resp.result
@@ -37,19 +37,18 @@ class BaseProvider {
       params.data = switchEncoding(data, 'utf8', 'hex')
     }
 
-    return this._call('abci_query', params).then(resp => {
-      if (resp.error) {
-        const err = new Error(resp.error.message)
-        Object.assign(err, resp.error)
+    return this.call('abci_query', params).then(result => {
+      const r = result.response
+      const info = tryParseJson(r.info)
+
+      if (r.code) {
+        const err = new Error(String((info && info.message) || data))
+        err.code = r.code
+        err.info = info
         throw err
       }
 
-      // decode query data embeded in info
-      let r = resp.result
-      if (r && r.response && r.response.info) {
-        r = tryParseJson(r.response.info)
-      }
-      return r
+      return info
     })
   }
 
@@ -60,10 +59,14 @@ class BaseProvider {
       // for query string (REST), encode in 'hex' (or 'utf8' inside quotes)
       tx: encodeTX(tx, 'base64')
     }).then(result => {
-      if (result.code) {
-        const err = new Error(result.log)
-        Object.assign(err, result)
-        throw err
+      const code = result.code || (result.check_tx && result.check_tx.code) || (result.deliver_tx && result.deliver_tx.code)
+      if (code) {
+        const log = result.log || (result.check_tx && result.check_tx.log) || (result.deliver_tx && result.deliver_tx.log)
+        throw Object.assign(new Error(log), result)
+      }
+
+      if (result.deliver_tx.data) {
+        result.result = tryParseJson(result.deliver_tx.data)
       }
 
       return result
