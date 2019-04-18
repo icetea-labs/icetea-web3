@@ -39314,17 +39314,27 @@ function signTransaction(txData, privateKey) {
 }
 
 function verifyTxSignature(tx) {
+  var collectSigners = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   var evidence = tx.evidence;
 
   if (!Array.isArray(evidence)) {
     evidence = [evidence];
   }
 
+  var signers = [];
   evidence.forEach(function (e) {
     if (!ecc.verify(tx.sigHash, e.signature, e.pubkey)) {
       throw new Error('Invalid signature.');
     }
+
+    if (collectSigners) {
+      signers.push(ecc.toAddress(e.pubkey));
+    }
   });
+
+  if (collectSigners) {
+    tx.signers = signers;
+  }
 }
 
 module.exports = {
