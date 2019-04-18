@@ -38875,8 +38875,8 @@ function encode(hrp, data) {
 
 function decode(bechString) {
   var p;
-  var has_lower = false;
-  var has_upper = false;
+  var hasLower = false;
+  var hasUpper = false;
 
   for (p = 0; p < bechString.length; ++p) {
     if (bechString.charCodeAt(p) < 33 || bechString.charCodeAt(p) > 126) {
@@ -38884,15 +38884,15 @@ function decode(bechString) {
     }
 
     if (bechString.charCodeAt(p) >= 97 && bechString.charCodeAt(p) <= 122) {
-      has_lower = true;
+      hasLower = true;
     }
 
     if (bechString.charCodeAt(p) >= 65 && bechString.charCodeAt(p) <= 90) {
-      has_upper = true;
+      hasUpper = true;
     }
   }
 
-  if (has_lower && has_upper) {
+  if (hasLower && hasUpper) {
     return null;
   }
 
@@ -39118,13 +39118,14 @@ var t = {
     return toKeyString(t.toPublicKeyBuffer(privateKey));
   },
   toAddress: function toAddress(publicKey) {
-    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : PREFIX;
-    // do we need to sha256 first?
-    var r160Buf = createHash('ripemd160').update(toKeyBuffer(publicKey)).digest();
-    return toAddressString(r160Buf, prefix);
+    var hash = createHash('sha256').update(toKeyBuffer(publicKey)).digest();
+    var r160Buf = createHash('ripemd160').update(hash).digest();
+    return toAddressString(r160Buf, PREFIX);
   },
   toContractAddress: function toContractAddress(uniqueContent) {
-    return t.toAddress(uniqueContent, CONTRACT_PREFIX);
+    var hash = createHash('sha256').update(uniqueContent).digest();
+    var r160Buf = createHash('ripemd160').update(hash).digest();
+    return toAddressString(r160Buf, CONTRACT_PREFIX);
   },
   toPubKeyAndAddressBuffer: function toPubKeyAndAddressBuffer(privKey) {
     var publicKey = t.toPublicKeyBuffer(privKey);
