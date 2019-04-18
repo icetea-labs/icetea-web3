@@ -27319,10 +27319,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_args":[["elliptic@6.4.1","/Users/hoanghuy226/Documents/Project/icetea-common"]],"_development":true,"_from":"elliptic@6.4.1","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"elliptic@6.4.1","name":"elliptic","escapedName":"elliptic","rawSpec":"6.4.1","saveSpec":null,"fetchSpec":"6.4.1"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_spec":"6.4.1","_where":"/Users/hoanghuy226/Documents/Project/icetea-common","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
+module.exports = {"_from":"elliptic@^6.0.0","_id":"elliptic@6.4.1","_inBundle":false,"_integrity":"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==","_location":"/elliptic","_phantomChildren":{},"_requested":{"type":"range","registry":true,"raw":"elliptic@^6.0.0","name":"elliptic","escapedName":"elliptic","rawSpec":"^6.0.0","saveSpec":null,"fetchSpec":"^6.0.0"},"_requiredBy":["/browserify-sign","/create-ecdh"],"_resolved":"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz","_shasum":"c2d0b7776911b86722c632c3c06c60f2f819939a","_spec":"elliptic@^6.0.0","_where":"/Users/thi/Documents/GitHub/icetea-common/node_modules/browserify-sign","author":{"name":"Fedor Indutny","email":"fedor@indutny.com"},"bugs":{"url":"https://github.com/indutny/elliptic/issues"},"bundleDependencies":false,"dependencies":{"bn.js":"^4.4.0","brorand":"^1.0.1","hash.js":"^1.0.0","hmac-drbg":"^1.0.0","inherits":"^2.0.1","minimalistic-assert":"^1.0.0","minimalistic-crypto-utils":"^1.0.0"},"deprecated":false,"description":"EC cryptography","devDependencies":{"brfs":"^1.4.3","coveralls":"^2.11.3","grunt":"^0.4.5","grunt-browserify":"^5.0.0","grunt-cli":"^1.2.0","grunt-contrib-connect":"^1.0.0","grunt-contrib-copy":"^1.0.0","grunt-contrib-uglify":"^1.0.1","grunt-mocha-istanbul":"^3.0.1","grunt-saucelabs":"^8.6.2","istanbul":"^0.4.2","jscs":"^2.9.0","jshint":"^2.6.0","mocha":"^2.1.0"},"files":["lib"],"homepage":"https://github.com/indutny/elliptic","keywords":["EC","Elliptic","curve","Cryptography"],"license":"MIT","main":"lib/elliptic.js","name":"elliptic","repository":{"type":"git","url":"git+ssh://git@github.com/indutny/elliptic.git"},"scripts":{"jscs":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","jshint":"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js","lint":"npm run jscs && npm run jshint","test":"npm run lint && npm run unit","unit":"istanbul test _mocha --reporter=spec test/index.js","version":"grunt dist && git add dist/"},"version":"6.4.1"};
 
 /***/ }),
 
@@ -38776,9 +38776,9 @@ function () {
   }
 
   _createClass(_class, [{
-    key: "setSignature",
-    value: function setSignature(signature) {
-      this.signature = signature;
+    key: "setEvidence",
+    value: function setEvidence(evidence) {
+      this.evidence = evidence;
       return this;
     }
   }, {
@@ -38945,6 +38945,9 @@ var basex = __webpack_require__(/*! base-x */ "./node_modules/base-x/index.js");
 
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 var base58 = basex(ALPHABET);
+
+var bech32 = __webpack_require__(/*! ./bech32 */ "./src/bech32.js");
+
 var KEY_ENCODING = 'base58';
 var TX_ENCODING = 'msgpack';
 var DATA_ENCODING = 'base64'; // STRING to BUFFER, support base58
@@ -38978,10 +38981,14 @@ var toString = function toString(buf) {
   }
 
   return buf.toString(enc);
+};
+
+var toAddressString = function toAddressString(buf, prefix) {
+  return bech32.encode(prefix, _8to5bits(buf));
 }; // BUFFER to ARRAY (8bits to 5bits)
 
 
-var base32Encode = function base32Encode(buffer) {
+var _8to5bits = function _8to5bits(buffer) {
   var length = buffer.byteLength;
   var view = new Uint8Array(buffer);
   var bits = 0;
@@ -39023,10 +39030,8 @@ exports.toKeyString = function (buf) {
   return toString(buf, KEY_ENCODING);
 };
 
-exports.base32Encode = function (buf) {
-  return base32Encode(buf);
-};
-
+exports.toAddressString = toAddressString;
+exports.decodeAddress = bech32.decode;
 exports.DATA_ENCODING = DATA_ENCODING;
 
 exports.toDataBuffer = function (text) {
@@ -39059,28 +39064,26 @@ var createHash = __webpack_require__(/*! create-hash */ "./node_modules/create-h
 
 var secp256k1 = __webpack_require__(/*! secp256k1 */ "./node_modules/secp256k1/elliptic.js");
 
-var _require = __webpack_require__(/*! ./bech32 */ "./src/bech32.js"),
-    encode = _require.encode,
-    decode = _require.decode;
-
-var _require2 = __webpack_require__(/*! ./codec */ "./src/codec.js"),
-    toKeyBuffer = _require2.toKeyBuffer,
-    toKeyString = _require2.toKeyString,
-    base32Encode = _require2.base32Encode,
-    toDataBuffer = _require2.toDataBuffer,
-    stableStringify = _require2.stableStringify,
-    DATA_ENCODING = _require2.DATA_ENCODING;
+var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
+    toKeyBuffer = _require.toKeyBuffer,
+    toKeyString = _require.toKeyString,
+    toAddressString = _require.toAddressString,
+    decodeAddress = _require.decodeAddress,
+    toDataBuffer = _require.toDataBuffer,
+    stableStringify = _require.stableStringify,
+    DATA_ENCODING = _require.DATA_ENCODING;
 
 var PREFIX = 'tea';
+var CONTRACT_PREFIX = 'ctea';
 var t = {
   validateAddress: function validateAddress(address) {
     var len;
 
     try {
-      var result = decode(address);
+      var result = decodeAddress(address);
       var prefix = result.hrp;
 
-      if (prefix !== PREFIX && !/^\d+$/.test(prefix)) {
+      if (prefix !== PREFIX && prefix !== CONTRACT_PREFIX) {
         throw new Error('Invalid address prefix.');
       }
 
@@ -39115,9 +39118,13 @@ var t = {
     return toKeyString(t.toPublicKeyBuffer(privateKey));
   },
   toAddress: function toAddress(publicKey) {
+    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : PREFIX;
+    // do we need to sha256 first?
     var r160Buf = createHash('ripemd160').update(toKeyBuffer(publicKey)).digest();
-    var data = base32Encode(r160Buf);
-    return encode(PREFIX, data);
+    return toAddressString(r160Buf, prefix);
+  },
+  toContractAddress: function toContractAddress(uniqueContent) {
+    return t.toAddress(uniqueContent, CONTRACT_PREFIX);
   },
   toPubKeyAndAddressBuffer: function toPubKeyAndAddressBuffer(privKey) {
     var publicKey = t.toPublicKeyBuffer(privKey);
@@ -39286,9 +39293,12 @@ function getAccount(privateKey) {
 
 function signTransaction(txData, privateKey) {
   privateKey = toKeyBuffer(privateKey);
-  txData.publicKey = ecc.toPublicKey(privateKey);
+  txData.evidence = txData.evidence || [];
+  var evidence = {};
+  evidence.pubkey = ecc.toPublicKey(privateKey);
   var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
-  txData.signature = toDataString(ecc.sign(tx.sigHash, privateKey).signature);
+  evidence.signature = toDataString(ecc.sign(tx.sigHash, privateKey).signature);
+  txData.evidence.push(evidence);
 
   if (!txData.nonce) {
     txData.nonce = tx.nonce;
@@ -39298,13 +39308,23 @@ function signTransaction(txData, privateKey) {
     txData.data = JSON.stringify(txData.data);
   }
 
+  delete txData.from; // save some bits
+
   return txData;
 }
 
 function verifyTxSignature(tx) {
-  if (!ecc.verify(tx.sigHash, tx.signature, tx.publicKey)) {
-    throw new Error('Invalid signature');
+  var evidence = tx.evidence;
+
+  if (!Array.isArray(evidence)) {
+    evidence = [evidence];
   }
+
+  evidence.forEach(function (e) {
+    if (!ecc.verify(tx.sigHash, e.signature, e.pubkey)) {
+      throw new Error('Invalid signature.');
+    }
+  });
 }
 
 module.exports = {
