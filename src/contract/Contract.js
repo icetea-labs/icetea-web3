@@ -41,22 +41,19 @@ class Contract {
               return tweb3.getMetadata(params)
             },
             sendAsync: function (options = {}) {
-              var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
-              if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
-              return tweb3.sendTransactionAsync(tx, privateKey)
+              var opts = Object.assign({}, this.options, options)
+              var tx = _serializeData(address, method, params, opts)
+              return tweb3.sendTransactionAsync(tx, opts)
             },
             sendSync: function (options = {}) {
-              var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
-              if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
-              return tweb3.sendTransactionSync(tx, privateKey)
+              var opts = Object.assign({}, this.options, options)
+              var tx = _serializeData(address, method, params, opts)
+              return tweb3.sendTransactionSync(tx, opts)
             },
             sendCommit: function (options = {}) {
-              var tx = _serializeData(address, method, params, Object.assign({}, this.options, options))
-              var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from)
-              if (!privateKey) throw new Error('Send transaction is failed because privateKey empty')
-              return tweb3.sendTransactionCommit(tx, privateKey)
+              var opts = Object.assign({}, this.options, options)
+              var tx = _serializeData(address, method, params, opts)
+              return tweb3.sendTransactionCommit(tx, opts)
             }
           }
         }

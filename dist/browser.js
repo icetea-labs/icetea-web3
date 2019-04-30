@@ -60179,30 +60179,27 @@ var Contract = function Contract(tweb3, address) {
           },
           sendAsync: function sendAsync() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+            var tx = _serializeData(address, method, params, opts);
 
-            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
-            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
-            return tweb3.sendTransactionAsync(tx, privateKey);
+            return tweb3.sendTransactionAsync(tx, opts);
           },
           sendSync: function sendSync() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+            var tx = _serializeData(address, method, params, opts);
 
-            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
-            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
-            return tweb3.sendTransactionSync(tx, privateKey);
+            return tweb3.sendTransactionSync(tx, opts);
           },
           sendCommit: function sendCommit() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, Object.assign({}, this.options, options));
+            var tx = _serializeData(address, method, params, opts);
 
-            var privateKey = tweb3.wallet.getPrivateKeyByAddress(options.from);
-            if (!privateKey) throw new Error('Send transaction is failed because privateKey empty');
-            return tweb3.sendTransactionCommit(tx, privateKey);
+            return tweb3.sendTransactionCommit(tx, opts);
           }
         };
       };
@@ -60479,44 +60476,55 @@ function () {
     value: function getDebugState() {
       return this.rpc.query('state');
     }
+  }, {
+    key: "sendTransaction",
+    value: function sendTransaction(tx, signers, waitOption) {
+      waitOption = waitOption || signers && signers.waitOption || 'commit';
+      return _signAndSend(this.rpc, tx, 'broadcast_tx_' + waitOption, this.wallet, signers);
+    }
     /**
      * Send a transaction and return immediately.
      * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-     * @param {string} privateKey private key used to sign
+     * @param {object} signers signers
      */
 
   }, {
     key: "sendTransactionAsync",
-    value: function sendTransactionAsync(tx) {
-      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('No private key available.');
-      return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey));
+    value: function sendTransactionAsync(tx, signers) {
+      return this.sendTransaction(tx, signers, 'async');
     }
     /**
      * Send a transaction and wait until it reach mempool.
      * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-     * @param {string} privateKey private key used to sign
+     * @param {object} signers signers
      */
 
   }, {
     key: "sendTransactionSync",
-    value: function sendTransactionSync(tx) {
-      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('No private key available.');
-      return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey));
+    value: function sendTransactionSync(tx, signers) {
+      return this.sendTransaction(tx, signers, 'sync');
     }
     /**
      * Send a transaction and wait until it is included in a block.
      * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-     * @param {string} privateKey private key used to sign
+     * @param {object} signers signers
      */
 
   }, {
     key: "sendTransactionCommit",
-    value: function sendTransactionCommit(tx) {
-      var privateKey = this.wallet.getPrivateKeyByAddress(tx.from);
-      if (!privateKey) throw new Error('No private key available.');
-      return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey)).then(decode);
+    value: function sendTransactionCommit(tx, signers) {
+      return this.sendTransaction(tx, signers, 'commit');
+    }
+  }, {
+    key: "signTransaction",
+    value: function signTransaction(tx, signers) {
+      return _signTx(tx, this.wallet, signers);
+    }
+  }, {
+    key: "sendRawTransaction",
+    value: function sendRawTransaction(tx) {
+      var waitOption = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'commit';
+      return _sendSignedTx(this.rpc, tx, 'broadcast_tx_' + waitOption);
     }
     /**
      * Call a readonly (@view) contract method or field.
@@ -60789,6 +60797,53 @@ function _serializeData(mode, src, params, options) {
   formData.fee = options.fee || 0;
   formData.data = txData;
   return formData;
+}
+
+function _sendSignedTx(rpc, tx, method) {
+  if (typeof tx.data !== 'string') {
+    tx.data = JSON.stringify(tx.data);
+  }
+
+  if (!tx.evidence || !tx.evidence.length) {
+    throw new Error('Transaction was not signed yet.');
+  }
+
+  if (tx.evidence.length === 1) {
+    delete tx.from; // save some bits
+  }
+
+  return rpc.send(method, tx).then(decode);
+}
+
+function _signTx(tx, wallet, signers) {
+  signers = _extractSigners(tx, signers);
+
+  if (!Array.isArray(signers)) {
+    signers = [signers];
+  }
+
+  signers.forEach(function (s) {
+    var privateKey = wallet.getPrivateKeyByAddress(s);
+    if (!privateKey) throw new Error('Not found private key to sign.');
+    tx = signTransaction(tx, privateKey);
+  });
+  return tx;
+}
+
+function _signAndSend(rpc, tx, waitOption, wallet, signers) {
+  return _sendSignedTx(rpc, _signTx(tx, wallet, signers), waitOption);
+}
+
+function _extractSigners(tx, opts) {
+  if (!opts) {
+    return tx.from;
+  }
+
+  if (typeof opts === 'string' || Array.isArray(opts)) {
+    return opts;
+  }
+
+  return opts.signers || opts.from || tx.from;
 }
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 

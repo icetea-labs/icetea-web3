@@ -184,38 +184,44 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return this.rpc.query('state')
   }
 
+  sendTransaction(tx, signers, waitOption) {
+    waitOption = waitOption || (signers && signers.waitOption) || 'commit'
+    return _signAndSend(this.rpc, tx, 'broadcast_tx_' + waitOption, this.wallet, signers)
+  }
+
   /**
    * Send a transaction and return immediately.
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-   * @param {string} privateKey private key used to sign
+   * @param {object} signers signers
    */
-  sendTransactionAsync (tx) {
-    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('No private key available.')
-    return this.rpc.send('broadcast_tx_async', signTransaction(tx, privateKey))
+  sendTransactionAsync (tx, signers) {
+    return this.sendTransaction(tx, signers, 'async')
   }
 
   /**
    * Send a transaction and wait until it reach mempool.
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-   * @param {string} privateKey private key used to sign
+   * @param {object} signers signers
    */
-  sendTransactionSync (tx) {
-    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('No private key available.')
-    return this.rpc.send('broadcast_tx_sync', signTransaction(tx, privateKey))
+  sendTransactionSync (tx, signers) {
+    return this.sendTransaction(tx, signers, 'sync')
   }
 
   /**
    * Send a transaction and wait until it is included in a block.
    * @param {{from: string, to: string, value: number, fee: number, data: Object}} tx the transaction object.
-   * @param {string} privateKey private key used to sign
+   * @param {object} signers signers
    */
-  sendTransactionCommit (tx) {
-    let privateKey = this.wallet.getPrivateKeyByAddress(tx.from)
-    if (!privateKey) throw new Error('No private key available.')
-    return this.rpc.send('broadcast_tx_commit', signTransaction(tx, privateKey))
-      .then(decode)
+  sendTransactionCommit (tx, signers) {
+    return this.sendTransaction(tx, signers, 'commit')
+  }
+
+  signTransaction(tx, signers) {
+    return _signTx(tx, this.wallet, signers)
+  }
+
+  sendRawTransaction(tx, waitOption = 'commit') {
+    return _sendSignedTx(this.rpc, tx, 'broadcast_tx_' + waitOption)
   }
 
   /**
@@ -405,4 +411,51 @@ function _serializeData (mode, src, params, options) {
   formData.fee = options.fee || 0
   formData.data = txData
   return formData
+}
+
+function _sendSignedTx(rpc, tx, method) {
+  if (typeof tx.data !== 'string') {
+    tx.data = JSON.stringify(tx.data)
+  }
+
+  if (!tx.evidence || !tx.evidence.length) {
+    throw new Error('Transaction was not signed yet.')
+  }
+
+  if (tx.evidence.length === 1) {
+    delete tx.from // save some bits
+  }
+
+  return rpc.send(method, tx)
+    .then(decode)
+}
+
+function _signTx(tx, wallet, signers) {
+  signers = _extractSigners(tx, signers)
+  if (!Array.isArray(signers)) {
+    signers = [signers]
+  }
+  signers.forEach(s => {
+    const privateKey = wallet.getPrivateKeyByAddress(s)
+    if (!privateKey) throw new Error('Not found private key to sign.')
+    tx = signTransaction(tx, privateKey)
+  })
+
+  return tx
+}
+
+function _signAndSend(rpc, tx, waitOption, wallet, signers) {
+  return _sendSignedTx(rpc, _signTx(tx, wallet, signers), waitOption)
+}
+
+function _extractSigners(tx, opts) {
+  if (!opts) {
+    return tx.from
+  }
+
+  if (typeof opts === 'string' || Array.isArray(opts)) {
+    return opts
+  }
+
+  return opts.signers || opts.from || tx.from
 }
