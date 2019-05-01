@@ -60237,7 +60237,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     helper = _require.utils,
     TxOp = _require.TxOp,
-    ContractMode = _require.ContractMode;
+    ContractMode = _require.ContractMode,
+    ecc = _require.ecc;
 
 var utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
@@ -60630,8 +60631,7 @@ function () {
         _this.subscriptions[result.id] = {
           id: result.id,
           subscribeMethod: nonSystemEventName || eventName,
-          query: query // console.log('this.subscriptions',this.subscriptions);
-
+          query: query
         };
 
         _this.rpc.registerEventListener('onMessage', function (message) {
@@ -60728,7 +60728,7 @@ function () {
 
       var tx = _serializeData(mode, src, params, options);
 
-      return this.sendTransactionCommit(tx).then(function (res) {
+      return this.sendTransactionCommit(tx, options).then(function (res) {
         return _this3.contract(res);
       });
     }
@@ -60749,13 +60749,13 @@ function () {
   }, {
     key: "transfer",
     value: function transfer(to, value) {
-      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      var params = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : options.params;
       var tx = {
+        from: options.from,
         to: to,
         value: value,
-        fee: options.fee,
-        from: options.from
+        fee: options.fee
       };
 
       if (params) {
@@ -60765,7 +60765,7 @@ function () {
         };
       }
 
-      return this.sendTransactionCommit(tx);
+      return this.sendTransactionCommit(tx, options);
     }
   }]);
 
@@ -60808,7 +60808,7 @@ function _sendSignedTx(rpc, tx, method) {
     throw new Error('Transaction was not signed yet.');
   }
 
-  if (tx.evidence.length === 1) {
+  if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {
     delete tx.from; // save some bits
   }
 

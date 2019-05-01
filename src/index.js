@@ -1,4 +1,4 @@
-const { utils: helper, TxOp, ContractMode } = require('icetea-common')
+const { utils: helper, TxOp, ContractMode, ecc } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')
@@ -184,7 +184,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return this.rpc.query('state')
   }
 
-  sendTransaction(tx, signers, waitOption) {
+  sendTransaction (tx, signers, waitOption) {
     waitOption = waitOption || (signers && signers.waitOption) || 'commit'
     return _signAndSend(this.rpc, tx, 'broadcast_tx_' + waitOption, this.wallet, signers)
   }
@@ -216,11 +216,11 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return this.sendTransaction(tx, signers, 'commit')
   }
 
-  signTransaction(tx, signers) {
+  signTransaction (tx, signers) {
     return _signTx(tx, this.wallet, signers)
   }
 
-  sendRawTransaction(tx, waitOption = 'commit') {
+  sendRawTransaction (tx, waitOption = 'commit') {
     return _sendSignedTx(this.rpc, tx, 'broadcast_tx_' + waitOption)
   }
 
@@ -299,7 +299,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
         subscribeMethod: nonSystemEventName || eventName,
         query: query
       }
-      // console.log('this.subscriptions',this.subscriptions);
+
       this.rpc.registerEventListener('onMessage', (message) => {
         let jsonMsg = JSON.parse(message)
         if (result.id && jsonMsg.id.indexOf(result.id) >= 0) {
@@ -368,7 +368,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
 
   deploy (mode, src, params = [], options = {}) {
     const tx = _serializeData(mode, src, params, options)
-    return this.sendTransactionCommit(tx)
+    return this.sendTransactionCommit(tx, options)
       .then(res => this.contract(res))
   }
 
@@ -380,12 +380,12 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return this.deploy(ContractMode.WASM, wasmBuffer, params, options)
   }
 
-  transfer (to, value, params = undefined, options = {}) {
-    const tx = { to, value, fee: options.fee, from: options.from }
+  transfer (to, value, options = {}, params = options.params) {
+    const tx = { from: options.from, to, value, fee: options.fee }
     if (params) {
       tx.data = { params } // params for __on_received
     }
-    return this.sendTransactionCommit(tx)
+    return this.sendTransactionCommit(tx, options)
   }
 }
 
@@ -413,7 +413,7 @@ function _serializeData (mode, src, params, options) {
   return formData
 }
 
-function _sendSignedTx(rpc, tx, method) {
+function _sendSignedTx (rpc, tx, method) {
   if (typeof tx.data !== 'string') {
     tx.data = JSON.stringify(tx.data)
   }
@@ -422,7 +422,7 @@ function _sendSignedTx(rpc, tx, method) {
     throw new Error('Transaction was not signed yet.')
   }
 
-  if (tx.evidence.length === 1) {
+  if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {
     delete tx.from // save some bits
   }
 
@@ -430,7 +430,7 @@ function _sendSignedTx(rpc, tx, method) {
     .then(decode)
 }
 
-function _signTx(tx, wallet, signers) {
+function _signTx (tx, wallet, signers) {
   signers = _extractSigners(tx, signers)
   if (!Array.isArray(signers)) {
     signers = [signers]
@@ -444,11 +444,11 @@ function _signTx(tx, wallet, signers) {
   return tx
 }
 
-function _signAndSend(rpc, tx, waitOption, wallet, signers) {
+function _signAndSend (rpc, tx, waitOption, wallet, signers) {
   return _sendSignedTx(rpc, _signTx(tx, wallet, signers), waitOption)
 }
 
-function _extractSigners(tx, opts) {
+function _extractSigners (tx, opts) {
   if (!opts) {
     return tx.from
   }
