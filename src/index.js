@@ -126,14 +126,17 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @returns {Array} Array of tendermint transactions containing the event.
    */
   getPastEvents (eventName, emitter, conditions = {}, options) {
+    const EVENTNAMES_SEP = '|'
+    const EMITTER_EVENTNAME_SEP = '%'
+
     let query = ''
     if (typeof conditions === 'string') {
       query = conditions
     } else {
       if (!emitter) {
-        emitter = '.'
+        emitter = EMITTER_EVENTNAME_SEP
       } else {
-        emitter = '|' + emitter + '.'
+        emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP
       }
       query = Object.keys(conditions).reduce((arr, key) => {
         const value = conditions[key]
@@ -145,7 +148,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
           arr.push(`${key}=${value}`)
         }
         return arr
-      }, [`EventNames CONTAINS '${emitter}${eventName}|'`]).join(' AND ')
+      }, [`EventNames CONTAINS '${emitter}${eventName}${EMITTER_EVENTNAME_SEP}'`]).join(' AND ')
     }
 
     return this.searchTransactions(query, options)
@@ -299,7 +302,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
         subscribeMethod: nonSystemEventName || eventName,
         query: query
       }
-
+      // console.log('this.subscriptions',this.subscriptions);
       this.rpc.registerEventListener('onMessage', (message) => {
         let jsonMsg = JSON.parse(message)
         if (result.id && jsonMsg.id.indexOf(result.id) >= 0) {

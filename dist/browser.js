@@ -60408,15 +60408,17 @@ function () {
     value: function getPastEvents(eventName, emitter) {
       var conditions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var options = arguments.length > 3 ? arguments[3] : undefined;
+      var EVENTNAMES_SEP = '|';
+      var EMITTER_EVENTNAME_SEP = '%';
       var query = '';
 
       if (typeof conditions === 'string') {
         query = conditions;
       } else {
         if (!emitter) {
-          emitter = '.';
+          emitter = EMITTER_EVENTNAME_SEP;
         } else {
-          emitter = '|' + emitter + '.';
+          emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP;
         }
 
         query = Object.keys(conditions).reduce(function (arr, key) {
@@ -60431,7 +60433,7 @@ function () {
           }
 
           return arr;
-        }, ["EventNames CONTAINS '".concat(emitter).concat(eventName, "|'")]).join(' AND ');
+        }, ["EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EMITTER_EVENTNAME_SEP, "'")]).join(' AND ');
       }
 
       return this.searchTransactions(query, options);
@@ -60631,7 +60633,8 @@ function () {
         _this.subscriptions[result.id] = {
           id: result.id,
           subscribeMethod: nonSystemEventName || eventName,
-          query: query
+          query: query // console.log('this.subscriptions',this.subscriptions);
+
         };
 
         _this.rpc.registerEventListener('onMessage', function (message) {
@@ -61283,7 +61286,10 @@ exports.decodeEventData = function (tx) {
     return EMPTY_RESULT;
   }
 
-  var events = tags.EventNames.split('|');
+  var EVENTNAMES_SEP = '|';
+  var EMITTER_EVENTNAME_SEP = '%';
+  var EVENTNAME_INDEX_SEP = '~';
+  var events = tags.EventNames.split(EVENTNAMES_SEP);
 
   if (!events.length) {
     return EMPTY_RESULT;
@@ -61291,11 +61297,11 @@ exports.decodeEventData = function (tx) {
 
   var result = events.reduce(function (r, e) {
     if (e) {
-      var parts = e.split('.');
+      var parts = e.split(EMITTER_EVENTNAME_SEP);
       var emitter = parts[0];
       var eventName = parts[1];
       var eventData = Object.keys(tags).reduce(function (data, key) {
-        var prefix = eventName + '.';
+        var prefix = eventName + EVENTNAME_INDEX_SEP;
 
         if (key.startsWith(prefix)) {
           var name = key.substr(prefix.length);

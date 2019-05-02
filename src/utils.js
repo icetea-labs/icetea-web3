@@ -98,18 +98,22 @@ exports.decodeEventData = (tx) => {
     return EMPTY_RESULT
   }
 
-  const events = tags.EventNames.split('|')
+  const EVENTNAMES_SEP = '|'
+  const EMITTER_EVENTNAME_SEP = '%'
+  const EVENTNAME_INDEX_SEP = '~'
+
+  const events = tags.EventNames.split(EVENTNAMES_SEP)
   if (!events.length) {
     return EMPTY_RESULT
   }
 
   const result = events.reduce((r, e) => {
     if (e) {
-      const parts = e.split('.')
+      const parts = e.split(EMITTER_EVENTNAME_SEP)
       const emitter = parts[0]
       const eventName = parts[1]
       const eventData = Object.keys(tags).reduce((data, key) => {
-        const prefix = eventName + '.'
+        const prefix = eventName + EVENTNAME_INDEX_SEP
         if (key.startsWith(prefix)) {
           const name = key.substr(prefix.length)
           const value = tags[key]
