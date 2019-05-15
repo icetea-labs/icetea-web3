@@ -38864,7 +38864,7 @@ function createChecksum(hrp, data) {
 
 function encode(hrp, data) {
   var combined = data.concat(createChecksum(hrp, data));
-  var ret = hrp + '1';
+  var ret = hrp + String(data[0] % 2);
 
   for (var p = 0; p < combined.length; ++p) {
     ret += CHARSET.charAt(combined[p]);
@@ -38897,7 +38897,7 @@ function decode(bechString) {
   }
 
   bechString = bechString.toLowerCase();
-  var pos = bechString.lastIndexOf('1');
+  var pos = 4; // team or teat
 
   if (pos < 1 || pos + 7 > bechString.length || bechString.length > 90) {
     return null;
@@ -38950,7 +38950,9 @@ var bech32 = __webpack_require__(/*! ./bech32 */ "./src/bech32.js");
 
 var KEY_ENCODING = 'base58';
 var TX_ENCODING = 'msgpack';
-var DATA_ENCODING = 'base64'; // STRING to BUFFER, support base58
+var DATA_ENCODING = 'base64';
+var BANK_ACCOUNT = '1';
+var REGULAR_ACCOUNT = '0'; // STRING to BUFFER, support base58
 
 var toBuffer = function toBuffer(text) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : KEY_ENCODING;
@@ -38985,6 +38987,26 @@ var toString = function toString(buf) {
 
 var toAddressString = function toAddressString(buf, prefix) {
   return bech32.encode(prefix, _8to5bits(buf));
+};
+
+var isAddressType = function isAddressType(addr, type) {
+  return addr.charAt(4) === String(type);
+};
+
+var isBankAddress = function isBankAddress(addr) {
+  return isAddressType(addr, BANK_ACCOUNT);
+};
+
+var isRegularAddress = function isRegularAddress(addr) {
+  return isAddressType(addr, REGULAR_ACCOUNT);
+};
+
+var is5bitArrayType = function is5bitArrayType(arr, type) {
+  return String(arr[0] % 2) === String(type);
+};
+
+var is8bitBufType = function is8bitBufType(buf, type) {
+  return is5bitArrayType(_8to5bits(buf), type);
 }; // BUFFER to ARRAY (8bits to 5bits)
 
 
@@ -39030,8 +39052,14 @@ exports.toKeyString = function (buf) {
   return toString(buf, KEY_ENCODING);
 };
 
+exports.BANK_ACCOUNT = BANK_ACCOUNT;
+exports.REGULAR_ACCOUNT = REGULAR_ACCOUNT;
 exports.toAddressString = toAddressString;
 exports.decodeAddress = bech32.decode;
+exports.isAddressType = isAddressType;
+exports.isBankAddress = isBankAddress;
+exports.isRegularAddress = isRegularAddress;
+exports.isAddressBufferType = is8bitBufType;
 exports.DATA_ENCODING = DATA_ENCODING;
 
 exports.toDataBuffer = function (text) {
@@ -39071,10 +39099,31 @@ var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
     decodeAddress = _require.decodeAddress,
     toDataBuffer = _require.toDataBuffer,
     stableStringify = _require.stableStringify,
-    DATA_ENCODING = _require.DATA_ENCODING;
+    DATA_ENCODING = _require.DATA_ENCODING,
+    BANK_ACCOUNT = _require.BANK_ACCOUNT,
+    REGULAR_ACCOUNT = _require.REGULAR_ACCOUNT,
+    isAddressType = _require.isAddressType,
+    isAddressBufferType = _require.isAddressBufferType;
 
-var PREFIX = 'tea';
-var CONTRACT_PREFIX = 'ctea';
+var PREFIX_MAINNET = 'team';
+var PREFIX_TESTNET = 'teat';
+
+function generateKeyBuffer() {
+  var accountType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : REGULAR_ACCOUNT;
+  var privKey;
+
+  do {
+    privKey = randomBytes(32);
+  } while (!secp256k1.privateKeyVerify(privKey));
+
+  return privKey;
+}
+
+function generateKey() {
+  var accountType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : REGULAR_ACCOUNT;
+  return toKeyString(generateKeyBuffer(accountType));
+}
+
 var t = {
   validateAddress: function validateAddress(address) {
     var len;
@@ -39083,7 +39132,7 @@ var t = {
       var result = decodeAddress(address);
       var prefix = result.hrp;
 
-      if (prefix !== PREFIX && prefix !== CONTRACT_PREFIX) {
+      if (prefix !== PREFIX_MAINNET && prefix !== PREFIX_TESTNET) {
         throw new Error('Invalid address prefix.');
       }
 
@@ -39099,18 +39148,6 @@ var t = {
 
     return true;
   },
-  generateKeyBuffer: function generateKeyBuffer() {
-    var privKey;
-
-    do {
-      privKey = randomBytes(32);
-    } while (!secp256k1.privateKeyVerify(privKey));
-
-    return privKey;
-  },
-  generateKey: function generateKey() {
-    return toKeyString(t.generateKeyBuffer());
-  },
   toPublicKeyBuffer: function toPublicKeyBuffer(privateKey) {
     return secp256k1.publicKeyCreate(toKeyBuffer(privateKey));
   },
@@ -39120,12 +39157,24 @@ var t = {
   toAddress: function toAddress(publicKey) {
     var hash = createHash('sha256').update(toKeyBuffer(publicKey)).digest();
     var r160Buf = createHash('ripemd160').update(hash).digest();
-    return toAddressString(r160Buf, PREFIX);
+    return toAddressString(r160Buf, PREFIX_TESTNET);
   },
   toContractAddress: function toContractAddress(uniqueContent) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : BANK_ACCOUNT;
+    type = String(type);
+
+    if (![BANK_ACCOUNT, REGULAR_ACCOUNT].includes(type)) {
+      throw new Error("Invalid account type: ".concat(type));
+    }
+
     var hash = createHash('sha256').update(uniqueContent).digest();
     var r160Buf = createHash('ripemd160').update(hash).digest();
-    return toAddressString(r160Buf, CONTRACT_PREFIX);
+
+    while (!isAddressBufferType(r160Buf, type)) {
+      r160Buf = createHash('ripemd160').update(r160Buf).digest();
+    }
+
+    return toAddressString(r160Buf, PREFIX_TESTNET);
   },
   toPubKeyAndAddressBuffer: function toPubKeyAndAddressBuffer(privKey) {
     var publicKey = t.toPublicKeyBuffer(privKey);
@@ -39144,33 +39193,27 @@ var t = {
       address: address
     };
   },
-  newKeyPairBuffer: function newKeyPairBuffer() {
-    var privateKey = t.generateKeyBuffer();
-    return {
-      publicKey: t.toPublicKeyBuffer(privateKey),
-      privateKey: privateKey
-    };
-  },
-  newKeyPair: function newKeyPair() {
-    var _t$newKeyPairBuffer = t.newKeyPairBuffer(),
-        publicKey = _t$newKeyPairBuffer.publicKey,
-        privateKey = _t$newKeyPairBuffer.privateKey;
+  newKeyBuffers: function newKeyBuffers() {
+    var accountType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : REGULAR_ACCOUNT;
+    var privateKey, publicKey, address;
+
+    do {
+      privateKey = generateKeyBuffer();
+      publicKey = t.toPublicKeyBuffer(privateKey);
+      address = t.toAddress(publicKey);
+    } while (isAddressType(address, accountType));
 
     return {
-      publicKey: toKeyString(publicKey),
-      privateKey: toKeyString(privateKey)
+      publicKey: publicKey,
+      privateKey: privateKey,
+      address: address
     };
   },
-  newKeyPairWithAddressBuffer: function newKeyPairWithAddressBuffer() {
-    var privateKey = t.generateKeyBuffer();
-    var keys = t.toPubKeyAndAddressBuffer(privateKey);
-    keys.privateKey = privateKey;
-    return keys;
-  },
-  newKeyPairWithAddress: function newKeyPairWithAddress() {
-    var privateKey = t.generateKeyBuffer();
-    var keys = t.toPubKeyAndAddress(privateKey);
-    keys.privateKey = toKeyString(privateKey);
+  newKeys: function newKeys() {
+    var accountType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : REGULAR_ACCOUNT;
+    var keys = t.newKeyBuffers(accountType);
+    keys.privateKey = toKeyString(keys.privateKey);
+    keys.publicKey = toKeyString(keys.publicKey);
     return keys;
   },
   verify: function verify(hash32bytes, signature, pubKey) {
@@ -39304,12 +39347,6 @@ function signTransaction(txData, privateKey) {
   if (!txData.nonce) {
     txData.nonce = tx.nonce;
   }
-
-  if (typeof txData.data !== 'string') {
-    txData.data = JSON.stringify(txData.data);
-  }
-
-  delete txData.from; // save some bits
 
   return txData;
 }
