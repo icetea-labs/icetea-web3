@@ -38928,6 +38928,7 @@ function decode(bechString) {
 
   return {
     hrp: hrp,
+    type: type,
     data: data.slice(0, data.length - 6)
   };
 }
@@ -39126,27 +39127,31 @@ function generateKeyBuffer() {
 
 var t = {
   validateAddress: function validateAddress(address) {
-    var len;
+    var result;
 
     try {
-      var result = decodeAddress(address);
+      result = decodeAddress(address);
       var prefix = result.hrp;
 
       if (prefix !== PREFIX_MAINNET && prefix !== PREFIX_TESTNET) {
         throw new Error('Invalid address prefix.');
       }
 
-      len = result.data.length;
+      var type = result.type;
+
+      if (type !== REGULAR_ACCOUNT && type !== BANK_ACCOUNT) {
+        throw new Error('Invalid account type.');
+      }
     } catch (err) {
       err.message = 'Invalid address: ' + err.message;
       throw err;
     }
 
-    if (len !== 32) {
+    if (result.data.length !== 32) {
       throw new Error('Invalid address length.');
     }
 
-    return true;
+    return result;
   },
   toPublicKeyBuffer: function toPublicKeyBuffer(privateKey) {
     return secp256k1.publicKeyCreate(toKeyBuffer(privateKey));
@@ -39200,7 +39205,7 @@ var t = {
       privateKey = generateKeyBuffer();
       publicKey = t.toPublicKeyBuffer(privateKey);
       address = t.toAddress(publicKey);
-    } while (isAddressType(address, accountType));
+    } while (!isAddressType(address, accountType));
 
     return {
       publicKey: publicKey,
