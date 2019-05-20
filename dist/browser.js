@@ -38732,18 +38732,27 @@ function () {
   // }
   //
   // Some op in the future: set alias/options, vote, etc.
-  function _class(to, value, fee, data, nonce) {
+  function _class(_ref) {
+    var from = _ref.from,
+        to = _ref.to,
+        payer = _ref.payer,
+        value = _ref.value,
+        fee = _ref.fee,
+        data = _ref.data,
+        nonce = _ref.nonce;
+
     _classCallCheck(this, _class);
 
+    this.from = from || '';
     this.to = to || '';
-    this.value = parseFloat(value) || 0;
-    this.fee = parseFloat(fee) || 0;
+    this.payer = String(payer || '');
+    this.value = String(value || '');
+    this.fee = fee || '';
     this.data = data || {};
     this.nonce = nonce || Date.now() + Math.random(); // FIXME
-
-    if (this.value < 0 || this.fee < 0) {
-      throw new Error('Value and fee cannot be negative.');
-    }
+    // if (this.value < 0 || this.fee < 0) {
+    //   throw new Error('Value and fee cannot be negative.')
+    // }
 
     if (typeof this.data.op !== 'undefined' && this.data.op !== TxOp.CALL_CONTRACT && this.data.op !== TxOp.DEPLOY_CONTRACT) {
       throw new Error("Invalid TxOp: ".concat(data.op));
@@ -38756,17 +38765,17 @@ function () {
     } else {
       if (this.data.op === TxOp.DEPLOY_CONTRACT) {
         throw new Error("Cannot set transaction 'to' when deploying a contract.");
-      }
+      } // const isAlias = !!this.to.indexOf('.')
+      // if (!isAlias) {
+      //   validateAddress(this.to)
+      // }
 
-      var isAlias = !!this.to.indexOf('.');
-
-      if (!isAlias) {
-        validateAddress(this.to);
-      }
     }
 
     var content = {
+      from: this.from,
       to: this.to,
+      payer: this.payer,
       value: this.value,
       fee: this.fee,
       data: this.data,
@@ -39213,12 +39222,18 @@ var t = {
       address: address
     };
   },
+  newBankKeyBuffers: function newBankKeyBuffers() {
+    return t.newKeyBuffers(BANK_ACCOUNT);
+  },
   newKeys: function newKeys() {
     var accountType = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : REGULAR_ACCOUNT;
     var keys = t.newKeyBuffers(accountType);
     keys.privateKey = toKeyString(keys.privateKey);
     keys.publicKey = toKeyString(keys.publicKey);
     return keys;
+  },
+  newBankKeys: function newBankKeys() {
+    return t.newKeys(BANK_ACCOUNT);
   },
   verify: function verify(hash32bytes, signature, pubKey) {
     return secp256k1.verify(toDataBuffer(hash32bytes), toDataBuffer(signature), toKeyBuffer(pubKey));
@@ -39344,7 +39359,7 @@ function signTransaction(txData, privateKey) {
   txData.evidence = txData.evidence || [];
   var evidence = {};
   evidence.pubkey = ecc.toPublicKey(privateKey);
-  var tx = new Tx(txData.to, txData.value, txData.fee, txData.data, txData.nonce);
+  var tx = new Tx(txData);
   evidence.signature = toDataString(ecc.sign(tx.sigHash, privateKey).signature);
   txData.evidence.push(evidence);
 
