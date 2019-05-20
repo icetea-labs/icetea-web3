@@ -60867,11 +60867,10 @@ function _sendSignedTx(rpc, tx, method) {
 
   if (!tx.evidence || !tx.evidence.length) {
     throw new Error('Transaction was not signed yet.');
-  }
+  } // if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {
+  //   delete tx.from // save some bits
+  // }
 
-  if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {
-    delete tx.from; // save some bits
-  }
 
   return rpc.send(method, tx).then(decode);
 }
