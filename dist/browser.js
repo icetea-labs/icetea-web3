@@ -38713,7 +38713,6 @@ var _require = __webpack_require__(/*! ./enum */ "./src/enum.js"),
     TxOp = _require.TxOp;
 
 var _require2 = __webpack_require__(/*! ./ecc */ "./src/ecc.js"),
-    validateAddress = _require2.validateAddress,
     stableHashObject = _require2.stableHashObject;
 
 module.exports =
@@ -38750,27 +38749,6 @@ function () {
     this.fee = fee || '';
     this.data = data || {};
     this.nonce = nonce || Date.now() + Math.random(); // FIXME
-    // if (this.value < 0 || this.fee < 0) {
-    //   throw new Error('Value and fee cannot be negative.')
-    // }
-
-    if (typeof this.data.op !== 'undefined' && this.data.op !== TxOp.CALL_CONTRACT && this.data.op !== TxOp.DEPLOY_CONTRACT) {
-      throw new Error("Invalid TxOp: ".concat(data.op));
-    }
-
-    if (!this.to) {
-      if (this.data.op !== TxOp.DEPLOY_CONTRACT) {
-        throw new Error("Transaction 'to' is required.");
-      }
-    } else {
-      if (this.data.op === TxOp.DEPLOY_CONTRACT) {
-        throw new Error("Cannot set transaction 'to' when deploying a contract.");
-      } // const isAlias = !!this.to.indexOf('.')
-      // if (!isAlias) {
-      //   validateAddress(this.to)
-      // }
-
-    }
 
     var content = {
       from: this.from,
@@ -38789,6 +38767,21 @@ function () {
     value: function setEvidence(evidence) {
       this.evidence = evidence;
       return this;
+    }
+  }, {
+    key: "messageName",
+    value: function messageName() {
+      return this.data == undefined ? undefined : this.data.name; // eslint-disable-line
+    }
+  }, {
+    key: "messageParams",
+    value: function messageParams() {
+      return this.data == undefined ? undefined : this.data.params || []; // eslint-disable-line
+    }
+  }, {
+    key: "isSimpleTransfer",
+    value: function isSimpleTransfer() {
+      return this.data == undefined || this.data.op == undefined; // eslint-disable-line
     }
   }, {
     key: "isContractCreation",
@@ -38967,8 +38960,11 @@ var bech32 = __webpack_require__(/*! ./bech32 */ "./src/bech32.js");
 var KEY_ENCODING = 'base58';
 var TX_ENCODING = 'msgpack';
 var DATA_ENCODING = 'base64';
-var BANK_ACCOUNT = '1';
-var REGULAR_ACCOUNT = '0'; // STRING to BUFFER, support base58
+
+var _require$AccountType = __webpack_require__(/*! ./enum */ "./src/enum.js").AccountType,
+    REGULAR_ACCOUNT = _require$AccountType.REGULAR_ACCOUNT,
+    BANK_ACCOUNT = _require$AccountType.BANK_ACCOUNT; // STRING to BUFFER, support base58
+
 
 var toBuffer = function toBuffer(text) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : KEY_ENCODING;
@@ -39068,8 +39064,6 @@ exports.toKeyString = function (buf) {
   return toString(buf, KEY_ENCODING);
 };
 
-exports.BANK_ACCOUNT = BANK_ACCOUNT;
-exports.REGULAR_ACCOUNT = REGULAR_ACCOUNT;
 exports.toAddressString = toAddressString;
 exports.decodeAddress = bech32.decode;
 exports.isAddressType = isAddressType;
@@ -39116,10 +39110,12 @@ var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
     toDataBuffer = _require.toDataBuffer,
     stableStringify = _require.stableStringify,
     DATA_ENCODING = _require.DATA_ENCODING,
-    BANK_ACCOUNT = _require.BANK_ACCOUNT,
-    REGULAR_ACCOUNT = _require.REGULAR_ACCOUNT,
     isAddressType = _require.isAddressType,
     isAddressBufferType = _require.isAddressBufferType;
+
+var _require$AccountType = __webpack_require__(/*! ./enum */ "./src/enum.js").AccountType,
+    REGULAR_ACCOUNT = _require$AccountType.REGULAR_ACCOUNT,
+    BANK_ACCOUNT = _require$AccountType.BANK_ACCOUNT;
 
 var PREFIX_MAINNET = 'team';
 var PREFIX_TESTNET = 'teat';
@@ -39271,6 +39267,10 @@ exports.ContractMode = Object.freeze({
 exports.TxOp = Object.freeze({
   DEPLOY_CONTRACT: 0,
   CALL_CONTRACT: 1
+});
+exports.AccountType = Object.freeze({
+  REGULAR_ACCOUNT: '0',
+  BANK_ACCOUNT: '1'
 });
 
 /***/ }),
