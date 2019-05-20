@@ -38744,9 +38744,9 @@ function () {
 
     this.from = from || '';
     this.to = to || '';
-    this.payer = String(payer || '');
+    this.payer = payer || '';
     this.value = String(value || '');
-    this.fee = fee || '';
+    this.fee = String(fee || '');
     this.data = data || {};
     this.nonce = nonce || Date.now() + Math.random(); // FIXME
 
@@ -39290,7 +39290,8 @@ var Tx = __webpack_require__(/*! ./Tx */ "./src/Tx.js");
 
 var _require = __webpack_require__(/*! ./enum */ "./src/enum.js"),
     ContractMode = _require.ContractMode,
-    TxOp = _require.TxOp;
+    TxOp = _require.TxOp,
+    AccountType = _require.AccountType;
 
 var utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
@@ -39299,6 +39300,7 @@ exports.ecc = ecc;
 exports.Tx = Tx;
 exports.ContractMode = ContractMode;
 exports.TxOp = TxOp;
+exports.AccountType = AccountType;
 exports.utils = utils;
 
 /***/ }),
