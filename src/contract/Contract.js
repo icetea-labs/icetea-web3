@@ -26,33 +26,34 @@ class Contract {
       this.hash = address.hash
       this.height = address.height
     }
+    const contractAddr = this.address
 
     this.methods = new Proxy({}, {
       get (obj, method) {
-        return function (...params) { // ...params
+        return function (...params) {
           return {
             call: function (options = {}) {
-              return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options))
+              return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
             },
             callPure: function (options = {}) {
-              return tweb3.callPureContractMethod(address, method, params, Object.assign({}, this.options, options))
+              return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
             },
             getMetadata: function () {
               return tweb3.getMetadata(params)
             },
             sendAsync: function (options = {}) {
               var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(address, method, params, opts)
+              var tx = _serializeData(contractAddr, method, params, opts)
               return tweb3.sendTransactionAsync(tx, opts)
             },
             sendSync: function (options = {}) {
               var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(address, method, params, opts)
+              var tx = _serializeData(contractAddr, method, params, opts)
               return tweb3.sendTransactionSync(tx, opts)
             },
             sendCommit: function (options = {}) {
               var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(address, method, params, opts)
+              var tx = _serializeData(contractAddr, method, params, opts)
               return tweb3.sendTransactionCommit(tx, opts)
             }
           }
