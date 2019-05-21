@@ -60215,6 +60215,7 @@ var Contract = function Contract(tweb3, address) {
     this.height = address.height;
   }
 
+  var contractAddr = this.address;
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
       return function () {
@@ -60222,15 +60223,14 @@ var Contract = function Contract(tweb3, address) {
           params[_key] = arguments[_key];
         }
 
-        // ...params
         return {
           call: function call() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            return tweb3.callReadonlyContractMethod(address, method, params, Object.assign({}, this.options, options));
+            return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
           },
           callPure: function callPure() {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            return tweb3.callPureContractMethod(address, method, params, Object.assign({}, this.options, options));
+            return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
           },
           getMetadata: function getMetadata() {
             return tweb3.getMetadata(params);
@@ -60239,7 +60239,7 @@ var Contract = function Contract(tweb3, address) {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, opts);
+            var tx = _serializeData(contractAddr, method, params, opts);
 
             return tweb3.sendTransactionAsync(tx, opts);
           },
@@ -60247,7 +60247,7 @@ var Contract = function Contract(tweb3, address) {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, opts);
+            var tx = _serializeData(contractAddr, method, params, opts);
 
             return tweb3.sendTransactionSync(tx, opts);
           },
@@ -60255,7 +60255,7 @@ var Contract = function Contract(tweb3, address) {
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             var opts = Object.assign({}, this.options, options);
 
-            var tx = _serializeData(address, method, params, opts);
+            var tx = _serializeData(contractAddr, method, params, opts);
 
             return tweb3.sendTransactionCommit(tx, opts);
           }
