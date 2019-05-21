@@ -60790,7 +60790,7 @@ function () {
       var tx = _serializeData(mode, src, params, options);
 
       return this.sendTransactionCommit(tx, options).then(function (res) {
-        return _this3.contract(res);
+        return _this3.contract(res.result);
       });
     }
   }, {

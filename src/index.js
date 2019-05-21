@@ -372,7 +372,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   deploy (mode, src, params = [], options = {}) {
     const tx = _serializeData(mode, src, params, options)
     return this.sendTransactionCommit(tx, options)
-      .then(res => this.contract(res))
+      .then(res => this.contract(res.result))
   }
 
   deployJs (src, params = [], options = {}) {
