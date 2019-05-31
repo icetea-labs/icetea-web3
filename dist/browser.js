@@ -38586,7 +38586,8 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var _require = __webpack_require__(/*! ./enum */ "./src/enum.js"),
-    TxOp = _require.TxOp;
+    TxOp = _require.TxOp,
+    ContractMode = _require.ContractMode;
 
 var _require2 = __webpack_require__(/*! ./ecc */ "./src/ecc.js"),
     stableHashObject = _require2.stableHashObject;
@@ -38625,6 +38626,15 @@ function () {
     this.fee = String(fee || '');
     this.data = data || {};
     this.nonce = nonce || Date.now() + Math.random(); // FIXME
+    // some validation
+
+    if (this.isContractCreation()) {
+      if (this.data.mode !== undefined && this.data.mode !== ContractMode.JS_RAW && this.data.mode !== ContractMode.WASM) {
+        throw new Error('Invalid contract source mode: ' + this.data.mode);
+      } else if (!this.data.src) {
+        throw new Error('You must provide contract source to deploy contract.');
+      }
+    }
 
     var content = {
       from: this.from,
