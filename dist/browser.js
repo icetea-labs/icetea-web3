@@ -58784,7 +58784,7 @@ var Contract = function Contract(tweb3, address) {
   if (typeof address === 'string') {
     this.address = address;
   } else {
-    this.address = address.address || address.result;
+    this.address = address.address || address.returnValue;
     this.hash = address.hash;
     this.height = address.height;
   }
@@ -60038,7 +60038,7 @@ exports.removeItem = function (array, item) {
 };
 
 var _getFieldValue = function _getFieldValue(obj, level2) {
-  var level1Fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['tx_result', 'tx_deliver'];
+  var level1Fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['tx_result', 'deliver_tx'];
   var level1 = level1Fields.find(function (f) {
     return f in obj;
   });

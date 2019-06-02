@@ -24,7 +24,7 @@ class Contract {
     if (typeof address === 'string') {
       this.address = address
     } else {
-      this.address = address.address || address.result
+      this.address = address.address || address.returnValue
       this.hash = address.hash
       this.height = address.height
     }
