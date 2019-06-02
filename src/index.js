@@ -370,7 +370,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
 
   deploy (mode, src, params = [], options = {}) {
-    const tx = _serializeData(mode, src, params, options)
+    const tx = _serializeDataForDeploy(mode, src, params, options)
     return this.sendTransactionCommit(tx, options)
       .then(res => this.contract(res))
   }
@@ -392,7 +392,7 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
   }
 }
 
-function _serializeData (mode, src, params, options) {
+function _serializeDataForDeploy (mode, src, params, options) {
   var formData = {}
   var txData = {
     op: TxOp.DEPLOY_CONTRACT,
@@ -409,7 +409,10 @@ function _serializeData (mode, src, params, options) {
     }
     txData.src = src
   }
+
+  // decause this is for deploying, we won't set fromData.to
   formData.from = options.from
+  formData.payer = options.payer
   formData.value = options.value || 0
   formData.fee = options.fee || 0
   formData.data = txData

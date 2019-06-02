@@ -58735,6 +58735,8 @@ function _serializeData(address, method) {
     name: method,
     params: params
   };
+  formData.from = options.from || '';
+  formData.payer = options.payer || '';
   formData.to = address;
   formData.value = options.value || 0;
   formData.fee = options.fee || 0;
@@ -59329,7 +59331,7 @@ function () {
       var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-      var tx = _serializeData(mode, src, params, options);
+      var tx = _serializeDataForDeploy(mode, src, params, options);
 
       return this.sendTransactionCommit(tx, options).then(function (res) {
         return _this3.contract(res);
@@ -59375,7 +59377,7 @@ function () {
   return IceTeaWeb3;
 }();
 
-function _serializeData(mode, src, params, options) {
+function _serializeDataForDeploy(mode, src, params, options) {
   var formData = {};
   var txData = {
     op: TxOp.DEPLOY_CONTRACT,
@@ -59393,9 +59395,11 @@ function _serializeData(mode, src, params, options) {
     }
 
     txData.src = src;
-  }
+  } // decause this is for deploying, we won't set fromData.to
+
 
   formData.from = options.from;
+  formData.payer = options.payer;
   formData.value = options.value || 0;
   formData.fee = options.fee || 0;
   formData.data = txData;

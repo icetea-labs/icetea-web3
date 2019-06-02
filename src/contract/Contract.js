@@ -7,6 +7,8 @@ function _serializeData (address, method, params = [], options = {}) {
     name: method,
     params: params
   }
+  formData.from = options.from || ''
+  formData.payer = options.payer || ''
   formData.to = address
   formData.value = options.value || 0
   formData.fee = options.fee || 0
