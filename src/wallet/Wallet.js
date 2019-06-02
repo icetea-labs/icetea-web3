@@ -160,14 +160,13 @@ class Wallet {
     return walletStogare.accounts.length
   }
 
-  loadFromStorage (password, addresses) {
-    var walletStogare = _storage.getData()
+  loadFromStorage (password, walletStogare, addresses) {
+    walletStogare = walletStogare || _storage.getData()
     if (walletStogare && walletStogare.accounts.length > 0) {
       if (!password) password = window.prompt('Please enter your password.')
       var wallettmp = _storage.decode(password, walletStogare, addresses)
       // load data from localstorage and set on wallet in ram
       _ram.wallet = wallettmp
-      console.log('Load wallet from storage', _ram.wallet)
     }
     return _ram.wallet.accounts.length
   }
