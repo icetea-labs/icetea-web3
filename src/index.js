@@ -1,4 +1,4 @@
-const { utils: helper, TxOp, ContractMode, ecc } = require('icetea-common')
+const { utils: helper, TxOp, ContractMode } = require('icetea-common')
 const utils = require('./utils')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
 const Contract = require('./contract/Contract')

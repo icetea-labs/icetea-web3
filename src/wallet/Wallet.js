@@ -1,7 +1,6 @@
 const { newAccount, getAccount } = require('icetea-common').utils
 const { codec } = require('icetea-common')
 const keythereum = require('keythereum')
-const randomBytes = require('randombytes')
 
 var _wallet = { defaultAccount: '', accounts: [] }
 const _ram = {
@@ -12,7 +11,7 @@ const _ram = {
     return _wallet
   },
   set defaultAccount (value) {
-    if (!_ram.wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount!')
+    if (!_ram.wallet.accounts.length === 0) throw new Error('Please import account before set defaultAccount.')
     // check address in wallet
     var isExist = false
     for (var i = 0; i < _ram.wallet.accounts.length; i++) {
@@ -24,11 +23,11 @@ const _ram = {
     if (isExist) {
       _ram.wallet.defaultAccount = value
     } else {
-      throw new Error('Address ' + value + " don't exist in wallet")
+      throw new Error('Address ' + value + " doesn't exist in wallet.")
     }
   },
   get defaultAccount () {
-    if (_ram.wallet.defaultAccount && _ram.wallet.defaultAccount !== '') {
+    if (_ram.wallet.defaultAccount) {
       return _ram.wallet.defaultAccount
     } else if (_ram.wallet.accounts.length > 0) {
       // set defaultAccount is address of first account
@@ -72,17 +71,9 @@ const _storage = {
     return JSON.parse(dataLocal)
   },
   encode (password) {
-    var options = {
-      kdf: 'pbkdf2',
-      cipher: 'aes-128-ctr',
-      kdfparams: {
-        c: 262144,
-        dklen: 32,
-        prf: 'hmac-sha256'
-      }
-    }
+    var options = {}
 
-    var dk = _utils.createRandom()
+    var dk = keythereum.create()
     var walletStogare = { defaultAccount: '', accounts: [] }
     _ram.wallet.accounts.forEach(item => {
       var privateKey = codec.toBuffer(item.privateKey)
@@ -92,27 +83,22 @@ const _storage = {
     walletStogare.defaultAccount = _ram.wallet.defaultAccount
     return walletStogare
   },
-  decode (password, walletStogare) {
+  decode (password, walletStogare, addresses) {
+    if (addresses && !Array.isArray(addresses)) {
+      addresses = [addresses]
+    }
     var wallettmp = { defaultAccount: '', accounts: [] }
     wallettmp.defaultAccount = walletStogare.defaultAccount
     walletStogare.accounts.forEach(keyObject => {
-      var privateKey = keythereum.recover(password, keyObject)
-      var account = getAccount(privateKey)
-      wallettmp.accounts.push(account)
+      if (!addresses || addresses.includes(keyObject.address)) {
+        var privateKey = keyObject.privateKey || keythereum.recover(password, keyObject)
+        var account = keyObject.signTransaction ? keyObject : getAccount(privateKey)
+        wallettmp.accounts.push(account)
+      } else {
+        wallettmp.accounts.push(keyObject)
+      }
     })
     return wallettmp
-  }
-}
-
-const _utils = {
-  createRandom: function () {
-    var keyBytes = 32
-    var ivBytes = 16
-    var random = randomBytes(keyBytes + ivBytes + keyBytes)
-    return {
-      iv: random.slice(keyBytes, keyBytes + ivBytes),
-      salt: random.slice(keyBytes + ivBytes)
-    }
   }
 }
 
@@ -136,7 +122,12 @@ class Wallet {
   }
 
   importAccount (privateKey) {
-    var account = getAccount(privateKey)
+    var account
+    if (typeof privateKey === 'string') {
+      account = getAccount(privateKey)
+    } else {
+      account = privateKey
+    }
     _ram.addAccount(account)
     return account
   }
@@ -163,17 +154,17 @@ class Wallet {
   }
 
   saveToStorage (password) {
-    if (!password) password = window.prompt('Please enter your password')
+    if (!password) password = window.prompt('Please enter your password.')
     var walletStogare = _storage.encode(password)
     _storage.saveData(walletStogare)
     return walletStogare.accounts.length
   }
 
-  loadFromStorage (password) {
+  loadFromStorage (password, addresses) {
     var walletStogare = _storage.getData()
     if (walletStogare && walletStogare.accounts.length > 0) {
-      if (!password) password = window.prompt('Please enter your password')
-      var wallettmp = _storage.decode(password, walletStogare)
+      if (!password) password = window.prompt('Please enter your password.')
+      var wallettmp = _storage.decode(password, walletStogare, addresses)
       // load data from localstorage and set on wallet in ram
       _ram.wallet = wallettmp
       console.log('Load wallet from storage', _ram.wallet)
