@@ -5,9 +5,9 @@
 	else if(typeof define === 'function' && define.amd)
 		define([], factory);
 	else if(typeof exports === 'object')
-		exports["IceTeaWeb3"] = factory();
+		exports["icetea"] = factory();
 	else
-		root["IceTeaWeb3"] = factory();
+		root["icetea"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -39206,14 +39206,38 @@ var _require = __webpack_require__(/*! ./codec */ "./src/codec.js"),
     toKeyBuffer = _require.toKeyBuffer,
     toDataString = _require.toDataString;
 
-function newAccount() {
-  return getAccount(ecc.generateKeyBuffer());
+var _require2 = __webpack_require__(/*! ./enum */ "./src/enum.js"),
+    AccountType = _require2.AccountType;
+
+function newAccount(accountType) {
+  return getAccount(ecc.newKeyBuffers(accountType));
+}
+
+function newRegualarAccount() {
+  return newAccount(AccountType.REGULAR_ACCOUNT);
+}
+
+function newBankAccount() {
+  return newAccount(AccountType.BANK_ACCOUNT);
 }
 
 function getAccount(privateKey) {
-  if (!privateKey || !(typeof privateKey === 'string' || Buffer.isBuffer(privateKey))) {
-    throw new Error('Invalid private key. Private key must be a Buffer or a string.');
+  if (!privateKey) {
+    throw new Error('Private key is required.');
   }
+
+  var publicKey, address; // In case they pass in an object created by ecc.newKeyBuffers
+
+  if (privateKey.privateKey) {
+    publicKey = privateKey.publicKey;
+    address = privateKey.address;
+    privateKey = privateKey.privateKey;
+  }
+
+  if (typeof privateKey !== 'string' && !Buffer.isBuffer(privateKey)) {
+    throw new Error('Invalid private key. Private key must be a Buffer or a string.');
+  } // ensure private key is Buffer
+
 
   privateKey = toKeyBuffer(privateKey);
 
@@ -39221,9 +39245,12 @@ function getAccount(privateKey) {
     throw new Error('Invalid private key length.');
   }
 
-  var _ecc$toPubKeyAndAddre = ecc.toPubKeyAndAddressBuffer(privateKey),
-      publicKey = _ecc$toPubKeyAndAddre.publicKey,
-      address = _ecc$toPubKeyAndAddre.address;
+  if (!publicKey || !address) {
+    var _ecc$toPubKeyAndAddre = ecc.toPubKeyAndAddressBuffer(privateKey);
+
+    publicKey = _ecc$toPubKeyAndAddre.publicKey;
+    address = _ecc$toPubKeyAndAddre.address;
+  }
 
   var sign = function sign(message) {
     return ecc.sign(message, privateKey);
@@ -39286,6 +39313,8 @@ module.exports = {
   signTransaction: signTransaction,
   verifyTxSignature: verifyTxSignature,
   newAccount: newAccount,
+  newRegualarAccount: newRegualarAccount,
+  newBankAccount: newBankAccount,
   getAccount: getAccount
 };
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
@@ -58808,6 +58837,43 @@ var Contract = function Contract(tweb3, address) {
       };
     }
   });
+  this.events = new Proxy({}, {
+    get: function get(obj, eventName) {
+      return function (options, callback) {
+        var opts;
+
+        if (typeof options === 'function' && typeof callback === 'undefined') {
+          callback = options;
+        } else {
+          opts = options;
+        }
+
+        opts = opts || {};
+        opts.where = opts.where || []; // add address filter
+
+        var EVENTNAMES_SEP = '|';
+        var EMITTER_EVENTNAME_SEP = '%';
+        var EVENTNAME_INDEX_SEP = '~';
+        var emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP;
+        opts.where.push("EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'")); // add indexed field filter
+
+        var filter = opts.filter || {};
+        Object.keys(filter).forEach(function (key) {
+          var value = filter[key];
+          opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
+        });
+        return tweb3.subscribe('Tx', opts, function (err, result) {
+          if (err) {
+            return callback(err);
+          } // because we support one contract emit the same event only once per TX
+          // so r.events must be 0-length for now
+
+
+          return callback(undefined, result.events[0].eventData, result);
+        });
+      };
+    }
+  });
 };
 
 module.exports = Contract;
@@ -58842,14 +58908,14 @@ var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-c
     TxOp = _require.TxOp,
     ContractMode = _require.ContractMode;
 
-var utils = __webpack_require__(/*! ./utils */ "./src/utils.js");
-
 var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     switchEncoding = _require2.switchEncoding,
     decodeTX = _require2.decodeTX,
     decodeEventData = _require2.decodeEventData,
     decodeTags = _require2.decodeTags,
-    decode = _require2.decode;
+    decode = _require2.decode,
+    decodeReturnValue = _require2.decodeReturnValue,
+    removeItem = _require2.removeItem;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
@@ -58860,20 +58926,27 @@ var HttpProvider = __webpack_require__(/*! ./providers/HttpProvider */ "./src/pr
 var WebsocketProvider = __webpack_require__(/*! ./providers/WebsocketProvider */ "./src/providers/WebsocketProvider.js");
 
 var signTransaction = helper.signTransaction;
-exports.utils = utils;
-/**
- * The IceTea web client.
- */
+exports.utils = {
+  decodeTxContent: decodeTX,
+  decodeTxReturnValue: decodeReturnValue,
+  decodeTxEvents: decodeEventData,
+  decodeTxTags: decodeTags,
+  decodeTxResult: decode
+  /**
+   * The Icetea web client.
+   */
 
-exports.IceTeaWeb3 =
+};
+
+exports.IceteaWeb3 =
 /*#__PURE__*/
 function () {
   /**
    * Initialize the IceTeaWeb3 instance.
    * @param {string} endpoint tendermint endpoint, e.g. http://localhost:26657
    */
-  function IceTeaWeb3(endpoint, options) {
-    _classCallCheck(this, IceTeaWeb3);
+  function IceteaWeb3(endpoint, options) {
+    _classCallCheck(this, IceteaWeb3);
 
     this.isWebSocket = !!(endpoint.startsWith('ws://') || endpoint.startsWith('wss://'));
 
@@ -58883,18 +58956,12 @@ function () {
       this.rpc = new HttpProvider(endpoint);
     }
 
-    this.utils = this.constructor.utils = {
-      decodeTX: decodeTX,
-      decodeEventData: decodeEventData,
-      decodeTags: decodeTags,
-      decode: decode
-    };
-    this.subscriptions = {};
-    this.countSubscribeEvent = 0;
+    this._wssub = {};
     this.wallet = new Wallet();
+    this.utils = exports.utils;
   }
 
-  _createClass(IceTeaWeb3, [{
+  _createClass(IceteaWeb3, [{
     key: "close",
     value: function close() {
       if (this.isWebSocket) {
@@ -58999,7 +59066,7 @@ function () {
      * @param {string} emitter optional, the contract address, or "system"
      * @param {*} conditions required, string or object literal.
      * string example: "tx.height>0 AND someIndexedField CONTAINS 'kkk'".
-     * Object example: {fromBlock: 0, toBlock: 100, someIndexedField: "xxx"}.
+     * Object example: {fromBlock: 0, toBlock: 100, address: "xxx", filter: {someIndexedField: "xxx"}, tags: {tx.from: "yyy"}}.
      * Note that conditions are combined using AND, no support for OR.
      * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
      * @returns {Array} Array of tendermint transactions containing the event.
@@ -59007,35 +59074,64 @@ function () {
 
   }, {
     key: "getPastEvents",
-    value: function getPastEvents(eventName, emitter) {
-      var conditions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      var options = arguments.length > 3 ? arguments[3] : undefined;
+    value: function getPastEvents(eventName) {
+      var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var options = arguments.length > 2 ? arguments[2] : undefined;
       var EVENTNAMES_SEP = '|';
       var EMITTER_EVENTNAME_SEP = '%';
+      var EVENTNAME_INDEX_SEP = '~';
       var query = '';
 
       if (typeof conditions === 'string') {
         query = conditions;
       } else {
+        var emitter = conditions.address;
+
         if (!emitter) {
           emitter = EMITTER_EVENTNAME_SEP;
         } else {
+          if (Array.isArray(emitter)) {
+            throw new Error('getPastEvents: mutiple addresses are not supported.');
+          }
+
           emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP;
         }
 
-        query = Object.keys(conditions).reduce(function (arr, key) {
-          var value = conditions[key];
+        var arr = ["EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'")];
 
-          if (key === 'fromBlock') {
-            arr.push("tx.height>".concat(value - 1));
-          } else if (key === 'toBlock') {
-            arr.push("tx.height<".concat(value + 1));
+        if (conditions.fromBlock) {
+          arr.push("tx.height>".concat(+conditions.fromBlock - 1));
+        }
+
+        if (conditions.toBlock) {
+          arr.push("tx.height<".concat(+conditions.fromBlock + 1));
+        }
+
+        if (conditions.atBlock) {
+          arr.push("tx.height=".concat(conditions.fromBlock));
+        }
+
+        var filter = conditions.filter || {};
+        Object.keys(filter).forEach(function (key) {
+          var value = filter[key];
+
+          if (conditions.address) {
+            arr.push("".concat(conditions.address).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
           } else {
-            arr.push("".concat(key, "=").concat(value));
+            throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.');
           }
+        });
+        var tags = conditions.tags || {};
+        Object.keys(tags).forEach(function (key) {
+          var value = tags[key];
+          arr.push("".concat(key, "=").concat(value));
+        }); // raw tag conditions, can use >, <, =, CONTAINS
 
-          return arr;
-        }, ["EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EMITTER_EVENTNAME_SEP, "'")]).join(' AND ');
+        var where = conditions.where || [];
+        where.forEach(function (w) {
+          arr.push(w);
+        });
+        query = arr.join(' AND ');
       }
 
       return this.searchTransactions(query, options);
@@ -59187,21 +59283,11 @@ function () {
 
       var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var callback = arguments.length > 2 ? arguments[2] : undefined;
-      if (!this.isWebSocket) throw new Error('subscribe for WebSocket only');
-      var systemEvent = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
-      var isSystemEvent = true;
-      var nonSystemEventName;
-      var space = '';
+      if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.');
+      var systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
 
-      if (systemEvent.indexOf(eventName) < 0) {
-        isSystemEvent = false;
-        nonSystemEventName = eventName;
-        this.countSubscribeEvent += 1;
-        eventName = 'Tx';
-      }
-
-      for (var i = 0; i < this.countSubscribeEvent; i++) {
-        space = space + ' ';
+      if (eventName && !systemEvents.includes(eventName)) {
+        console.warn("Event ".concat(eventName, " is not one of known supported events: ").concat(systemEvents, "."));
       }
 
       var query = '';
@@ -59214,104 +59300,116 @@ function () {
           conditions = {};
         }
 
-        query = Object.keys(conditions).reduce(function (arr, key) {
-          var value = conditions[key];
+        var arr = eventName ? ["tm.event = '".concat(eventName, "'")] : [];
 
-          if (key === 'fromBlock') {
-            arr.push("tx.height>".concat(value - 1));
-          } else if (key === 'toBlock') {
-            arr.push("tx.height<".concat(value + 1));
-          } else {
-            arr.push("".concat(key, "=").concat(value));
-          }
+        if (conditions.fromBlock) {
+          arr.push("tx.height>".concat(+conditions.fromBlock - 1));
+        }
 
-          return arr;
-        }, ["tm.event = ".concat(space, "'").concat(eventName, "'")]).join(' AND ');
+        if (conditions.toBlock) {
+          arr.push("tx.height<".concat(+conditions.fromBlock + 1));
+        }
+
+        if (conditions.atBlock) {
+          arr.push("tx.height=".concat(conditions.fromBlock));
+        } // tags, equal only
+
+
+        var tags = conditions.tags || {};
+        Object.keys(tags).forEach(function (key) {
+          var value = tags[key];
+          arr.push("".concat(key, "=").concat(value));
+        }); // raw tag conditions, can use >, <, =, CONTAINS
+
+        var where = conditions.where || [];
+        where.forEach(function (w) {
+          arr.push(w);
+        });
+        query = arr.join(' AND ');
+      }
+
+      var unsubscribe = function unsubscribe() {
+        var sub = _this._wssub[query];
+
+        if (!sub) {
+          return;
+        }
+
+        removeItem(sub.callbacks, callback);
+
+        if (sub.callbacks.length > 0) {
+          return;
+        }
+
+        return _this.rpc.call('unsubscribe', {
+          query: query
+        }).then(function (res) {
+          delete _this._wssub[query];
+          return res;
+        });
+      };
+
+      if (this._wssub[query]) {
+        this._wssub[query].callbacks.push(callback);
+
+        return {
+          unsubscribe: unsubscribe
+        };
       }
 
       return this.rpc.call('subscribe', {
         'query': query
       }).then(function (result) {
-        _this.subscriptions[result.id] = {
+        _this._wssub[query] = {
           id: result.id,
-          subscribeMethod: nonSystemEventName || eventName,
-          query: query // console.log('this.subscriptions',this.subscriptions);
-
+          query: query,
+          callbacks: [callback]
         };
+        _this._wshandler = _this._wshandler || {};
 
-        _this.rpc.registerEventListener('onMessage', function (message) {
-          var jsonMsg = JSON.parse(message);
+        if (!_this._wshandler.onmessage) {
+          _this._wshandler.onmessage = function (msg) {
+            Object.values(_this._wssub).forEach(function (_ref) {
+              var id = _ref.id,
+                  callbacks = _ref.callbacks;
 
-          if (result.id && jsonMsg.id.indexOf(result.id) >= 0) {
-            if (isSystemEvent) {
-              return callback(message);
-            } else {
-              var events = decodeEventData(jsonMsg.result);
-              events.forEach(function (event) {
-                if (event.eventName && nonSystemEventName === event.eventName) {
-                  var res = {};
-                  res.jsonrpc = jsonMsg.jsonrpc;
-                  res.id = jsonMsg.id;
-                  res.result = event;
-                  res.result.query = _this.subscriptions[result.id].query;
-                  return callback(JSON.stringify(res), null, 2);
-                }
-              });
-            }
-          }
-        });
+              if (msg.id === id + '#event') {
+                var r = msg.result.data.value.TxResult;
+                r.tx_result = r.result; // rename for utils.decode
 
-        return result;
-      });
-    }
-    /**
-     * Unsubscribes by event (for WebSocket only)
-     *
-     * @method unsubscribe
-     *
-     * @param {SubscriptionId} subscriptionId
-     */
+                delete r.result;
+                decode(r);
+                callbacks.forEach(function (cb) {
+                  return cb(undefined, r);
+                });
+              }
+            });
+          };
 
-  }, {
-    key: "unsubscribe",
-    value: function unsubscribe(subscriptionId) {
-      var _this2 = this;
+          _this.rpc.registerEventListener('onResponse', _this._wshandler.onmessage);
+        }
 
-      if (!this.isWebSocket) throw new Error('unsubscribe for WebSocket only');
-
-      if (typeof this.subscriptions[subscriptionId] !== 'undefined') {
-        return this.rpc.call('unsubscribe', {
-          'query': this.subscriptions[subscriptionId].query
-        }).then(function (res) {
-          delete _this2.subscriptions[subscriptionId];
-          return res;
-        });
-      }
-
-      return Promise.reject(new Error("Error: Subscription with ID ".concat(subscriptionId, " does not exist.")));
+        return {
+          unsubscribe: unsubscribe
+        };
+      })["catch"](callback);
     }
   }, {
-    key: "onMessage",
-    value: function onMessage(callback) {
-      if (!this.isWebSocket) throw new Error('onMessage for WebSocket only');
-      this.rpc.registerEventListener('onMessage', callback);
-    }
-  }, {
-    key: "onResponse",
-    value: function onResponse(callback) {
-      if (!this.isWebSocket) throw new Error('onResponse for WebSocket only');
-      this.rpc.registerEventListener('onResponse', callback);
+    key: "registerEventListener",
+    value: function registerEventListener(event, callback) {
+      if (!this.isWebSocket) throw new Error('registerEventListener is for WebSocketProvider only.');
+      this.rpc.registerEventListener(event, callback);
     }
   }, {
     key: "onError",
     value: function onError(callback) {
-      if (!this.isWebSocket) throw new Error('onError for WebSocket only');
+      if (!this.isWebSocket) throw new Error('onError is for WebSocketProvider only');
       this.rpc.registerEventListener('onError', callback);
     }
   }, {
     key: "onClose",
     value: function onClose(callback) {
-      if (!this.isWebSocket) throw new Error('onClose for WebSocket only');
+      if (!this.isWebSocket) throw new Error('onClose is for WebSocketProvider only');
       this.rpc.registerEventListener('onClose', callback);
     }
   }, {
@@ -59326,7 +59424,7 @@ function () {
   }, {
     key: "deploy",
     value: function deploy(mode, src) {
-      var _this3 = this;
+      var _this2 = this;
 
       var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -59334,7 +59432,7 @@ function () {
       var tx = _serializeDataForDeploy(mode, src, params, options);
 
       return this.sendTransactionCommit(tx, options).then(function (res) {
-        return _this3.contract(res);
+        return _this2.contract(res);
       });
     }
   }, {
@@ -59374,8 +59472,10 @@ function () {
     }
   }]);
 
-  return IceTeaWeb3;
+  return IceteaWeb3;
 }();
+
+exports.IceteaWeb3.utils = exports.utils;
 
 function _serializeDataForDeploy(mode, src, params, options) {
   var formData = {};
@@ -59783,25 +59883,12 @@ module.exports = WebsocketProvider;
 var _require = __webpack_require__(/*! icetea-common */ "./node_modules/icetea-common/dist/browser.js"),
     codec = _require.codec;
 
-exports.replaceAll = function (text, search, replacement) {
-  return text.split(search).join(replacement);
-};
-
 exports.tryParseJson = function (p) {
   try {
     return JSON.parse(p);
   } catch (e) {
     // console.log("WARN: ", e);
     return p;
-  }
-};
-
-exports.tryStringifyJson = function (p) {
-  try {
-    return JSON.stringify(p);
-  } catch (e) {
-    // console.log("WARN: ", e);
-    return String(p);
   }
 };
 /**
@@ -59836,15 +59923,7 @@ exports.switchEncoding = function (str, from, to) {
 exports.decodeTags = function (tx) {
   var keepEvents = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   var EMPTY_RESULT = {};
-  var b64Tags = tx;
-
-  if (tx.data && tx.data.value && tx.data.value.TxResult.result.tags) {
-    b64Tags = tx.data.value.TxResult.result.tags; // For subscribe
-  } else if (tx.tx_result && tx.tx_result.tags) {
-    b64Tags = tx.tx_result.tags;
-  } else if (tx.deliver_tx && tx.deliver_tx.tags) {
-    b64Tags = tx.deliver_tx.tags;
-  }
+  var b64Tags = _getFieldValue(tx, 'tags') || tx;
 
   if (!b64Tags.length) {
     return EMPTY_RESULT;
@@ -59862,10 +59941,12 @@ exports.decodeTags = function (tx) {
 
   if (!keepEvents && tags.EventNames) {
     // remove event-related tags
-    var events = tags.EventNames.split('|');
+    var EVENTNAMES_SEP = '|';
+    var EMITTER_EVENTNAME_SEP = '%';
+    var events = tags.EventNames.split(EVENTNAMES_SEP);
     events.forEach(function (e) {
       if (e) {
-        var eventName = e.split('.')[1];
+        var eventName = e.split(EMITTER_EVENTNAME_SEP)[1];
         Object.keys(tags).forEach(function (key) {
           if (key.indexOf(eventName) === 0) {
             delete tags[key];
@@ -59931,7 +60012,7 @@ exports.decodeEventData = function (tx) {
 exports.decode = function (tx) {
   var keepEvents = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-  _decodeTxResult(tx);
+  _this.decodeReturnValue(tx);
 
   if (tx.tx) tx.tx = _this.decodeTX(tx.tx);
   tx.events = _this.decodeEventData(tx);
@@ -59939,15 +60020,29 @@ exports.decode = function (tx) {
   return tx;
 };
 
-var _decodeTxResult = function _decodeTxResult(result) {
-  if (!result) return result;
-  var name = result.tx_result ? 'tx_result' : 'deliver_tx';
+exports.decodeReturnValue = function (tx) {
+  var fieldName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'returnValue';
 
-  if (result[name] && result[name].data) {
-    result.result = _this.tryParseJson(_this.switchEncoding(result[name].data, 'base64', 'utf8'));
+  var data = _getFieldValue(tx, 'data');
+
+  if (data) {
+    tx[fieldName] = _this.tryParseJson(_this.switchEncoding(data, 'base64', 'utf8'));
   }
 
-  return result;
+  return tx;
+};
+
+exports.removeItem = function (array, item) {
+  var index = array.indexOf(item);
+  return index >= 0 ? array.splice(index, 1) : array;
+};
+
+var _getFieldValue = function _getFieldValue(obj, level2) {
+  var level1Fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['tx_result', 'tx_deliver'];
+  var level1 = level1Fields.find(function (f) {
+    return f in obj;
+  });
+  return level1 ? obj[level1][level2] : undefined;
 };
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 

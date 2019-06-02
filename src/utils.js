@@ -1,24 +1,11 @@
 const { codec } = require('icetea-common')
 
-exports.replaceAll = (text, search, replacement) => {
-  return text.split(search).join(replacement)
-}
-
 exports.tryParseJson = p => {
   try {
     return JSON.parse(p)
   } catch (e) {
     // console.log("WARN: ", e);
     return p
-  }
-}
-
-exports.tryStringifyJson = p => {
-  try {
-    return JSON.stringify(p)
-  } catch (e) {
-    // console.log("WARN: ", e);
-    return String(p)
   }
 }
 
@@ -48,15 +35,7 @@ exports.switchEncoding = (str, from, to) => {
 
 exports.decodeTags = (tx, keepEvents = false) => {
   const EMPTY_RESULT = {}
-  let b64Tags = tx
-
-  if (tx.data && tx.data.value && tx.data.value.TxResult.result.tags) {
-    b64Tags = tx.data.value.TxResult.result.tags // For subscribe
-  } else if (tx.tx_result && tx.tx_result.tags) {
-    b64Tags = tx.tx_result.tags
-  } else if (tx.deliver_tx && tx.deliver_tx.tags) {
-    b64Tags = tx.deliver_tx.tags
-  }
+  const b64Tags = _getFieldValue(tx, 'tags') || tx
   if (!b64Tags.length) {
     return EMPTY_RESULT
   }
@@ -71,10 +50,12 @@ exports.decodeTags = (tx, keepEvents = false) => {
 
   if (!keepEvents && tags.EventNames) {
     // remove event-related tags
-    const events = tags.EventNames.split('|')
+    const EVENTNAMES_SEP = '|'
+    const EMITTER_EVENTNAME_SEP = '%'
+    const events = tags.EventNames.split(EVENTNAMES_SEP)
     events.forEach(e => {
       if (e) {
-        const eventName = e.split('.')[1]
+        const eventName = e.split(EMITTER_EVENTNAME_SEP)[1]
         Object.keys(tags).forEach(key => {
           if (key.indexOf(eventName) === 0) {
             delete tags[key]
@@ -132,20 +113,28 @@ exports.decodeEventData = (tx) => {
 }
 
 exports.decode = (tx, keepEvents = false) => {
-  _decodeTxResult(tx)
+  this.decodeReturnValue(tx)
   if (tx.tx) tx.tx = this.decodeTX(tx.tx)
   tx.events = this.decodeEventData(tx)
   tx.tags = this.decodeTags(tx, keepEvents)
   return tx
 }
 
-const _decodeTxResult = (result) => {
-  if (!result) return result
-  const name = result.tx_result ? 'tx_result' : 'deliver_tx'
-
-  if (result[name] && result[name].data) {
-    result.result = this.tryParseJson(this.switchEncoding(result[name].data, 'base64', 'utf8'))
+exports.decodeReturnValue = (tx, fieldName = 'returnValue') => {
+  const data = _getFieldValue(tx, 'data')
+  if (data) {
+    tx[fieldName] = this.tryParseJson(this.switchEncoding(data, 'base64', 'utf8'))
   }
 
-  return result
+  return tx
+}
+
+exports.removeItem = (array, item) => {
+  const index = array.indexOf(item)
+  return index >= 0 ? array.splice(index, 1) : array
+}
+
+const _getFieldValue = (obj, level2, level1Fields = ['tx_result', 'tx_deliver']) => {
+  const level1 = level1Fields.find(f => f in obj)
+  return level1 ? obj[level1][level2] : undefined
 }

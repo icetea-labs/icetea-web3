@@ -62,6 +62,45 @@ class Contract {
         }
       }
     })
+
+    this.events = new Proxy({}, {
+      get (obj, eventName) {
+        return function (options, callback) {
+          let opts
+          if (typeof options === 'function' && typeof callback === 'undefined') {
+            callback = options
+          } else {
+            opts = options
+          }
+          opts = opts || {}
+          opts.where = opts.where || []
+
+          // add address filter
+          const EVENTNAMES_SEP = '|'
+          const EMITTER_EVENTNAME_SEP = '%'
+          const EVENTNAME_INDEX_SEP = '~'
+          const emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP
+          opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
+
+          // add indexed field filter
+          const filter = opts.filter || {}
+          Object.keys(filter).forEach(key => {
+            const value = filter[key]
+            opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+          })
+
+          return tweb3.subscribe('Tx', opts, (err, result) => {
+            if (err) {
+              return callback(err)
+            }
+
+            // because we support one contract emit the same event only once per TX
+            // so r.events must be 0-length for now
+            return callback(undefined, result.events[0].eventData, result)
+          })
+        }
+      }
+    })
   }
 }
 

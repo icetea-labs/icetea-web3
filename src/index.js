@@ -1,6 +1,5 @@
 const { utils: helper, TxOp, ContractMode } = require('icetea-common')
-const utils = require('./utils')
-const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode } = require('./utils')
+const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode, decodeReturnValue, removeItem } = require('./utils')
 const Contract = require('./contract/Contract')
 const Wallet = require('./wallet/Wallet')
 const HttpProvider = require('./providers/HttpProvider')
@@ -8,12 +7,18 @@ const WebsocketProvider = require('./providers/WebsocketProvider')
 
 const { signTransaction } = helper
 
-exports.utils = utils
+exports.utils = {
+  decodeTxContent: decodeTX,
+  decodeTxReturnValue: decodeReturnValue,
+  decodeTxEvents: decodeEventData,
+  decodeTxTags: decodeTags,
+  decodeTxResult: decode
+}
 
 /**
- * The IceTea web client.
+ * The Icetea web client.
  */
-exports.IceTeaWeb3 = class IceTeaWeb3 {
+exports.IceteaWeb3 = class IceteaWeb3 {
   /**
    * Initialize the IceTeaWeb3 instance.
    * @param {string} endpoint tendermint endpoint, e.g. http://localhost:26657
@@ -26,15 +31,10 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
       this.rpc = new HttpProvider(endpoint)
     }
 
-    this.utils = this.constructor.utils = {
-      decodeTX,
-      decodeEventData,
-      decodeTags,
-      decode
-    }
-    this.subscriptions = {}
-    this.countSubscribeEvent = 0
+    this._wssub = {}
     this.wallet = new Wallet()
+
+    this.utils = exports.utils
   }
 
   close () {
@@ -120,35 +120,67 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
    * @param {string} emitter optional, the contract address, or "system"
    * @param {*} conditions required, string or object literal.
    * string example: "tx.height>0 AND someIndexedField CONTAINS 'kkk'".
-   * Object example: {fromBlock: 0, toBlock: 100, someIndexedField: "xxx"}.
+   * Object example: {fromBlock: 0, toBlock: 100, address: "xxx", filter: {someIndexedField: "xxx"}, tags: {tx.from: "yyy"}}.
    * Note that conditions are combined using AND, no support for OR.
    * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
    * @returns {Array} Array of tendermint transactions containing the event.
    */
-  getPastEvents (eventName, emitter, conditions = {}, options) {
+  getPastEvents (eventName, conditions = {}, options) {
     const EVENTNAMES_SEP = '|'
     const EMITTER_EVENTNAME_SEP = '%'
+    const EVENTNAME_INDEX_SEP = '~'
 
     let query = ''
     if (typeof conditions === 'string') {
       query = conditions
     } else {
+      let emitter = conditions.address
       if (!emitter) {
         emitter = EMITTER_EVENTNAME_SEP
       } else {
+        if (Array.isArray(emitter)) {
+          throw new Error('getPastEvents: mutiple addresses are not supported.')
+        }
         emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP
       }
-      query = Object.keys(conditions).reduce((arr, key) => {
-        const value = conditions[key]
-        if (key === 'fromBlock') {
-          arr.push(`tx.height>${value - 1}`)
-        } else if (key === 'toBlock') {
-          arr.push(`tx.height<${value + 1}`)
+
+      const arr = [`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`]
+
+      if (conditions.fromBlock) {
+        arr.push(`tx.height>${+conditions.fromBlock - 1}`)
+      }
+
+      if (conditions.toBlock) {
+        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+      }
+
+      if (conditions.atBlock) {
+        arr.push(`tx.height=${conditions.fromBlock}`)
+      }
+
+      const filter = conditions.filter || {}
+      Object.keys(filter).forEach(key => {
+        const value = filter[key]
+        if (conditions.address) {
+          arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
         } else {
-          arr.push(`${key}=${value}`)
+          throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
         }
-        return arr
-      }, [`EventNames CONTAINS '${emitter}${eventName}${EMITTER_EVENTNAME_SEP}'`]).join(' AND ')
+      })
+
+      const tags = conditions.tags || {}
+      Object.keys(tags).forEach(key => {
+        const value = tags[key]
+        arr.push(`${key}=${value}`)
+      })
+
+      // raw tag conditions, can use >, <, =, CONTAINS
+      const where = conditions.where || []
+      where.forEach(w => {
+        arr.push(w)
+      })
+
+      query = arr.join(' AND ')
     }
 
     return this.searchTransactions(query, options)
@@ -258,24 +290,14 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
      * @param {MessageEvent} EventName
      */
   subscribe (eventName, conditions = {}, callback) {
-    if (!this.isWebSocket) throw new Error('subscribe for WebSocket only')
-    let systemEvent = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
-    let isSystemEvent = true
-    let nonSystemEventName
-    let space = ''
-
-    if (systemEvent.indexOf(eventName) < 0) {
-      isSystemEvent = false
-      nonSystemEventName = eventName
-      this.countSubscribeEvent += 1
-      eventName = 'Tx'
+    if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.')
+    let systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
+      'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
+    if (eventName && !systemEvents.includes(eventName)) {
+      console.warn(`Event ${eventName} is not one of known supported events: ${systemEvents}.`)
     }
 
-    for (var i = 0; i < this.countSubscribeEvent; i++) {
-      space = space + ' '
-    }
-
-    var query = ''
+    let query = ''
     if (typeof conditions === 'string') {
       query = conditions
     } else {
@@ -283,85 +305,98 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
         callback = conditions
         conditions = {}
       }
-      query = Object.keys(conditions).reduce((arr, key) => {
-        const value = conditions[key]
-        if (key === 'fromBlock') {
-          arr.push(`tx.height>${value - 1}`)
-        } else if (key === 'toBlock') {
-          arr.push(`tx.height<${value + 1}`)
-        } else {
-          arr.push(`${key}=${value}`)
-        }
-        return arr
-      }, [`tm.event = ${space}'${eventName}'`]).join(' AND ')
-    }
 
-    return this.rpc.call('subscribe', { 'query': query }).then((result) => {
-      this.subscriptions[result.id] = {
-        id: result.id,
-        subscribeMethod: nonSystemEventName || eventName,
-        query: query
+      const arr = eventName ? [`tm.event = '${eventName}'`] : []
+
+      if (conditions.fromBlock) {
+        arr.push(`tx.height>${+conditions.fromBlock - 1}`)
       }
-      // console.log('this.subscriptions',this.subscriptions);
-      this.rpc.registerEventListener('onMessage', (message) => {
-        let jsonMsg = JSON.parse(message)
-        if (result.id && jsonMsg.id.indexOf(result.id) >= 0) {
-          if (isSystemEvent) {
-            return callback(message)
-          } else {
-            let events = decodeEventData(jsonMsg.result)
-            events.forEach(event => {
-              if (event.eventName && nonSystemEventName === event.eventName) {
-                let res = {}
-                res.jsonrpc = jsonMsg.jsonrpc
-                res.id = jsonMsg.id
-                res.result = event
-                res.result.query = this.subscriptions[result.id].query
-                return callback(JSON.stringify(res), null, 2)
-              }
-            })
-          }
-        }
+
+      if (conditions.toBlock) {
+        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+      }
+
+      if (conditions.atBlock) {
+        arr.push(`tx.height=${conditions.fromBlock}`)
+      }
+
+      // tags, equal only
+      const tags = conditions.tags || {}
+      Object.keys(tags).forEach(key => {
+        const value = tags[key]
+        arr.push(`${key}=${value}`)
       })
 
-      return result
-    })
-  }
-  /**
-   * Unsubscribes by event (for WebSocket only)
-   *
-   * @method unsubscribe
-   *
-   * @param {SubscriptionId} subscriptionId
-   */
-  unsubscribe (subscriptionId) {
-    if (!this.isWebSocket) throw new Error('unsubscribe for WebSocket only')
-    if (typeof this.subscriptions[subscriptionId] !== 'undefined') {
-      return this.rpc.call('unsubscribe', { 'query': this.subscriptions[subscriptionId].query }).then((res) => {
-        delete this.subscriptions[subscriptionId]
+      // raw tag conditions, can use >, <, =, CONTAINS
+      const where = conditions.where || []
+      where.forEach(w => {
+        arr.push(w)
+      })
+
+      query = arr.join(' AND ')
+    }
+
+    const unsubscribe = () => {
+      const sub = this._wssub[query]
+      if (!sub) {
+        return
+      }
+
+      removeItem(sub.callbacks, callback)
+      if (sub.callbacks.length > 0) {
+        return
+      }
+
+      return this.rpc.call('unsubscribe', { query }).then(res => {
+        delete this._wssub[query]
         return res
       })
     }
-    return Promise.reject(new Error(`Error: Subscription with ID ${subscriptionId} does not exist.`))
+
+    if (this._wssub[query]) {
+      this._wssub[query].callbacks.push(callback)
+      return { unsubscribe }
+    }
+
+    return this.rpc.call('subscribe', { 'query': query }).then((result) => {
+      this._wssub[query] = {
+        id: result.id,
+        query,
+        callbacks: [callback]
+      }
+
+      this._wshandler = this._wshandler || {}
+      if (!this._wshandler.onmessage) {
+        this._wshandler.onmessage = msg => {
+          Object.values(this._wssub).forEach(({ id, callbacks }) => {
+            if (msg.id === id + '#event') {
+              const r = msg.result.data.value.TxResult
+              r.tx_result = r.result // rename for utils.decode
+              delete r.result
+              decode(r)
+              callbacks.forEach(cb => cb(undefined, r))
+            }
+          })
+        }
+        this.rpc.registerEventListener('onResponse', this._wshandler.onmessage)
+      }
+
+      return { unsubscribe }
+    }).catch(callback)
   }
 
-  onMessage (callback) {
-    if (!this.isWebSocket) throw new Error('onMessage for WebSocket only')
-    this.rpc.registerEventListener('onMessage', callback)
-  }
-
-  onResponse (callback) {
-    if (!this.isWebSocket) throw new Error('onResponse for WebSocket only')
-    this.rpc.registerEventListener('onResponse', callback)
+  registerEventListener (event, callback) {
+    if (!this.isWebSocket) throw new Error('registerEventListener is for WebSocketProvider only.')
+    this.rpc.registerEventListener(event, callback)
   }
 
   onError (callback) {
-    if (!this.isWebSocket) throw new Error('onError for WebSocket only')
+    if (!this.isWebSocket) throw new Error('onError is for WebSocketProvider only')
     this.rpc.registerEventListener('onError', callback)
   }
 
   onClose (callback) {
-    if (!this.isWebSocket) throw new Error('onClose for WebSocket only')
+    if (!this.isWebSocket) throw new Error('onClose is for WebSocketProvider only')
     this.rpc.registerEventListener('onClose', callback)
   }
 
@@ -391,6 +426,8 @@ exports.IceTeaWeb3 = class IceTeaWeb3 {
     return this.sendTransactionCommit(tx, options)
   }
 }
+
+exports.IceteaWeb3.utils = exports.utils
 
 function _serializeDataForDeploy (mode, src, params, options) {
   var formData = {}
