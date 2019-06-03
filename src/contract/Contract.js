@@ -1,4 +1,4 @@
-const { TxOp } = require('icetea-common')
+const { TxOp } = require('@iceteachain/common')
 
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}

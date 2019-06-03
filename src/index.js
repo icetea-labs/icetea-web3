@@ -1,4 +1,4 @@
-const { utils: helper, TxOp, ContractMode } = require('icetea-common')
+const { utils: helper, TxOp, ContractMode } = require('@iceteachain/common')
 const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode, decodeReturnValue, removeItem } = require('./utils')
 const Contract = require('./contract/Contract')
 const Wallet = require('./wallet/Wallet')

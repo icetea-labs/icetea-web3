@@ -14,8 +14,8 @@ const babelPlugins = [runtyper].filter(Boolean)
 
 const outFile = path.basename(packageJson.browser)
 
-module.exports = {
-  mode: 'development',
+module.exports = env => ({
+  mode: env === 'prod' ? 'production' : 'development',
   entry: './src/index.js',
   output: {
     path: path.resolve(outDir),
@@ -52,4 +52,4 @@ module.exports = {
     new webpack.BannerPlugin(`${packageJson.name} v${packageJson.version}`)
     // new BundleAnalyzerPlugin()
   ]
-}
+})

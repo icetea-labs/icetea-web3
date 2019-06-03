@@ -1,5 +1,5 @@
-const { newAccount, getAccount } = require('icetea-common').utils
-const { codec } = require('icetea-common')
+const { newAccount, getAccount } = require('@iceteachain/common').utils
+const { codec } = require('@iceteachain/common')
 const keythereum = require('keythereum')
 
 var _wallet = { defaultAccount: '', accounts: [] }

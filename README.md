@@ -8,17 +8,16 @@
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)  
 
-Web3-like client for IceTea blockchain.
+Web3-like client for Icetea blockchain.
 
 ## Install
 ### NodeJS or Webpack/Browserify
 ```
-npm install TradaTech/icetea-web3
+npm install @iceteachain/web3
 ```
-This package is not published to npmjs registry yet.
 ### <script> tags
 ```html
-<script src='https://cdn.jsdelivr.net/gh/TradaTech/icetea-web3/dist/browser.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/@iceteachain/web3@0.1.0/dist/browser.min.js"></script>
 ```
 
 > **NOTE** This package is under developemnt and not ready for production.

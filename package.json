@@ -1,25 +1,28 @@
 {
-  "name": "icetea-web3",
-  "version": "0.1.5",
-  "description": "A Web3-like client lib for icetea blockchain.",
+  "name": "@iceteachain/web3",
+  "version": "0.1.0",
+  "description": "A Web3-like client lib for Icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",
   "scripts": {
-    "build": "webpack",
-    "test": "standard",
-    "fix": "standard --fix"
+    "test": "standard --fix",
+    "clean": "rimraf dist",
+    "prepare": "npm run clean && npm test && npm run build",
+    "build:dev": "webpack --env dev",
+    "build": "webpack --env prod"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TradaTech/icetea-web3.git"
   },
-  "author": "Trada Tech",
+  "author": "Trada Tech <iceteachain@gmail.com>",
   "license": "MIT",
   "standard": {
     "ignore": [
       "**/tmp/",
       "**/dist/",
-      "**/example/"
+      "**/example/",
+      "test/"
     ]
   },
   "bugs": {
@@ -27,7 +30,7 @@
   },
   "homepage": "https://github.com/TradaTech/icetea-web3#readme",
   "dependencies": {
-    "icetea-common": "github:TradaTech/icetea-common",
+    "@iceteachain/common": "^0.1.0",
     "keythereum": "github:TradaTech/keythereum",
     "node-fetch": "^2.6.0",
     "node-localstorage": "^1.3.1",
@@ -40,6 +43,7 @@
     "@babel/preset-env": "^7.3.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-runtyper": "^0.4.0",
+    "rimraf": "^2.6.3",
     "standard": "^12.0.1",
     "webpack": "^4.29.3",
     "webpack-bundle-analyzer": "^3.3.2",

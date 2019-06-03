@@ -1,4 +1,4 @@
-const { codec } = require('icetea-common')
+const { codec } = require('@iceteachain/common')
 
 exports.tryParseJson = p => {
   try {

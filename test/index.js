@@ -1,5 +1,5 @@
 const { IceteaWeb3 } = require('../src')
-const tweb3 = new IceteaWeb3('ws://localhost:3001/websocket')
+const tweb3 = new IceteaWeb3('ws://localhost:26657/websocket')
 
 async function test () {
   try {
@@ -24,7 +24,7 @@ async function test () {
     // console.log('unsubscribe return value: ', result)
 
     result = await contract.methods.setValue(Date.now()).sendCommit()
-    //console.log('setResult return value: ', result)
+    // console.log('setResult return value: ', result)
 
     result = await contract.methods.setValue(100).sendCommit()
 
