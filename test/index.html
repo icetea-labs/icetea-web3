@@ -1,0 +1,46 @@
+<script src="https://cdn.jsdelivr.net/npm/@iceteachain/web3@0.1.1/dist/browser.js"></script>
+
+<p>Current value: <span  id='value'></span></p>
+<p><input id='newValue' placeholder='new value'></input><button id='setValue'>setValue</button></p>
+
+<script>
+    // A helper function
+function byId(id) {
+	return document.getElementById(id)
+}
+
+// Instantiate a new IceteaWeb3 instance
+// by default it will connect to ws://testnet.icetea.io/webservice
+const tweb3 = new icetea.IceteaWeb3('wss://rpc.icetea.io/websocket')
+
+// create a new account, the account is needed to call setValue
+tweb3.wallet.createAccount()
+
+// Note: replace the contract address with your actual address or alias
+const contract = tweb3.contract('teat1hlc9hsymx6flhuj0epg62lsu0qyz3z5hsatg4q')
+
+contract.methods.value().call().then(function(value) {
+	byId('value').textContent = value
+}).catch(function(error) {
+	console.error(error)
+	alert(error)
+})
+
+byId('setValue').addEventListener('click', function(e) {
+	e.preventDefault()
+	const newValue = byId('newValue').value
+	contract.methods.setValue(+newValue).sendCommit().catch(function(error) {
+		console.error(error)
+		alert(error)
+	})
+})
+
+contract.events.DataSet({}, function(error, data) {
+	if (error) {
+		console.error(error)
+		byId('value').textContent = String(error)
+	} else {
+		byId('value').textContent = data.newValue
+	}
+})
+</script>

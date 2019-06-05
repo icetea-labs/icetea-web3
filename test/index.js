@@ -1,11 +1,11 @@
 const { IceteaWeb3 } = require('../src')
-const tweb3 = new IceteaWeb3('ws://localhost:26657/websocket')
+const tweb3 = new IceteaWeb3('wss://rpc.icetea.io/websocket')
 
 async function test () {
   try {
     tweb3.wallet.createAccount()
-    const contract = tweb3.contract('teat1hrhxxclzappggkqq0c8xektl9grmvg7tukewwz')
-    let result = await contract.methods.getValue().call()
+    const contract = tweb3.contract('teat1hlc9hsymx6flhuj0epg62lsu0qyz3z5hsatg4q')
+    let result = await contract.methods.value().call()
     // console.log('getValue return value: ', result)
 
     // result = await tweb3.subscribe('Tx', {}, (err, data) => {
@@ -14,7 +14,7 @@ async function test () {
     // })
     // console.log('subscribe return value: ', result)
 
-    result = await contract.events.ValueSet((err, data, full) => {
+    result = await contract.events.DataSet((err, data, full) => {
       console.error('contract subscribe error: ', err)
       console.log('contract subscribe data: ', data)
     })
@@ -36,7 +36,7 @@ async function test () {
 
   setTimeout(() => {
     tweb3.close()
-  }, 1000)
+  }, 10000)
 }
 
 test()
