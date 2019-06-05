@@ -96,7 +96,7 @@ class Contract {
 
             // because we support one contract emit the same event only once per TX
             // so r.events must be 0-length for now
-            return callback(undefined, result.events[0].eventData, result)
+            return callback(undefined, result.data.value.TxResult.events[0].eventData, result)
           })
         }
       }

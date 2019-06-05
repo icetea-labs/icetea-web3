@@ -370,11 +370,14 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         this._wshandler.onmessage = msg => {
           Object.values(this._wssub).forEach(({ id, callbacks }) => {
             if (msg.id === id + '#event') {
-              const r = msg.result.data.value.TxResult
-              r.tx_result = r.result // rename for utils.decode
-              delete r.result
-              decode(r)
-              callbacks.forEach(cb => cb(undefined, r))
+              const result = msg.result
+              if (result.data.type === 'tendermint/event/Tx') {
+                const r = result.data.value.TxResult
+                r.tx_result = r.result // rename for utils.decode
+                decode(r)
+                delete r.tx_result
+              }
+              callbacks.forEach(cb => cb(undefined, result))
             }
           })
         }

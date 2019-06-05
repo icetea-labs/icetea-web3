@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.1 */
+/*! @iceteachain/web3 v0.1.2 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -58869,7 +58869,7 @@ var Contract = function Contract(tweb3, address) {
           // so r.events must be 0-length for now
 
 
-          return callback(undefined, result.events[0].eventData, result);
+          return callback(undefined, result.data.value.TxResult.events[0].eventData, result);
         });
       };
     }
@@ -59374,13 +59374,18 @@ function () {
                   callbacks = _ref.callbacks;
 
               if (msg.id === id + '#event') {
-                var r = msg.result.data.value.TxResult;
-                r.tx_result = r.result; // rename for utils.decode
+                var _result = msg.result;
 
-                delete r.result;
-                decode(r);
+                if (_result.data.type === 'tendermint/event/Tx') {
+                  var r = _result.data.value.TxResult;
+                  r.tx_result = r.result; // rename for utils.decode
+
+                  decode(r);
+                  delete r.tx_result;
+                }
+
                 callbacks.forEach(function (cb) {
-                  return cb(undefined, r);
+                  return cb(undefined, _result);
                 });
               }
             });
