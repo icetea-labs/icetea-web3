@@ -20,4 +20,4 @@ npm install @iceteachain/web3
 <script src="https://cdn.jsdelivr.net/npm/@iceteachain/web3@0.1.1/dist/browser.min.js"></script>
 ```
 
-> **NOTE** This package is under developemnt and not ready for production.
+> **NOTE** This package is under development and not ready for production.
