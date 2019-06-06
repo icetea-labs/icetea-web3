@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.2 */
+/*! @iceteachain/web3 v0.1.3 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -60137,25 +60137,45 @@ var _ram = {
 
 function getStorage() {
   if (typeof localStorage !== 'undefined') {
-    return window.localStorage;
+    return localStorage; // eslint-disable-line
   }
 
-  var LocalStorage = __webpack_require__(/*! node-localstorage */ "node-localstorage").LocalStorage;
+  return {
+    _data: {},
+    setItem: function setItem(id, val) {
+      return this._data[id] = val;
+    },
+    // eslint-disable-line
+    getItem: function getItem(id) {
+      return this._data[id];
+    },
+    removeItem: function removeItem(id) {
+      return delete this._data[id];
+    },
+    clear: function clear() {
+      return this._data = {};
+    } // eslint-disable-line
 
-  return new LocalStorage('./localStorage');
+  };
 }
 
 var _localStorage = getStorage();
 
 var _storage = {
   saveData: function saveData(data) {
-    _localStorage.setItem('accounts', JSON.stringify(data));
+    return Promise.resolve(_localStorage.setItem('_icetea_accounts', JSON.stringify(data)));
   },
   getData: function getData() {
-    var dataLocal = _localStorage.getItem('accounts');
+    Promise.resolve(_localStorage.getItem('_icetea_accounts')).then(function (dataLocal) {
+      if (!dataLocal) {
+        return {
+          defaultAccount: '',
+          accounts: []
+        };
+      }
 
-    if (!dataLocal) dataLocal = "{\"defaultAccount\":\"\",\"accounts\":[]}";
-    return JSON.parse(dataLocal);
+      return JSON.parse(dataLocal);
+    });
   },
   encode: function encode(password) {
     var options = {};
@@ -60166,9 +60186,11 @@ var _storage = {
     };
 
     _ram.wallet.accounts.forEach(function (item) {
-      var privateKey = codec.toBuffer(item.privateKey);
-      var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options);
-      walletStogare.accounts.push(keyObject);
+      if (item.privateKey) {
+        var privateKey = codec.toBuffer(item.privateKey);
+        var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options);
+        walletStogare.accounts.push(keyObject);
+      }
     });
 
     walletStogare.defaultAccount = _ram.wallet.defaultAccount;
@@ -60257,7 +60279,9 @@ function () {
   }, {
     key: "saveToStorage",
     value: function saveToStorage(password) {
-      if (!password) password = window.prompt('Please enter your password.');
+      if (!password) {
+        throw Error('Password is required.');
+      }
 
       var walletStogare = _storage.encode(password);
 
@@ -60268,18 +60292,29 @@ function () {
   }, {
     key: "loadFromStorage",
     value: function loadFromStorage(password, walletStogare, addresses) {
-      walletStogare = walletStogare || _storage.getData();
+      walletStogare = Promise.resolve(walletStogare || _storage.getData()).then(function (walletStogare) {
+        if (walletStogare && walletStogare.accounts.length > 0) {
+          if (!password) {
+            throw Error('Password is required.');
+          }
 
-      if (walletStogare && walletStogare.accounts.length > 0) {
-        if (!password) password = window.prompt('Please enter your password.');
-
-        var wallettmp = _storage.decode(password, walletStogare, addresses); // load data from localstorage and set on wallet in ram
+          var wallettmp = _storage.decode(password, walletStogare, addresses); // load data from localstorage and set on wallet in ram
 
 
-        _ram.wallet = wallettmp;
+          _ram.wallet = wallettmp;
+        }
+
+        return _ram.wallet.accounts.length;
+      });
+    }
+  }, {
+    key: "setStorate",
+    value: function setStorate(storage) {
+      if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') {
+        throw new Error('Storage must be an object with getItem and setItem functions.');
       }
 
-      return _ram.wallet.accounts.length;
+      _localStorage = storage;
     }
   }, {
     key: "defaultAccount",
@@ -60355,17 +60390,6 @@ module.exports = Wallet;
 /***/ (function(module, exports) {
 
 module.exports = fetch;
-
-/***/ }),
-
-/***/ "node-localstorage":
-/*!*******************************!*\
-  !*** external "localStorage" ***!
-  \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = localStorage;
 
 /***/ }),
 

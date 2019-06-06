@@ -53,32 +53,47 @@ const _ram = {
 
 function getStorage () {
   if (typeof localStorage !== 'undefined') {
-    return window.localStorage
+    return localStorage // eslint-disable-line
   }
 
-  const LocalStorage = require('node-localstorage').LocalStorage
-  return new LocalStorage('./localStorage')
+  return {
+    _data: {},
+    setItem: function (id, val) { return this._data[id] = val }, // eslint-disable-line
+    getItem: function (id) { return this._data[id] },
+    removeItem: function (id) { return delete this._data[id] },
+    clear: function () { return this._data = {} } // eslint-disable-line
+  }
 }
 
-const _localStorage = getStorage()
+let _localStorage = getStorage()
 const _storage = {
   saveData (data) {
-    _localStorage.setItem('accounts', JSON.stringify(data))
+    return Promise.resolve(_localStorage.setItem('_icetea_accounts', JSON.stringify(data)))
   },
   getData () {
-    var dataLocal = _localStorage.getItem('accounts')
-    if (!dataLocal) dataLocal = `{"defaultAccount":"","accounts":[]}`
-    return JSON.parse(dataLocal)
+    Promise.resolve(_localStorage.getItem('_icetea_accounts'))
+      .then(function (dataLocal) {
+        if (!dataLocal) {
+          return {
+            defaultAccount: '',
+            accounts: []
+          }
+        }
+        return JSON.parse(dataLocal)
+      })
   },
+
   encode (password) {
     var options = {}
 
     var dk = keythereum.create()
     var walletStogare = { defaultAccount: '', accounts: [] }
     _ram.wallet.accounts.forEach(item => {
-      var privateKey = codec.toBuffer(item.privateKey)
-      var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options)
-      walletStogare.accounts.push(keyObject)
+      if (item.privateKey) {
+        var privateKey = codec.toBuffer(item.privateKey)
+        var keyObject = keythereum.dump(password, privateKey, dk.salt, dk.iv, options)
+        walletStogare.accounts.push(keyObject)
+      }
     })
     walletStogare.defaultAccount = _ram.wallet.defaultAccount
     return walletStogare
@@ -154,21 +169,34 @@ class Wallet {
   }
 
   saveToStorage (password) {
-    if (!password) password = window.prompt('Please enter your password.')
+    if (!password) {
+      throw Error('Password is required.')
+    }
     var walletStogare = _storage.encode(password)
     _storage.saveData(walletStogare)
     return walletStogare.accounts.length
   }
 
   loadFromStorage (password, walletStogare, addresses) {
-    walletStogare = walletStogare || _storage.getData()
-    if (walletStogare && walletStogare.accounts.length > 0) {
-      if (!password) password = window.prompt('Please enter your password.')
-      var wallettmp = _storage.decode(password, walletStogare, addresses)
-      // load data from localstorage and set on wallet in ram
-      _ram.wallet = wallettmp
+    walletStogare = Promise.resolve(walletStogare || _storage.getData())
+      .then(function (walletStogare) {
+        if (walletStogare && walletStogare.accounts.length > 0) {
+          if (!password) {
+            throw Error('Password is required.')
+          }
+          var wallettmp = _storage.decode(password, walletStogare, addresses)
+          // load data from localstorage and set on wallet in ram
+          _ram.wallet = wallettmp
+        }
+        return _ram.wallet.accounts.length
+      })
+  }
+
+  setStorate (storage) {
+    if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') {
+      throw new Error('Storage must be an object with getItem and setItem functions.')
     }
-    return _ram.wallet.accounts.length
+    _localStorage = storage
   }
 }
 
