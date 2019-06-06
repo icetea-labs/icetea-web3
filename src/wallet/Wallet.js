@@ -71,7 +71,7 @@ const _storage = {
     return Promise.resolve(_localStorage.setItem('_icetea_accounts', JSON.stringify(data)))
   },
   getData () {
-    Promise.resolve(_localStorage.getItem('_icetea_accounts'))
+    return Promise.resolve(_localStorage.getItem('_icetea_accounts'))
       .then(function (dataLocal) {
         if (!dataLocal) {
           return {
@@ -178,7 +178,7 @@ class Wallet {
   }
 
   loadFromStorage (password, walletStogare, addresses) {
-    walletStogare = Promise.resolve(walletStogare || _storage.getData())
+    return Promise.resolve(walletStogare || _storage.getData())
       .then(function (walletStogare) {
         if (walletStogare && walletStogare.accounts.length > 0) {
           if (!password) {

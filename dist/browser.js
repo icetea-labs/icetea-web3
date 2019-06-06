@@ -60166,7 +60166,7 @@ var _storage = {
     return Promise.resolve(_localStorage.setItem('_icetea_accounts', JSON.stringify(data)));
   },
   getData: function getData() {
-    Promise.resolve(_localStorage.getItem('_icetea_accounts')).then(function (dataLocal) {
+    return Promise.resolve(_localStorage.getItem('_icetea_accounts')).then(function (dataLocal) {
       if (!dataLocal) {
         return {
           defaultAccount: '',
@@ -60292,7 +60292,7 @@ function () {
   }, {
     key: "loadFromStorage",
     value: function loadFromStorage(password, walletStogare, addresses) {
-      walletStogare = Promise.resolve(walletStogare || _storage.getData()).then(function (walletStogare) {
+      return Promise.resolve(walletStogare || _storage.getData()).then(function (walletStogare) {
         if (walletStogare && walletStogare.accounts.length > 0) {
           if (!password) {
             throw Error('Password is required.');
