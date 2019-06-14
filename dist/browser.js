@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.3 */
+/*! @iceteachain/web3 v0.1.4 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -58969,16 +58969,54 @@ function () {
       }
     }
     /**
-     * Direct call tendermint.
-     * @param {string} method required.
-     * @param {*} options optional
-     * @return {*} the tendermint infor.
+     * Direct call to tendermint PRC.
+     * @param {string} method PRC path.
+     * @param {*} options optional querystring object.
+     * @return {*} the RPC return value.
      */
 
   }, {
-    key: "rawCall",
-    value: function rawCall(method, options) {
-      return this.rpc.call(method, options);
+    key: "rpcCall",
+    value: function rpcCall(path, options) {
+      return this.rpc.call(path, options);
+    }
+    /**
+     * Get blockchain headers.
+     * @param {*} options optional, example {minHeight:10, maxHeight:11}
+     * @returns block headers, maximum 20 items.
+     */
+
+  }, {
+    key: "getBlockHeaders",
+    value: function getBlockHeaders(options) {
+      return this.rpc.call('blockchain', options);
+    }
+    /**
+     * Get current status of the blockchain, like last block height, timestamp, etc.
+     */
+
+  }, {
+    key: "getBlockchainStatus",
+    value: function getBlockchainStatus() {
+      return this.rpc.call('status');
+    }
+    /**
+     * Get number of unconfimed txs.
+     */
+
+  }, {
+    key: "countUnconfirmedTxs",
+    value: function countUnconfirmedTxs() {
+      return this.rpc.call('num_unconfirmed_txs');
+    }
+    /**
+     * Get list of unconfirmed txs.
+     */
+
+  }, {
+    key: "getUnconfimedTxs",
+    value: function getUnconfimedTxs() {
+      return this.rpc.call('unconfirmed_txs');
     }
     /**
      * Get a single validators
@@ -59613,7 +59651,9 @@ function () {
     value: function call(method, params) {
       return this._call(method, params).then(function (resp) {
         if (resp.error) {
-          throw Object.assign(new Error(resp.error.message), resp.error);
+          var err = new Error(resp.error.data || resp.error.message);
+          err.error = resp.error;
+          throw err;
         }
 
         if (resp.id) resp.result.id = resp.id;

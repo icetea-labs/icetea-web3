@@ -42,15 +42,47 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       this.rpc.close()
     }
   }
+
   /**
-   * Direct call tendermint.
-   * @param {string} method required.
-   * @param {*} options optional
-   * @return {*} the tendermint infor.
+   * Direct call to tendermint PRC.
+   * @param {string} method PRC path.
+   * @param {*} options optional querystring object.
+   * @return {*} the RPC return value.
    */
-  rawCall (method, options) {
-    return this.rpc.call(method, options)
+  rpcCall (path, options) {
+    return this.rpc.call(path, options)
   }
+
+  /**
+   * Get blockchain headers.
+   * @param {*} options optional, example {minHeight:10, maxHeight:11}
+   * @returns block headers, maximum 20 items.
+   */
+  getBlockHeaders (options) {
+    return this.rpc.call('blockchain', options)
+  }
+
+  /**
+   * Get current status of the blockchain, like last block height, timestamp, etc.
+   */
+  getBlockchainStatus () {
+    return this.rpc.call('status')
+  }
+
+  /**
+   * Get number of unconfimed txs.
+   */
+  countUnconfirmedTxs () {
+    return this.rpc.call('num_unconfirmed_txs')
+  }
+
+  /**
+   * Get list of unconfirmed txs.
+   */
+  getUnconfimedTxs () {
+    return this.rpc.call('unconfirmed_txs')
+  }
+
   /**
    * Get a single validators
    * @param {*} options example {height: 10}, skip to get latest block.

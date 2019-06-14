@@ -20,7 +20,9 @@ class BaseProvider {
   call (method, params) {
     return this._call(method, params).then(resp => {
       if (resp.error) {
-        throw Object.assign(new Error(resp.error.message), resp.error)
+        const err = new Error(resp.error.data || resp.error.message)
+        err.error = resp.error
+        throw err
       }
       if (resp.id) resp.result.id = resp.id
       return resp.result
