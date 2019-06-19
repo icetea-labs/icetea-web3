@@ -9,6 +9,9 @@ exports.tryParseJson = p => {
   }
 }
 
+exports.isRegularAccount = codec.isRegularAddress
+exports.isBankAccount = codec.isBankAddress
+
 /**
  * Encode tx object to be sent to tendermint.
  * @returns {string} encoded string.

@@ -1,5 +1,15 @@
 const { utils: helper, TxOp, ContractMode } = require('@iceteachain/common')
-const { switchEncoding, decodeTX, decodeEventData, decodeTags, decode, decodeReturnValue, removeItem } = require('./utils')
+const {
+  switchEncoding,
+  decodeTX,
+  decodeEventData,
+  decodeTags,
+  decode,
+  decodeReturnValue,
+  removeItem,
+  isRegularAccount,
+  isBankAccount
+} = require('./utils')
 const Contract = require('./contract/Contract')
 const Wallet = require('./wallet/Wallet')
 const HttpProvider = require('./providers/HttpProvider')
@@ -12,7 +22,9 @@ exports.utils = {
   decodeTxReturnValue: decodeReturnValue,
   decodeTxEvents: decodeEventData,
   decodeTxTags: decodeTags,
-  decodeTxResult: decode
+  decodeTxResult: decode,
+  isRegularAccount,
+  isBankAccount
 }
 
 /**
@@ -237,11 +249,20 @@ exports.IceteaWeb3 = class IceteaWeb3 {
 
   /**
    * Get account info.
-   * @param {string} contractAddr  the contract address.
-   * @returns {{balance: number, code: string | Buffer, mode: number, deployedBy: string, system: boolean}} Contract metadata.
+   * @param {string} addr  the contract address.
+   * @returns {{balance: number, code: string | Buffer, mode: number, deployedBy: string, system: boolean}} Account info.
    */
-  getAccountInfo (contractAddr) {
-    return this.rpc.query('account_info', contractAddr)
+  getAccountInfo (addr) {
+    return this.rpc.query('account_info', addr)
+  }
+
+  /**
+   * Get contract source.
+   * @param {string} contractAddr  the contract address.
+   * @returns {string} Contract source code, encoded in base64.
+   */
+  getContractSource (contractAddr) {
+    return this.rpc.query('contract_src', contractAddr)
   }
 
   /**

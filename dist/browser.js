@@ -58915,7 +58915,9 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     decodeTags = _require2.decodeTags,
     decode = _require2.decode,
     decodeReturnValue = _require2.decodeReturnValue,
-    removeItem = _require2.removeItem;
+    removeItem = _require2.removeItem,
+    isRegularAccount = _require2.isRegularAccount,
+    isBankAccount = _require2.isBankAccount;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
@@ -58931,7 +58933,9 @@ exports.utils = {
   decodeTxReturnValue: decodeReturnValue,
   decodeTxEvents: decodeEventData,
   decodeTxTags: decodeTags,
-  decodeTxResult: decode
+  decodeTxResult: decode,
+  isRegularAccount: isRegularAccount,
+  isBankAccount: isBankAccount
   /**
    * The Icetea web client.
    */
@@ -59197,14 +59201,25 @@ function () {
     }
     /**
      * Get account info.
-     * @param {string} contractAddr  the contract address.
-     * @returns {{balance: number, code: string | Buffer, mode: number, deployedBy: string, system: boolean}} Contract metadata.
+     * @param {string} addr  the contract address.
+     * @returns {{balance: number, code: string | Buffer, mode: number, deployedBy: string, system: boolean}} Account info.
      */
 
   }, {
     key: "getAccountInfo",
-    value: function getAccountInfo(contractAddr) {
-      return this.rpc.query('account_info', contractAddr);
+    value: function getAccountInfo(addr) {
+      return this.rpc.query('account_info', addr);
+    }
+    /**
+     * Get contract source.
+     * @param {string} contractAddr  the contract address.
+     * @returns {string} Contract source code, encoded in base64.
+     */
+
+  }, {
+    key: "getContractSource",
+    value: function getContractSource(contractAddr) {
+      return this.rpc.query('contract_src', contractAddr);
     }
     /**
      * @private
@@ -59936,11 +59951,13 @@ exports.tryParseJson = function (p) {
     return p;
   }
 };
+
+exports.isRegularAccount = codec.isRegularAddress;
+exports.isBankAccount = codec.isBankAddress;
 /**
  * Encode tx object to be sent to tendermint.
  * @returns {string} encoded string.
  */
-
 
 exports.encodeTX = function (txObj) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
