@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.4 */
+/*! @iceteachain/web3 v0.1.5 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
