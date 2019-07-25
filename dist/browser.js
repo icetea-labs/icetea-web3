@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.5 */
+/*! @iceteachain/web3 v0.1.7 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! @iceteachain/common v0.1.1 */
+/*! @iceteachain/common v0.1.2 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -22260,7 +22260,7 @@ function newAccount(accountType) {
   return getAccount(ecc.newKeyBuffers(accountType));
 }
 
-function newRegualarAccount() {
+function newRegularAccount() {
   return newAccount(AccountType.REGULAR_ACCOUNT);
 }
 
@@ -22360,7 +22360,7 @@ module.exports = {
   signTransaction: signTransaction,
   verifyTxSignature: verifyTxSignature,
   newAccount: newAccount,
-  newRegualarAccount: newRegualarAccount,
+  newRegularAccount: newRegularAccount,
   newBankAccount: newBankAccount,
   getAccount: getAccount
 };
@@ -59631,7 +59631,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var _require = __webpack_require__(/*! ../utils */ "./src/utils.js"),
-    switchEncoding = _require.switchEncoding,
     encodeTX = _require.encodeTX,
     tryParseJson = _require.tryParseJson;
 
@@ -59684,11 +59683,7 @@ function () {
       }, options);
 
       if (data) {
-        if (typeof data !== 'string') {
-          data = JSON.stringify(data);
-        }
-
-        params.data = switchEncoding(data, 'utf8', 'hex');
+        params.data = encodeTX(data, 'hex');
       }
 
       return this.call('abci_query', params).then(function (result) {
@@ -60125,6 +60120,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require$utils = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js").utils,
     newAccount = _require$utils.newAccount,
+    newBankAccount = _require$utils.newBankAccount,
+    newRegularAccount = _require$utils.newRegularAccount,
     getAccount = _require$utils.getAccount;
 
 var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
@@ -60285,8 +60282,26 @@ function () {
 
   _createClass(Wallet, [{
     key: "createAccount",
-    value: function createAccount() {
-      var account = newAccount();
+    value: function createAccount(type) {
+      var account = newAccount(type);
+
+      _ram.addAccount(account);
+
+      return account;
+    }
+  }, {
+    key: "createBankAccount",
+    value: function createBankAccount() {
+      var account = newBankAccount();
+
+      _ram.addAccount(account);
+
+      return account;
+    }
+  }, {
+    key: "createRegularAccount",
+    value: function createRegularAccount() {
+      var account = newRegularAccount();
 
       _ram.addAccount(account);
 

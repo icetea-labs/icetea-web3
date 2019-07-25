@@ -1,4 +1,4 @@
-const { switchEncoding, encodeTX, tryParseJson } = require('../utils')
+const { encodeTX, tryParseJson } = require('../utils')
 
 class BaseProvider {
   sanitizeParams (params) {
@@ -33,10 +33,7 @@ class BaseProvider {
   query (path, data, options) {
     const params = { path, ...options }
     if (data) {
-      if (typeof data !== 'string') {
-        data = JSON.stringify(data)
-      }
-      params.data = switchEncoding(data, 'utf8', 'hex')
+      params.data = encodeTX(data, 'hex')
     }
 
     return this.call('abci_query', params).then(result => {

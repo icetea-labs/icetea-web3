@@ -1,4 +1,4 @@
-const { newAccount, getAccount } = require('@iceteachain/common').utils
+const { newAccount, newBankAccount, newRegularAccount, getAccount } = require('@iceteachain/common').utils
 const { codec } = require('@iceteachain/common')
 const keythereum = require('keythereum')
 
@@ -130,8 +130,20 @@ class Wallet {
     return _ram.getAccounts()
   }
 
-  createAccount () {
-    var account = newAccount()
+  createAccount (type) {
+    var account = newAccount(type)
+    _ram.addAccount(account)
+    return account
+  }
+
+  createBankAccount () {
+    var account = newBankAccount()
+    _ram.addAccount(account)
+    return account
+  }
+
+  createRegularAccount () {
+    var account = newRegularAccount()
     _ram.addAccount(account)
     return account
   }
