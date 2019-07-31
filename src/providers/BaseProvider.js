@@ -1,4 +1,4 @@
-const { encodeTX, tryParseJson } = require('../utils')
+const { encodeTX, tryParseJson, tryJsonStringify } = require('../utils')
 
 class BaseProvider {
   sanitizeParams (params) {
@@ -41,7 +41,7 @@ class BaseProvider {
       const info = tryParseJson(r.info)
 
       if (r.code) {
-        const err = new Error(String((info && info.message) || data))
+        const err = new Error(tryJsonStringify((info && info.message) || info || data))
         err.code = r.code
         err.info = info
         throw err

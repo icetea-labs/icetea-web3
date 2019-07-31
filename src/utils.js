@@ -9,6 +9,19 @@ exports.tryParseJson = p => {
   }
 }
 
+exports.tryJsonStringify = p => {
+  if (typeof p === 'string') {
+    return p
+  }
+
+  try {
+    return JSON.stringify(p)
+  } catch (e) {
+    // console.log("WARN: ", e);
+    return String(p)
+  }
+}
+
 exports.isRegularAccount = codec.isRegularAddress
 exports.isBankAccount = codec.isBankAddress
 

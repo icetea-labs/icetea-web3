@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.7 */
+/*! @iceteachain/web3 v0.1.8 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -59319,8 +59319,7 @@ function () {
         params: params,
         options: options
       });
-    } // shorthand for transfer, deploy, write, read contract goes here
-
+    }
     /**
        * Subscribes by event (for WebSocket only)
        *
@@ -59516,7 +59515,8 @@ function () {
         from: options.from,
         to: to,
         value: value,
-        fee: options.fee
+        fee: options.fee,
+        payer: options.payer
       };
 
       if (params) {
@@ -59632,7 +59632,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require = __webpack_require__(/*! ../utils */ "./src/utils.js"),
     encodeTX = _require.encodeTX,
-    tryParseJson = _require.tryParseJson;
+    tryParseJson = _require.tryParseJson,
+    tryJsonStringify = _require.tryJsonStringify;
 
 var BaseProvider =
 /*#__PURE__*/
@@ -59691,7 +59692,7 @@ function () {
         var info = tryParseJson(r.info);
 
         if (r.code) {
-          var err = new Error(String(info && info.message || data));
+          var err = new Error(tryJsonStringify(info && info.message || info || data));
           err.code = r.code;
           err.info = info;
           throw err;
@@ -59944,6 +59945,19 @@ exports.tryParseJson = function (p) {
   } catch (e) {
     // console.log("WARN: ", e);
     return p;
+  }
+};
+
+exports.tryJsonStringify = function (p) {
+  if (typeof p === 'string') {
+    return p;
+  }
+
+  try {
+    return JSON.stringify(p);
+  } catch (e) {
+    // console.log("WARN: ", e);
+    return String(p);
   }
 };
 

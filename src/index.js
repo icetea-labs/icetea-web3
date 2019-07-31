@@ -334,7 +334,6 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     return this.rpc.query('invokePure', { address: contract, name: method, params, options })
   }
 
-  // shorthand for transfer, deploy, write, read contract goes here
   /**
      * Subscribes by event (for WebSocket only)
      *
@@ -475,7 +474,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
   }
 
   transfer (to, value, options = {}, params = options.params) {
-    const tx = { from: options.from, to, value, fee: options.fee }
+    const tx = { from: options.from, to, value, fee: options.fee, payer: options.payer }
     if (params) {
       tx.data = { params } // params for __on_received
     }
