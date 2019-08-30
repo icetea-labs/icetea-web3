@@ -101,7 +101,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @returns the validators block.
    */
   getValidators (options) {
-    return this.rpc.call('validators', options)
+    return this.rpc.query('validators', undefined, options)
   }
 
   /**

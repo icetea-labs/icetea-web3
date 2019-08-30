@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.8 */
+/*! @iceteachain/web3 v0.1.9 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -58771,6 +58771,53 @@ function _serializeData(address, method) {
   formData.fee = options.fee || 0;
   formData.data = txData;
   return formData;
+}
+
+function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
+  var opts;
+
+  if (typeof options === 'function' && typeof callback === 'undefined') {
+    callback = options;
+  } else {
+    opts = options;
+  }
+
+  opts = opts || {};
+  opts.where = opts.where || []; // add address filter
+
+  var EVENTNAMES_SEP = '|';
+  var EMITTER_EVENTNAME_SEP = '%';
+  var EVENTNAME_INDEX_SEP = '~';
+  var emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP;
+  var isAll = eventName === 'allEvents';
+
+  if (isAll) {
+    opts.where.push("EventNames CONTAINS '".concat(emitter, "'"));
+  } else {
+    opts.where.push("EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'"));
+  } // add indexed field filter
+
+
+  var filter = opts.filter || {};
+  Object.keys(filter).forEach(function (key) {
+    var value = filter[key];
+
+    if (isAll) {
+      opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(key.replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
+    } else {
+      opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
+    }
+  });
+  return tweb3.subscribe('Tx', opts, function (err, result) {
+    if (err) {
+      return callback(err);
+    } // because we support one contract emit the same event only once per TX
+    // so r.events must be 0-length for now
+
+
+    var evs = result.data.value.TxResult.events;
+    return callback(undefined, isAll ? evs : evs[0].eventData, result);
+  });
 } // contract
 
 
@@ -58840,37 +58887,7 @@ var Contract = function Contract(tweb3, address) {
   this.events = new Proxy({}, {
     get: function get(obj, eventName) {
       return function (options, callback) {
-        var opts;
-
-        if (typeof options === 'function' && typeof callback === 'undefined') {
-          callback = options;
-        } else {
-          opts = options;
-        }
-
-        opts = opts || {};
-        opts.where = opts.where || []; // add address filter
-
-        var EVENTNAMES_SEP = '|';
-        var EMITTER_EVENTNAME_SEP = '%';
-        var EVENTNAME_INDEX_SEP = '~';
-        var emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP;
-        opts.where.push("EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'")); // add indexed field filter
-
-        var filter = opts.filter || {};
-        Object.keys(filter).forEach(function (key) {
-          var value = filter[key];
-          opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
-        });
-        return tweb3.subscribe('Tx', opts, function (err, result) {
-          if (err) {
-            return callback(err);
-          } // because we support one contract emit the same event only once per TX
-          // so r.events must be 0-length for now
-
-
-          return callback(undefined, result.data.value.TxResult.events[0].eventData, result);
-        });
+        return _registerEvents(tweb3, contractAddr, eventName, options, callback);
       };
     }
   });
@@ -59031,7 +59048,7 @@ function () {
   }, {
     key: "getValidators",
     value: function getValidators(options) {
-      return this.rpc.call('validators', options);
+      return this.rpc.query('validators', undefined, options);
     }
     /**
      * Get account balance.
