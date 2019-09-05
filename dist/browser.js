@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.9 */
+/*! @iceteachain/web3 v0.1.10 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -58753,7 +58753,8 @@ module.exports = function(module) {
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
-    TxOp = _require.TxOp;
+    TxOp = _require.TxOp,
+    ecc = _require.ecc;
 
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
@@ -58774,6 +58775,10 @@ function _serializeData(address, method) {
 }
 
 function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
+  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+    throw new Error('To subscribe to event, you must resolve contract alias first.');
+  }
+
   var opts;
 
   if (typeof options === 'function' && typeof callback === 'undefined') {
@@ -58834,6 +58839,10 @@ var Contract = function Contract(tweb3, address) {
     this.address = address.address || address.returnValue;
     this.hash = address.hash;
     this.height = address.height;
+  }
+
+  if (this.address.indexOf('.') < 0) {
+    ecc.validateAddress(this.address);
   }
 
   var contractAddr = this.address;
@@ -59338,6 +59347,18 @@ function () {
       });
     }
     /**
+     * Return the address, resoving the alias if neccessary.
+     * @param {string} addressOrAlias an address or alias
+     */
+
+  }, {
+    key: "ensureAddress",
+    value: function ensureAddress(addressOrAlias) {
+      return this.callReadonlyContractMethod('system.alias', 'resolve', [addressOrAlias]).then(function (data) {
+        return data || addressOrAlias;
+      });
+    }
+    /**
        * Subscribes by event (for WebSocket only)
        *
        * @method subscribe
@@ -59570,7 +59591,7 @@ function _serializeDataForDeploy(mode, src, params, options) {
     }
 
     txData.src = src;
-  } // decause this is for deploying, we won't set fromData.to
+  } // because this is for deploying, we won't set fromData.to
 
 
   formData.from = options.from;

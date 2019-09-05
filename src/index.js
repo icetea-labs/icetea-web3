@@ -335,6 +335,14 @@ exports.IceteaWeb3 = class IceteaWeb3 {
   }
 
   /**
+   * Return the address, resoving the alias if neccessary.
+   * @param {string} addressOrAlias an address or alias
+   */
+  ensureAddress (addressOrAlias) {
+    return this.callReadonlyContractMethod('system.alias', 'resolve', [addressOrAlias]).then(data => data || addressOrAlias)
+  }
+
+  /**
      * Subscribes by event (for WebSocket only)
      *
      * @method subscribe
@@ -502,7 +510,7 @@ function _serializeDataForDeploy (mode, src, params, options) {
     txData.src = src
   }
 
-  // decause this is for deploying, we won't set fromData.to
+  // because this is for deploying, we won't set fromData.to
   formData.from = options.from
   formData.payer = options.payer
   formData.value = options.value || 0

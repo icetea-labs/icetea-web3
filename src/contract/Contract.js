@@ -1,4 +1,4 @@
-const { TxOp } = require('@iceteachain/common')
+const { TxOp, ecc } = require('@iceteachain/common')
 
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
@@ -17,6 +17,10 @@ function _serializeData (address, method, params = [], options = {}) {
 }
 
 function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
+  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+    throw new Error('To subscribe to event, you must resolve contract alias first.')
+  }
+
   let opts
   if (typeof options === 'function' && typeof callback === 'undefined') {
     callback = options
@@ -73,6 +77,11 @@ class Contract {
       this.hash = address.hash
       this.height = address.height
     }
+
+    if (this.address.indexOf('.') < 0) {
+      ecc.validateAddress(this.address)
+    }
+
     const contractAddr = this.address
 
     this.methods = new Proxy({}, {
