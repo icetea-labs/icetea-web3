@@ -4,7 +4,7 @@ class BaseProvider {
   sanitizeParams (params) {
     params = params || {}
     Object.keys(params).forEach(k => {
-      let v = params[k]
+      const v = params[k]
       if (typeof v === 'number') {
         params[k] = String(v)
       }

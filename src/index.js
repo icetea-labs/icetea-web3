@@ -351,7 +351,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
      */
   subscribe (eventName, conditions = {}, callback) {
     if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.')
-    let systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
+    const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
       'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
     if (eventName && !systemEvents.includes(eventName)) {
       console.warn(`Event ${eventName} is not one of known supported events: ${systemEvents}.`)
@@ -418,7 +418,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       return { unsubscribe }
     }
 
-    return this.rpc.call('subscribe', { 'query': query }).then((result) => {
+    return this.rpc.call('subscribe', { query: query }).then((result) => {
       this._wssub[query] = {
         id: result.id,
         query,

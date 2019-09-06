@@ -21,7 +21,7 @@ class HttpProvider extends BaseProvider {
     return _fetch(this.endpoint, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json; charset=utf-8'
       },
       body: JSON.stringify(json)
