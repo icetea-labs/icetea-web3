@@ -1,4 +1,5 @@
-const { encodeTX, tryParseJson, tryJsonStringify } = require('../utils')
+const { encodeTX, tryJsonStringify } = require('../utils')
+const { codec } = require('@iceteachain/common')
 
 class BaseProvider {
   sanitizeParams (params) {
@@ -38,16 +39,16 @@ class BaseProvider {
 
     return this.call('abci_query', params).then(result => {
       const r = result.response
-      const info = tryParseJson(r.info)
 
       if (r.code) {
-        const err = new Error(tryJsonStringify((info && info.message) || info || data))
+        const err = new Error(tryJsonStringify((r.info && r.info.message) || r.info || r.log || data))
         err.code = r.code
-        err.info = info
+        err.info = r.info
+        err.log = r.log
         throw err
       }
 
-      return info
+      return codec.decode(Buffer.from(r.value, 'base64'))
     })
   }
 

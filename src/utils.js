@@ -139,7 +139,7 @@ exports.decode = (tx, keepEvents = false) => {
 exports.decodeReturnValue = (tx, fieldName = 'returnValue') => {
   const data = _getFieldValue(tx, 'data')
   if (data) {
-    tx[fieldName] = this.tryParseJson(this.switchEncoding(data, 'base64', 'utf8'))
+    tx[fieldName] = codec.decode(Buffer.from(data, 'base64'))
   }
 
   return tx

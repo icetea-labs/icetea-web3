@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.11 */
+/*! @iceteachain/web3 v0.1.12 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -63226,7 +63226,7 @@ function _extractSigners(tx, opts) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+/* WEBPACK VAR INJECTION */(function(Buffer) {function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
@@ -63240,8 +63240,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _require = __webpack_require__(/*! ../utils */ "./src/utils.js"),
     encodeTX = _require.encodeTX,
-    tryParseJson = _require.tryParseJson,
     tryJsonStringify = _require.tryJsonStringify;
+
+var _require2 = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
+    codec = _require2.codec;
 
 var BaseProvider =
 /*#__PURE__*/
@@ -63297,16 +63299,16 @@ function () {
 
       return this.call('abci_query', params).then(function (result) {
         var r = result.response;
-        var info = tryParseJson(r.info);
 
         if (r.code) {
-          var err = new Error(tryJsonStringify(info && info.message || info || data));
+          var err = new Error(tryJsonStringify(r.info && r.info.message || r.info || r.log || data));
           err.code = r.code;
-          err.info = info;
+          err.info = r.info;
+          err.log = r.log;
           throw err;
         }
 
-        return info;
+        return codec.decode(Buffer.from(r.value, 'base64'));
       });
     } // send a transaction (write)
 
@@ -63334,6 +63336,7 @@ function () {
 }();
 
 module.exports = BaseProvider;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
@@ -63705,7 +63708,7 @@ exports.decodeReturnValue = function (tx) {
   var data = _getFieldValue(tx, 'data');
 
   if (data) {
-    tx[fieldName] = _this.tryParseJson(_this.switchEncoding(data, 'base64', 'utf8'));
+    tx[fieldName] = codec.decode(Buffer.from(data, 'base64'));
   }
 
   return tx;
