@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.12 */
+/*! @iceteachain/web3 v0.1.13 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -63171,10 +63171,6 @@ function _serializeDataForDeploy(mode, src, params, options) {
 }
 
 function _sendSignedTx(rpc, tx, method) {
-  if (typeof tx.data !== 'string') {
-    tx.data = JSON.stringify(tx.data);
-  }
-
   if (!tx.evidence || !tx.evidence.length) {
     throw new Error('Transaction was not signed yet.');
   } // if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {

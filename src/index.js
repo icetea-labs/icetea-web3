@@ -520,10 +520,6 @@ function _serializeDataForDeploy (mode, src, params, options) {
 }
 
 function _sendSignedTx (rpc, tx, method) {
-  if (typeof tx.data !== 'string') {
-    tx.data = JSON.stringify(tx.data)
-  }
-
   if (!tx.evidence || !tx.evidence.length) {
     throw new Error('Transaction was not signed yet.')
   }
