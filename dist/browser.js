@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.13 */
+/*! @iceteachain/web3 v0.1.14 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! @iceteachain/common v0.1.3 */
+/*! @iceteachain/common v0.1.4 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -13992,20 +13992,11 @@ function from(value) {
 var Bufferish = __webpack_require__(/*! ./bufferish */ "./node_modules/msgpack-lite/lib/bufferish.js");
 var Buffer = Bufferish.global;
 
-var exports = module.exports = Bufferish.hasBuffer ? alloc(0) : [];
+var exports = module.exports = Bufferish.hasBuffer ? Buffer.alloc(0) : [];
 
-exports.alloc = Bufferish.hasBuffer && Buffer.alloc || alloc;
+exports.alloc = Bufferish.hasBuffer && Buffer.alloc;
 exports.concat = Bufferish.concat;
 exports.from = from;
-
-/**
- * @param size {Number}
- * @returns {Buffer|Uint8Array|Array}
- */
-
-function alloc(size) {
-  return new Buffer(size);
-}
 
 /**
  * @param value {Array|ArrayBuffer|Buffer|String}
@@ -14026,12 +14017,7 @@ function from(value) {
     throw new TypeError('"value" argument must not be a number');
   }
 
-  // Array-like to Buffer
-  if (Buffer.from && Buffer.from.length !== 1) {
-    return Buffer.from(value); // node v6+
-  } else {
-    return new Buffer(value); // node v4
-  }
+  return Buffer.from(value);
 }
 
 
@@ -14689,20 +14675,25 @@ function setExtPackers(codec) {
 
     codec.addExtPacker(0x1A, ArrayBuffer, packTypedArray);
     codec.addExtPacker(0x1D, DataView, packTypedArray);
-
-    if ("undefined" !== typeof BigInt) {
-      codec.addExtPacker(0x1F, BigInt, [packBigInt, encode]);
-    }
   }
 
   if (Bufferish.hasBuffer) {
     codec.addExtPacker(0x1B, Buffer, Bufferish.from);
+  }
+
+  codec.addExtPacker(0x1E, undefined, [packUndefined, encode]);
+  if ("undefined" !== typeof BigInt) {
+    codec.addExtPacker(0x1F, BigInt, [packBigInt, encode]);
   }
 }
 
 function encode(input) {
   if (!_encode) _encode = __webpack_require__(/*! ./encode */ "./node_modules/msgpack-lite/lib/encode.js").encode; // lazy load
   return _encode(input);
+}
+
+function packUndefined() {
+  return 0;
 }
 
 function packBigInt(value) {
@@ -14787,13 +14778,14 @@ function setExtUnpackers(codec) {
 
     codec.addExtUnpacker(0x1A, unpackArrayBuffer);
     codec.addExtUnpacker(0x1D, [unpackArrayBuffer, unpackClass(DataView)]);
-
-    codec.addExtUnpacker(0x1F, [decode, unpackBigInt()]);
   }
 
   if (Bufferish.hasBuffer) {
     codec.addExtUnpacker(0x1B, unpackClass(Buffer));
   }
+
+  codec.addExtUnpacker(0x1E, unpackUndefined);
+  codec.addExtUnpacker(0x1F, [decode, unpackBigInt]);
 }
 
 function decode(input) {
@@ -14815,10 +14807,12 @@ function unpackError(Class) {
   };
 }
 
-function unpackBigInt() {
-  return function(value) {
-    return ("undefined" !== typeof BigInt) ? BigInt(value) : value;
-  };
+function unpackUndefined() {
+  return undefined;
+}
+
+function unpackBigInt(value) {
+  return ("undefined" !== typeof BigInt) ? BigInt(value) : value;
 }
 
 function unpackClass(Class) {
@@ -15529,7 +15523,7 @@ function init() {
 
 function addExtPacker(etype, Class, packer) {
   packer = CodecBase.filter(packer);
-  var name = Class.name;
+  var name = typeof Class === 'undefined' ? 'undefined' : Class.name;
   if (name && name !== "Object") {
     var packers = this.extPackers || (this.extPackers = {});
     packers[name] = extPacker;
@@ -15547,8 +15541,9 @@ function addExtPacker(etype, Class, packer) {
 
 function getExtPacker(value) {
   var packers = this.extPackers || (this.extPackers = {});
-  var c = value.constructor;
-  var e = c && c.name && packers[c.name];
+  var u = typeof value === 'undefined';
+  var c = u ? undefined : value.constructor;
+  var e = u ? packers.undefined : (c && c.name && packers[c.name]);
   if (e) return e;
 
   // fallback for IE
@@ -15844,13 +15839,13 @@ function getWriteType(options) {
 
   var writeType = {
     "boolean": bool,
-    "function": nil,
+    // "function": not supported,
     "number": number,
     "object": (useraw ? object_raw : object),
     "string": _string(useraw ? raw_head_size : str_head_size),
-    "symbol": nil,
-    "undefined": nil,
-    "bigint": bigint
+    // "symbol": not supported,
+    "undefined": extpack,
+    "bigint": extpack
   };
 
   return writeType;
@@ -15976,7 +15971,7 @@ function getWriteType(options) {
     map(encoder, value);
   }
 
-  function bigint(encoder, value) {
+  function extpack(encoder, value) {
     var packer = encoder.codec.getExtPacker(value);
     return ext(encoder, packer(value));
   }
