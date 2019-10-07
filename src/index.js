@@ -539,7 +539,9 @@ function _signTx (tx, wallet, signers) {
   }
   signers.forEach(s => {
     const privateKey = wallet.getPrivateKeyByAddress(s)
-    if (!privateKey) throw new Error('Not found private key to sign.')
+    if (!privateKey) {
+      throw new Error('Not found private key to sign for signer: ' + s)
+    }
     tx = signTransaction(tx, privateKey)
   })
 
