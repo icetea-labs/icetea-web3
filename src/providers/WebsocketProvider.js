@@ -7,16 +7,14 @@ const W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : require('web
 
 class WebsocketProvider extends BaseProvider {
   constructor (endpoint, options) {
-    super()
-    this.endpoint = endpoint
-    this.options = options || {
+    super(endpoint, options, {
       createWebSocket: url => new W3CWebSocket(url),
       packMessage: data => JSON.stringify(data),
       unpackMessage: message => JSON.parse(message),
       attachRequestId: (data, requestId) => Object.assign({ id: requestId }, data),
       extractRequestId: data => data.id
       // timeout: 10000,
-    }
+    })
     this.wsp = new WebsocketAsPromised(this.endpoint, this.options)
   }
 
@@ -40,10 +38,6 @@ class WebsocketProvider extends BaseProvider {
     }
 
     return this.wsp.sendRequest(json)
-  }
-
-  sanitizeParams (params) {
-    return super.sanitizeParams(params)
   }
 }
 

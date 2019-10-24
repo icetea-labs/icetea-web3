@@ -40,7 +40,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     if (this.isWebSocket) {
       this.rpc = new WebsocketProvider(endpoint, options)
     } else {
-      this.rpc = new HttpProvider(endpoint)
+      this.rpc = new HttpProvider(endpoint, options)
     }
 
     this._wssub = {}

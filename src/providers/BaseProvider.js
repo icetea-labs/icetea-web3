@@ -2,6 +2,11 @@ const { encodeTX, tryJsonStringify } = require('../utils')
 const { codec } = require('@iceteachain/common')
 
 class BaseProvider {
+  constructor (endpoint, options, defOptions) {
+    this.endpoint = endpoint
+    this.options = Object.assign({}, defOptions || {}, options || {})
+  }
+
   sanitizeParams (params) {
     params = params || {}
     Object.keys(params).forEach(k => {
