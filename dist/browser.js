@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.14 */
+/*! @iceteachain/web3 v0.1.15 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -62337,7 +62337,8 @@ function _serializeData(address, method) {
 
 function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
   if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
-    throw new Error('To subscribe to event, you must resolve contract alias first.');
+    var err = new Error('To subscribe to event, you must resolve contract alias first.');
+    return callback(err);
   }
 
   var opts;
@@ -62546,7 +62547,7 @@ function () {
     if (this.isWebSocket) {
       this.rpc = new WebsocketProvider(endpoint, options);
     } else {
-      this.rpc = new HttpProvider(endpoint);
+      this.rpc = new HttpProvider(endpoint, options);
     }
 
     this._wssub = {};
@@ -62979,19 +62980,20 @@ function () {
           arr.push(w);
         });
         query = arr.join(' AND ');
-      }
+      } // ensure to return promise => simpler for clients
+
 
       var unsubscribe = function unsubscribe() {
         var sub = _this._wssub[query];
 
         if (!sub) {
-          return;
+          return Promise.resolve(undefined);
         }
 
         removeItem(sub.callbacks, callback);
 
         if (sub.callbacks.length > 0) {
-          return;
+          return Promise.resolve(undefined);
         }
 
         return _this.rpc.call('unsubscribe', {
@@ -63005,9 +63007,9 @@ function () {
       if (this._wssub[query]) {
         this._wssub[query].callbacks.push(callback);
 
-        return {
+        return Promise.resolve({
           unsubscribe: unsubscribe
-        };
+        });
       }
 
       return this.rpc.call('subscribe', {
@@ -63027,9 +63029,10 @@ function () {
                   callbacks = _ref.callbacks;
 
               if (msg.id === id + '#event') {
+                var error = msg.error;
                 var _result = msg.result;
 
-                if (_result.data.type === 'tendermint/event/Tx') {
+                if (_result && _result.data && _result.data.type === 'tendermint/event/Tx') {
                   var r = _result.data.value.TxResult;
                   r.tx_result = r.result; // rename for utils.decode
 
@@ -63038,7 +63041,7 @@ function () {
                 }
 
                 callbacks.forEach(function (cb) {
-                  return cb(undefined, _result);
+                  return cb(error, _result);
                 });
               }
             });
@@ -63185,7 +63188,11 @@ function _signTx(tx, wallet, signers) {
 
   signers.forEach(function (s) {
     var privateKey = wallet.getPrivateKeyByAddress(s);
-    if (!privateKey) throw new Error('Not found private key to sign.');
+
+    if (!privateKey) {
+      throw new Error('Not found private key to sign for signer: ' + s);
+    }
+
     tx = signTransaction(tx, privateKey);
   });
   return tx;
@@ -63239,8 +63246,11 @@ var _require2 = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@
 var BaseProvider =
 /*#__PURE__*/
 function () {
-  function BaseProvider() {
+  function BaseProvider(endpoint, options, defOptions) {
     _classCallCheck(this, BaseProvider);
+
+    this.endpoint = endpoint;
+    this.options = Object.assign({}, defOptions || {}, options || {});
   }
 
   _createClass(BaseProvider, [{
@@ -63350,10 +63360,6 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -63370,14 +63376,10 @@ var HttpProvider =
 function (_BaseProvider) {
   _inherits(HttpProvider, _BaseProvider);
 
-  function HttpProvider(endpoint) {
-    var _this;
-
+  function HttpProvider() {
     _classCallCheck(this, HttpProvider);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(HttpProvider).call(this));
-    _this.endpoint = endpoint;
-    return _this;
+    return _possibleConstructorReturn(this, _getPrototypeOf(HttpProvider).apply(this, arguments));
   }
 
   _createClass(HttpProvider, [{
@@ -63389,21 +63391,23 @@ function (_BaseProvider) {
         method: method,
         params: this.sanitizeParams(params)
       };
-      return _fetch(this.endpoint, {
+      var fetchOptions = {
         method: 'POST',
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'application/json; charset=utf-8'
+          'Content-Type': 'application/json; charset=utf-8',
+          Connection: this.options.keepConnection ? 'keep-alive' : 'close'
         },
         body: JSON.stringify(json)
-      }).then(function (resp) {
+      };
+
+      if (this.options.signal) {
+        fetchOptions.signal = this.options.signal;
+      }
+
+      return _fetch(this.endpoint, fetchOptions).then(function (resp) {
         return resp.json();
       });
-    }
-  }, {
-    key: "sanitizeParams",
-    value: function sanitizeParams(params) {
-      return _get(_getPrototypeOf(HttpProvider.prototype), "sanitizeParams", this).call(this, params);
     }
   }]);
 
@@ -63433,10 +63437,6 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -63460,9 +63460,7 @@ function (_BaseProvider) {
 
     _classCallCheck(this, WebsocketProvider);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(WebsocketProvider).call(this));
-    _this.endpoint = endpoint;
-    _this.options = options || {
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(WebsocketProvider).call(this, endpoint, options, {
       createWebSocket: function createWebSocket(url) {
         return new W3CWebSocket(url);
       },
@@ -63481,7 +63479,7 @@ function (_BaseProvider) {
         return data.id;
       } // timeout: 10000,
 
-    };
+    }));
     _this.wsp = new WebsocketAsPromised(_this.endpoint, _this.options);
     return _this;
   }
@@ -63514,11 +63512,6 @@ function (_BaseProvider) {
       }
 
       return this.wsp.sendRequest(json);
-    }
-  }, {
-    key: "sanitizeParams",
-    value: function sanitizeParams(params) {
-      return _get(_getPrototypeOf(WebsocketProvider.prototype), "sanitizeParams", this).call(this, params);
     }
   }]);
 

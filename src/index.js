@@ -396,15 +396,16 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       query = arr.join(' AND ')
     }
 
+    // ensure to return promise => simpler for clients
     const unsubscribe = () => {
       const sub = this._wssub[query]
       if (!sub) {
-        return
+        return Promise.resolve(undefined)
       }
 
       removeItem(sub.callbacks, callback)
       if (sub.callbacks.length > 0) {
-        return
+        return Promise.resolve(undefined)
       }
 
       return this.rpc.call('unsubscribe', { query }).then(res => {
@@ -415,7 +416,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
 
     if (this._wssub[query]) {
       this._wssub[query].callbacks.push(callback)
-      return { unsubscribe }
+      return Promise.resolve({ unsubscribe })
     }
 
     return this.rpc.call('subscribe', { query: query }).then((result) => {
@@ -430,14 +431,16 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         this._wshandler.onmessage = msg => {
           Object.values(this._wssub).forEach(({ id, callbacks }) => {
             if (msg.id === id + '#event') {
+              const error = msg.error
               const result = msg.result
-              if (result.data.type === 'tendermint/event/Tx') {
+
+              if (result && result.data && result.data.type === 'tendermint/event/Tx') {
                 const r = result.data.value.TxResult
                 r.tx_result = r.result // rename for utils.decode
                 decode(r)
                 delete r.tx_result
               }
-              callbacks.forEach(cb => cb(undefined, result))
+              callbacks.forEach(cb => cb(error, result))
             }
           })
         }

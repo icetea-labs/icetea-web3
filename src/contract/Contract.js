@@ -18,7 +18,8 @@ function _serializeData (address, method, params = [], options = {}) {
 
 function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
-    throw new Error('To subscribe to event, you must resolve contract alias first.')
+    const err = new Error('To subscribe to event, you must resolve contract alias first.')
+    return callback(err)
   }
 
   let opts
