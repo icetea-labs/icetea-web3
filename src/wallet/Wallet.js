@@ -150,7 +150,7 @@ class Wallet {
 
   importAccount (privateKey) {
     var account
-    if (typeof privateKey === 'string') {
+    if (typeof privateKey === 'string' || Buffer.isBuffer(privateKey)) {
       account = getAccount(privateKey)
     } else {
       account = privateKey

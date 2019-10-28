@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.15 */
+/*! @iceteachain/web3 v0.1.16 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -63721,7 +63721,7 @@ var _getFieldValue = function _getFieldValue(obj, level2) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+/* WEBPACK VAR INJECTION */(function(Buffer) {function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
@@ -63921,7 +63921,7 @@ function () {
     value: function importAccount(privateKey) {
       var account;
 
-      if (typeof privateKey === 'string') {
+      if (typeof privateKey === 'string' || Buffer.isBuffer(privateKey)) {
         account = getAccount(privateKey);
       } else {
         account = privateKey;
@@ -64016,6 +64016,7 @@ function () {
 }();
 
 module.exports = Wallet;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../node_modules/buffer/index.js */ "./node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
