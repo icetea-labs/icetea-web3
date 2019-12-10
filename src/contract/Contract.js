@@ -17,7 +17,7 @@ function _serializeData (address, method, params = [], options = {}) {
 }
 
 function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
-  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
     const err = new Error('To subscribe to event, you must resolve contract alias first.')
     return callback(err)
   }
@@ -35,21 +35,32 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   const EVENTNAMES_SEP = '|'
   const EMITTER_EVENTNAME_SEP = '%'
   const EVENTNAME_INDEX_SEP = '~'
-  const emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP
+  const emitter = (contractAddr ? (EVENTNAMES_SEP + contractAddr) : '') + EMITTER_EVENTNAME_SEP
   const isAll = (eventName === 'allEvents')
   if (isAll) {
-    opts.where.push(`EventNames CONTAINS '${emitter}'`)
+    contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
   } else {
     opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
   }
 
   // add indexed field filter
   const filter = opts.filter || {}
-  Object.keys(filter).forEach(key => {
+  const filterKeys = Object.keys(filter)
+  if (!isAll && filterKeys.length && !contractAddr) {
+    const err = new Error('Cannot filter by indexed fields unless the contract address is specified.')
+    return callback(err)
+  }
+
+  filterKeys.forEach(key => {
     const value = filter[key]
     if (isAll) {
-      opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+      if (contractAddr) {
+        opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+      } else {
+        opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+      }
     } else {
+      // contractAddr should be truthy if reach here
       opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
     }
   })
@@ -73,13 +84,13 @@ class Contract {
 
     if (typeof address === 'string') {
       this.address = address
-    } else {
+    } else if (address != null) {
       this.address = address.address || address.returnValue
       this.hash = address.hash
       this.height = address.height
     }
 
-    if (this.address.indexOf('.') < 0) {
+    if (this.address && this.address.indexOf('.') < 0) {
       ecc.validateAddress(this.address)
     }
 

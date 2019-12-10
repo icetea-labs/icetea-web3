@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.16 */
+/*! @iceteachain/web3 v0.1.17 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -62336,7 +62336,7 @@ function _serializeData(address, method) {
 }
 
 function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
-  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
     var err = new Error('To subscribe to event, you must resolve contract alias first.');
     return callback(err);
   }
@@ -62355,23 +62355,36 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
   var EVENTNAMES_SEP = '|';
   var EMITTER_EVENTNAME_SEP = '%';
   var EVENTNAME_INDEX_SEP = '~';
-  var emitter = EVENTNAMES_SEP + contractAddr + EMITTER_EVENTNAME_SEP;
+  var emitter = (contractAddr ? EVENTNAMES_SEP + contractAddr : '') + EMITTER_EVENTNAME_SEP;
   var isAll = eventName === 'allEvents';
 
   if (isAll) {
-    opts.where.push("EventNames CONTAINS '".concat(emitter, "'"));
+    contractAddr && opts.where.push("EventNames CONTAINS '".concat(emitter, "'"));
   } else {
     opts.where.push("EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'"));
   } // add indexed field filter
 
 
   var filter = opts.filter || {};
-  Object.keys(filter).forEach(function (key) {
+  var filterKeys = Object.keys(filter);
+
+  if (!isAll && filterKeys.length && !contractAddr) {
+    var _err = new Error('Cannot filter by indexed fields unless the contract address is specified.');
+
+    return callback(_err);
+  }
+
+  filterKeys.forEach(function (key) {
     var value = filter[key];
 
     if (isAll) {
-      opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(key.replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
+      if (contractAddr) {
+        opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(key.replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
+      } else {
+        opts.where.push("".concat(key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
+      }
     } else {
+      // contractAddr should be truthy if reach here
       opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
     }
   });
@@ -62397,13 +62410,13 @@ var Contract = function Contract(tweb3, address) {
 
   if (typeof address === 'string') {
     this.address = address;
-  } else {
+  } else if (address != null) {
     this.address = address.address || address.returnValue;
     this.hash = address.hash;
     this.height = address.height;
   }
 
-  if (this.address.indexOf('.') < 0) {
+  if (this.address && this.address.indexOf('.') < 0) {
     ecc.validateAddress(this.address);
   }
 
