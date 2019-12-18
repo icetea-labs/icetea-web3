@@ -39,7 +39,8 @@ const _ram = {
     // check private exsit before add account
     var isExist = false
     for (var i = 0; i < _ram.wallet.accounts.length; i++) {
-      if (_ram.wallet.accounts[i].privateKey === account.privateKey) {
+      const pKey1 = _ram.wallet.accounts[i]
+      if (pKey1.equals(account.privateKey)) {
         isExist = true
         break
       }
@@ -148,12 +149,21 @@ class Wallet {
     return account
   }
 
-  importAccount (privateKey) {
+  importAccount (pKeyOrAccount) {
     var account
-    if (typeof privateKey === 'string' || Buffer.isBuffer(privateKey)) {
-      account = getAccount(privateKey)
+    if (typeof pKeyOrAccount === 'string' || Buffer.isBuffer(pKeyOrAccount)) {
+      account = getAccount(pKeyOrAccount)
     } else {
-      account = privateKey
+      if (
+        !pKeyOrAccount ||
+        !pKeyOrAccount.privateKey ||
+        !Buffer.isBuffer(pKeyOrAccount.privateKey)
+      ) {
+        throw new Error(
+          'Invalid account object. Account must have a privateKey buffer.'
+        )
+      }
+      account = pKeyOrAccount
     }
     _ram.addAccount(account)
     return account
