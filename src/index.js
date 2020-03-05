@@ -8,7 +8,8 @@ const {
   decodeReturnValue,
   removeItem,
   isRegularAccount,
-  isBankAccount
+  isBankAccount,
+  escapeQueryValue
 } = require('./utils')
 const Contract = require('./contract/Contract')
 const Wallet = require('./wallet/Wallet')
@@ -204,7 +205,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
 
       const filter = conditions.filter || {}
       Object.keys(filter).forEach(key => {
-        const value = filter[key]
+        const value = escapeQueryValue(filter[key])
         if (conditions.address) {
           arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
         } else {

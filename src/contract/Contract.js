@@ -1,4 +1,5 @@
 const { TxOp, ecc } = require('@iceteachain/common')
+const { escapeQueryValue } = require('../utils')
 
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
@@ -52,7 +53,7 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   }
 
   filterKeys.forEach(key => {
-    const value = filter[key]
+    const value = escapeQueryValue(filter[key])
     if (isAll) {
       if (contractAddr) {
         opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)

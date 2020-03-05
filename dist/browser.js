@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.17 */
+/*! @iceteachain/web3 v0.1.18 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -62317,6 +62317,9 @@ var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@i
     TxOp = _require.TxOp,
     ecc = _require.ecc;
 
+var _require2 = __webpack_require__(/*! ../utils */ "./src/utils.js"),
+    escapeQueryValue = _require2.escapeQueryValue;
+
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
@@ -62375,7 +62378,7 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
   }
 
   filterKeys.forEach(function (key) {
-    var value = filter[key];
+    var value = escapeQueryValue(filter[key]);
 
     if (isAll) {
       if (contractAddr) {
@@ -62520,7 +62523,8 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     decodeReturnValue = _require2.decodeReturnValue,
     removeItem = _require2.removeItem,
     isRegularAccount = _require2.isRegularAccount,
-    isBankAccount = _require2.isBankAccount;
+    isBankAccount = _require2.isBankAccount,
+    escapeQueryValue = _require2.escapeQueryValue;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
@@ -62758,7 +62762,7 @@ function () {
 
         var filter = conditions.filter || {};
         Object.keys(filter).forEach(function (key) {
-          var value = filter[key];
+          var value = escapeQueryValue(filter[key]);
 
           if (conditions.address) {
             arr.push("".concat(conditions.address).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
@@ -63716,6 +63720,12 @@ exports.removeItem = function (array, item) {
   return index >= 0 ? array.splice(index, 1) : array;
 };
 
+exports.escapeQueryValue = function (value) {
+  if (typeof value === 'number') return value; // escape all single quotes
+
+  return "'" + String(value).replace(/'/g, "\\'") + "'";
+};
+
 var _getFieldValue = function _getFieldValue(obj, level2) {
   var level1Fields = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['tx_result', 'deliver_tx'];
   var level1 = level1Fields.find(function (f) {
@@ -63798,7 +63808,9 @@ var _ram = {
     var isExist = false;
 
     for (var i = 0; i < _ram.wallet.accounts.length; i++) {
-      if (_ram.wallet.accounts[i].privateKey === account.privateKey) {
+      var pKey1 = _ram.wallet.accounts[i];
+
+      if (pKey1.equals(account.privateKey)) {
         isExist = true;
         break;
       }
@@ -63931,13 +63943,17 @@ function () {
     }
   }, {
     key: "importAccount",
-    value: function importAccount(privateKey) {
+    value: function importAccount(pKeyOrAccount) {
       var account;
 
-      if (typeof privateKey === 'string' || Buffer.isBuffer(privateKey)) {
-        account = getAccount(privateKey);
+      if (typeof pKeyOrAccount === 'string' || Buffer.isBuffer(pKeyOrAccount)) {
+        account = getAccount(pKeyOrAccount);
       } else {
-        account = privateKey;
+        if (!pKeyOrAccount || !pKeyOrAccount.privateKey || !Buffer.isBuffer(pKeyOrAccount.privateKey)) {
+          throw new Error('Invalid account object. Account must have a privateKey buffer.');
+        }
+
+        account = pKeyOrAccount;
       }
 
       _ram.addAccount(account);

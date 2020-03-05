@@ -150,6 +150,12 @@ exports.removeItem = (array, item) => {
   return index >= 0 ? array.splice(index, 1) : array
 }
 
+exports.escapeQueryValue = value => {
+  if (typeof value === 'number') return value
+  // escape all single quotes
+  return "'" + String(value).replace(/'/g, "\\'") + "'"
+}
+
 const _getFieldValue = (obj, level2, level1Fields = ['tx_result', 'deliver_tx']) => {
   const level1 = level1Fields.find(f => f in obj)
   return level1 ? obj[level1][level2] : undefined
