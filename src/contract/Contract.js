@@ -46,6 +46,7 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
 
   // add indexed field filter
   const filter = opts.filter || {}
+  delete opts.filter
   const filterKeys = Object.keys(filter)
   if (!isAll && filterKeys.length && !contractAddr) {
     const err = new Error('Cannot filter by indexed fields unless the contract address is specified.')
@@ -54,16 +55,19 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
 
   filterKeys.forEach(key => {
     const value = escapeQueryValue(filter[key])
-    if (isAll) {
-      if (contractAddr) {
-        opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-      } else {
-        opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-      }
-    } else {
-      // contractAddr should be truthy if reach here
-      opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-    }
+    // if (isAll) {
+    // if (contractAddr) {
+    //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+    // } else {
+    //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+    // }
+
+    // } else {
+    // contractAddr should be truthy if reach here
+    // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+    // }
+
+    opts.where.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
   })
 
   return tweb3.subscribe('Tx', opts, (err, result) => {

@@ -207,7 +207,8 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       Object.keys(filter).forEach(key => {
         const value = escapeQueryValue(filter[key])
         if (conditions.address) {
-          arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+          // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+          arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
         } else {
           throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
         }

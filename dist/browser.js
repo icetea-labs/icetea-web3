@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.18 */
+/*! @iceteachain/web3 v0.1.19 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -62369,6 +62369,7 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
 
 
   var filter = opts.filter || {};
+  delete opts.filter;
   var filterKeys = Object.keys(filter);
 
   if (!isAll && filterKeys.length && !contractAddr) {
@@ -62378,18 +62379,18 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
   }
 
   filterKeys.forEach(function (key) {
-    var value = escapeQueryValue(filter[key]);
+    var value = escapeQueryValue(filter[key]); // if (isAll) {
+    // if (contractAddr) {
+    //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+    // } else {
+    //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+    // }
+    // } else {
+    // contractAddr should be truthy if reach here
+    // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+    // }
 
-    if (isAll) {
-      if (contractAddr) {
-        opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(key.replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
-      } else {
-        opts.where.push("".concat(key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP), "=").concat(value));
-      }
-    } else {
-      // contractAddr should be truthy if reach here
-      opts.where.push("".concat(contractAddr).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
-    }
+    opts.where.push("".concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
   });
   return tweb3.subscribe('Tx', opts, function (err, result) {
     if (err) {
@@ -62765,7 +62766,8 @@ function () {
           var value = escapeQueryValue(filter[key]);
 
           if (conditions.address) {
-            arr.push("".concat(conditions.address).concat(EMITTER_EVENTNAME_SEP).concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
+            // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+            arr.push("".concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
           } else {
             throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.');
           }
