@@ -36,7 +36,7 @@ const _ram = {
     }
   },
   addAccount (account) {
-    // check private exsit before add account
+    // check if private key exists before adding account
     var isExist = false
     for (var i = 0; i < _ram.wallet.accounts.length; i++) {
       const pKey1 = _ram.wallet.accounts[i]

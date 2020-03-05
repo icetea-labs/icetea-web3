@@ -210,6 +210,8 @@ exports.IceteaWeb3 = class IceteaWeb3 {
           // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
           arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
         } else {
+          // it is very confusing to filter by event name without emitter, since many contracts may accidently
+          // to choose the same event name
           throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
         }
       })
