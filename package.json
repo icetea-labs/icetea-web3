@@ -1,6 +1,6 @@
 {
   "name": "@iceteachain/web3",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "A Web3-like client lib for Icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/TradaTech/icetea-web3#readme",
   "dependencies": {
-    "@iceteachain/common": "^0.1.5",
+    "@iceteachain/common": "^0.1.6",
     "keythereum": "github:TradaTech/keythereum",
     "node-fetch": "^2.6.0",
     "websocket": "^1.0.31",
