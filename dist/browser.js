@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.19 */
+/*! @iceteachain/web3 v0.1.20 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -29523,7 +29523,7 @@ module.exports = verify
 /* WEBPACK VAR INJECTION */(function(global) {/*!
  * The buffer module from node.js, for the browser.
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <http://feross.org>
  * @license  MIT
  */
 /* eslint-disable no-proto */
@@ -32324,9 +32324,8 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
 var assert = __webpack_require__(/*! minimalistic-assert */ "./node_modules/minimalistic-assert/index.js");
 var inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 
-var des = __webpack_require__(/*! ../des */ "./node_modules/des.js/lib/des.js");
-var utils = des.utils;
-var Cipher = des.Cipher;
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/des.js/lib/des/utils.js");
+var Cipher = __webpack_require__(/*! ./cipher */ "./node_modules/des.js/lib/des/cipher.js");
 
 function DESState() {
   this.tmp = new Array(2);
@@ -32479,9 +32478,8 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
 var assert = __webpack_require__(/*! minimalistic-assert */ "./node_modules/minimalistic-assert/index.js");
 var inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 
-var des = __webpack_require__(/*! ../des */ "./node_modules/des.js/lib/des.js");
-var Cipher = des.Cipher;
-var DES = des.DES;
+var Cipher = __webpack_require__(/*! ./cipher */ "./node_modules/des.js/lib/des/cipher.js");
+var DES = __webpack_require__(/*! ./des */ "./node_modules/des.js/lib/des/des.js");
 
 function EDEState(type, key) {
   assert.equal(key.length, 24, 'Invalid key length');
@@ -33194,8 +33192,7 @@ elliptic.eddsa = __webpack_require__(/*! ./elliptic/eddsa */ "./node_modules/ell
 
 
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var getNAF = utils.getNAF;
 var getJSF = utils.getJSF;
 var assert = utils.assert;
@@ -33222,6 +33219,8 @@ function BaseCurve(type, conf) {
   this._wnafT3 = new Array(4);
   this._wnafT4 = new Array(4);
 
+  this._bitLength = this.n ? this.n.bitLength() : 0;
+
   // Generalized Greg Maxwell's trick
   var adjustCount = this.n && this.p.div(this.n);
   if (!adjustCount || adjustCount.cmpn(100) > 0) {
@@ -33245,7 +33244,7 @@ BaseCurve.prototype._fixedNafMul = function _fixedNafMul(p, k) {
   assert(p.precomputed);
   var doubles = p._getDoubles();
 
-  var naf = getNAF(k, 1);
+  var naf = getNAF(k, 1, this._bitLength);
   var I = (1 << (doubles.step + 1)) - (doubles.step % 2 === 0 ? 2 : 1);
   I /= 3;
 
@@ -33282,7 +33281,7 @@ BaseCurve.prototype._wnafMul = function _wnafMul(p, k) {
   var wnd = nafPoints.points;
 
   // Get NAF form
-  var naf = getNAF(k, w);
+  var naf = getNAF(k, w, this._bitLength);
 
   // Add `this`*(N+1) for every w-NAF index
   var acc = this.jpoint(null, null, null);
@@ -33338,8 +33337,8 @@ BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW,
     var a = i - 1;
     var b = i;
     if (wndWidth[a] !== 1 || wndWidth[b] !== 1) {
-      naf[a] = getNAF(coeffs[a], wndWidth[a]);
-      naf[b] = getNAF(coeffs[b], wndWidth[b]);
+      naf[a] = getNAF(coeffs[a], wndWidth[a], this._bitLength);
+      naf[b] = getNAF(coeffs[b], wndWidth[b], this._bitLength);
       max = Math.max(naf[a].length, max);
       max = Math.max(naf[b].length, max);
       continue;
@@ -33580,13 +33579,12 @@ BasePoint.prototype.dblp = function dblp(k) {
 "use strict";
 
 
-var curve = __webpack_require__(/*! ../curve */ "./node_modules/elliptic/lib/elliptic/curve/index.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
 var inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
-var Base = curve.base;
+var Base = __webpack_require__(/*! ./base */ "./node_modules/elliptic/lib/elliptic/curve/base.js");
 
-var assert = elliptic.utils.assert;
+var assert = utils.assert;
 
 function EdwardsCurve(conf) {
   // NOTE: Important as we are creating point in Base.call()
@@ -34045,13 +34043,11 @@ curve.edwards = __webpack_require__(/*! ./edwards */ "./node_modules/elliptic/li
 "use strict";
 
 
-var curve = __webpack_require__(/*! ../curve */ "./node_modules/elliptic/lib/elliptic/curve/index.js");
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
 var inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
-var Base = curve.base;
+var Base = __webpack_require__(/*! ./base */ "./node_modules/elliptic/lib/elliptic/curve/base.js");
 
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 
 function MontCurve(conf) {
   Base.call(this, 'mont', conf);
@@ -34237,13 +34233,12 @@ Point.prototype.getX = function getX() {
 "use strict";
 
 
-var curve = __webpack_require__(/*! ../curve */ "./node_modules/elliptic/lib/elliptic/curve/index.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
 var inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
-var Base = curve.base;
+var Base = __webpack_require__(/*! ./base */ "./node_modules/elliptic/lib/elliptic/curve/base.js");
 
-var assert = elliptic.utils.assert;
+var assert = utils.assert;
 
 function ShortCurve(conf) {
   Base.call(this, 'short', conf);
@@ -34659,8 +34654,9 @@ Point.prototype.getY = function getY() {
 
 Point.prototype.mul = function mul(k) {
   k = new BN(k, 16);
-
-  if (this._hasDoubles(k))
+  if (this.isInfinity())
+    return this;
+  else if (this._hasDoubles(k))
     return this.curve._fixedNafMul(this, k);
   else if (this.curve.endo)
     return this.curve._endoWnafMulAdd([ this ], [ k ]);
@@ -35189,17 +35185,18 @@ JPoint.prototype.isInfinity = function isInfinity() {
 var curves = exports;
 
 var hash = __webpack_require__(/*! hash.js */ "./node_modules/hash.js/lib/hash.js");
-var elliptic = __webpack_require__(/*! ../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
+var curve = __webpack_require__(/*! ./curve */ "./node_modules/elliptic/lib/elliptic/curve/index.js");
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 
-var assert = elliptic.utils.assert;
+var assert = utils.assert;
 
 function PresetCurve(options) {
   if (options.type === 'short')
-    this.curve = new elliptic.curve.short(options);
+    this.curve = new curve.short(options);
   else if (options.type === 'edwards')
-    this.curve = new elliptic.curve.edwards(options);
+    this.curve = new curve.edwards(options);
   else
-    this.curve = new elliptic.curve.mont(options);
+    this.curve = new curve.mont(options);
   this.g = this.curve.g;
   this.n = this.curve.n;
   this.hash = options.hash;
@@ -35405,8 +35402,9 @@ defineCurve('secp256k1', {
 
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
 var HmacDRBG = __webpack_require__(/*! hmac-drbg */ "./node_modules/hmac-drbg/lib/hmac-drbg.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
+var curves = __webpack_require__(/*! ../curves */ "./node_modules/elliptic/lib/elliptic/curves.js");
+var rand = __webpack_require__(/*! brorand */ "./node_modules/brorand/index.js");
 var assert = utils.assert;
 
 var KeyPair = __webpack_require__(/*! ./key */ "./node_modules/elliptic/lib/elliptic/ec/key.js");
@@ -35418,13 +35416,13 @@ function EC(options) {
 
   // Shortcut `elliptic.ec(curve-name)`
   if (typeof options === 'string') {
-    assert(elliptic.curves.hasOwnProperty(options), 'Unknown curve ' + options);
+    assert(curves.hasOwnProperty(options), 'Unknown curve ' + options);
 
-    options = elliptic.curves[options];
+    options = curves[options];
   }
 
   // Shortcut for `elliptic.ec(elliptic.curves.curveName)`
-  if (options instanceof elliptic.curves.PresetCurve)
+  if (options instanceof curves.PresetCurve)
     options = { curve: options };
 
   this.curve = options.curve.curve;
@@ -35462,7 +35460,7 @@ EC.prototype.genKeyPair = function genKeyPair(options) {
     hash: this.hash,
     pers: options.pers,
     persEnc: options.persEnc || 'utf8',
-    entropy: options.entropy || elliptic.rand(this.hash.hmacStrength),
+    entropy: options.entropy || rand(this.hash.hmacStrength),
     entropyEnc: options.entropy && options.entropyEnc || 'utf8',
     nonce: this.n.toArray()
   });
@@ -35656,8 +35654,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
 
 
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var assert = utils.assert;
 
 function KeyPair(ec, options) {
@@ -35788,8 +35785,7 @@ KeyPair.prototype.inspect = function inspect() {
 
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
 
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var assert = utils.assert;
 
 function Signature(options, enc) {
@@ -35934,8 +35930,8 @@ Signature.prototype.toDER = function toDER(enc) {
 
 
 var hash = __webpack_require__(/*! hash.js */ "./node_modules/hash.js/lib/hash.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var curves = __webpack_require__(/*! ../curves */ "./node_modules/elliptic/lib/elliptic/curves.js");
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var assert = utils.assert;
 var parseBytes = utils.parseBytes;
 var KeyPair = __webpack_require__(/*! ./key */ "./node_modules/elliptic/lib/elliptic/eddsa/key.js");
@@ -35947,7 +35943,7 @@ function EDDSA(curve) {
   if (!(this instanceof EDDSA))
     return new EDDSA(curve);
 
-  var curve = elliptic.curves[curve].curve;
+  var curve = curves[curve].curve;
   this.curve = curve;
   this.g = curve.g;
   this.g.precompute(curve.n.bitLength() + 1);
@@ -36063,8 +36059,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
 "use strict";
 
 
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var assert = utils.assert;
 var parseBytes = utils.parseBytes;
 var cachedProperty = utils.cachedProperty;
@@ -36172,8 +36167,7 @@ module.exports = KeyPair;
 
 
 var BN = __webpack_require__(/*! bn.js */ "./node_modules/bn.js/lib/bn.js");
-var elliptic = __webpack_require__(/*! ../../elliptic */ "./node_modules/elliptic/lib/elliptic.js");
-var utils = elliptic.utils;
+var utils = __webpack_require__(/*! ../utils */ "./node_modules/elliptic/lib/elliptic/utils.js");
 var assert = utils.assert;
 var cachedProperty = utils.cachedProperty;
 var parseBytes = utils.parseBytes;
@@ -37052,14 +37046,17 @@ utils.toHex = minUtils.toHex;
 utils.encode = minUtils.encode;
 
 // Represent num in a w-NAF form
-function getNAF(num, w) {
-  var naf = [];
+function getNAF(num, w, bits) {
+  var naf = new Array(Math.max(num.bitLength(), bits) + 1);
+  naf.fill(0);
+
   var ws = 1 << (w + 1);
   var k = num.clone();
-  while (k.cmpn(1) >= 0) {
+
+  for (var i = 0; i < naf.length; i++) {
     var z;
+    var mod = k.andln(ws - 1);
     if (k.isOdd()) {
-      var mod = k.andln(ws - 1);
       if (mod > (ws >> 1) - 1)
         z = (ws >> 1) - mod;
       else
@@ -37068,13 +37065,9 @@ function getNAF(num, w) {
     } else {
       z = 0;
     }
-    naf.push(z);
 
-    // Optimization, shift by word if possible
-    var shift = (k.cmpn(0) !== 0 && k.andln(ws - 1) === 0) ? (w + 1) : 1;
-    for (var i = 1; i < shift; i++)
-      naf.push(0);
-    k.iushrn(shift);
+    naf[i] = z;
+    k.iushrn(1);
   }
 
   return naf;
@@ -37166,10 +37159,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.4.1\",\"/Users/thi/Documents/GitHub/iceteaweb3\"]],\"_from\":\"elliptic@6.4.1\",\"_id\":\"elliptic@6.4.1\",\"_inBundle\":false,\"_integrity\":\"sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.4.1\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.4.1\",\"saveSpec\":null,\"fetchSpec\":\"6.4.1\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\",\"/secp256k1\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.4.1.tgz\",\"_spec\":\"6.4.1\",\"_where\":\"/Users/thi/Documents/GitHub/iceteaweb3\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^2.11.3\",\"grunt\":\"^0.4.5\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^8.6.2\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^2.9.0\",\"jshint\":\"^2.6.0\",\"mocha\":\"^2.1.0\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.4.1\"}");
+module.exports = JSON.parse("{\"_from\":\"elliptic@^6.0.0\",\"_id\":\"elliptic@6.5.2\",\"_inBundle\":false,\"_integrity\":\"sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"elliptic@^6.0.0\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"^6.0.0\",\"saveSpec\":null,\"fetchSpec\":\"^6.0.0\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.2.tgz\",\"_shasum\":\"05c5678d7173c049d8ca433552224a495d0e3762\",\"_spec\":\"elliptic@^6.0.0\",\"_where\":\"/Users/thi/gh/Documents/GitHub/iceteaweb3/node_modules/browserify-sign\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"deprecated\":false,\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.2\"}");
 
 /***/ }),
 
@@ -37699,6 +37692,12 @@ EventEmitter.prototype._maxListeners = undefined;
 // added to it. This is a useful default which helps finding memory leaks.
 var defaultMaxListeners = 10;
 
+function checkListener(listener) {
+  if (typeof listener !== 'function') {
+    throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
+  }
+}
+
 Object.defineProperty(EventEmitter, 'defaultMaxListeners', {
   enumerable: true,
   get: function() {
@@ -37733,14 +37732,14 @@ EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
   return this;
 };
 
-function $getMaxListeners(that) {
+function _getMaxListeners(that) {
   if (that._maxListeners === undefined)
     return EventEmitter.defaultMaxListeners;
   return that._maxListeners;
 }
 
 EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
-  return $getMaxListeners(this);
+  return _getMaxListeners(this);
 };
 
 EventEmitter.prototype.emit = function emit(type) {
@@ -37792,9 +37791,7 @@ function _addListener(target, type, listener, prepend) {
   var events;
   var existing;
 
-  if (typeof listener !== 'function') {
-    throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
-  }
+  checkListener(listener);
 
   events = target._events;
   if (events === undefined) {
@@ -37831,7 +37828,7 @@ function _addListener(target, type, listener, prepend) {
     }
 
     // Check for listener leak
-    m = $getMaxListeners(target);
+    m = _getMaxListeners(target);
     if (m > 0 && existing.length > m && !existing.warned) {
       existing.warned = true;
       // No error code for this since it is a Warning
@@ -37863,12 +37860,12 @@ EventEmitter.prototype.prependListener =
     };
 
 function onceWrapper() {
-  var args = [];
-  for (var i = 0; i < arguments.length; i++) args.push(arguments[i]);
   if (!this.fired) {
     this.target.removeListener(this.type, this.wrapFn);
     this.fired = true;
-    ReflectApply(this.listener, this.target, args);
+    if (arguments.length === 0)
+      return this.listener.call(this.target);
+    return this.listener.apply(this.target, arguments);
   }
 }
 
@@ -37881,18 +37878,14 @@ function _onceWrap(target, type, listener) {
 }
 
 EventEmitter.prototype.once = function once(type, listener) {
-  if (typeof listener !== 'function') {
-    throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
-  }
+  checkListener(listener);
   this.on(type, _onceWrap(this, type, listener));
   return this;
 };
 
 EventEmitter.prototype.prependOnceListener =
     function prependOnceListener(type, listener) {
-      if (typeof listener !== 'function') {
-        throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
-      }
+      checkListener(listener);
       this.prependListener(type, _onceWrap(this, type, listener));
       return this;
     };
@@ -37902,9 +37895,7 @@ EventEmitter.prototype.removeListener =
     function removeListener(type, listener) {
       var list, events, position, i, originalListener;
 
-      if (typeof listener !== 'function') {
-        throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof listener);
-      }
+      checkListener(listener);
 
       events = this._events;
       if (events === undefined)
@@ -55205,7 +55196,7 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js");
+var util = Object.create(__webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js"));
 util.inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 /*</replacement>*/
 
@@ -55334,7 +55325,7 @@ module.exports = PassThrough;
 var Transform = __webpack_require__(/*! ./_stream_transform */ "./node_modules/readable-stream/lib/_stream_transform.js");
 
 /*<replacement>*/
-var util = __webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js");
+var util = Object.create(__webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js"));
 util.inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 /*</replacement>*/
 
@@ -55426,7 +55417,7 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js");
+var util = Object.create(__webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js"));
 util.inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 /*</replacement>*/
 
@@ -56461,7 +56452,7 @@ module.exports = Transform;
 var Duplex = __webpack_require__(/*! ./_stream_duplex */ "./node_modules/readable-stream/lib/_stream_duplex.js");
 
 /*<replacement>*/
-var util = __webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js");
+var util = Object.create(__webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js"));
 util.inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 /*</replacement>*/
 
@@ -56682,7 +56673,7 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js");
+var util = Object.create(__webpack_require__(/*! core-util-is */ "./node_modules/core-util-is/lib/util.js"));
 util.inherits = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
 /*</replacement>*/
 
@@ -60771,7 +60762,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -60815,15 +60806,12 @@ exports.utils = {
   decodeTxResult: decode,
   isRegularAccount: isRegularAccount,
   isBankAccount: isBankAccount
-  /**
-   * The Icetea web client.
-   */
-
 };
+/**
+ * The Icetea web client.
+ */
 
-exports.IceteaWeb3 =
-/*#__PURE__*/
-function () {
+exports.IceteaWeb3 = /*#__PURE__*/function () {
   /**
    * Initialize the IceTeaWeb3 instance.
    * @param {string} endpoint tendermint endpoint, e.g. http://localhost:26657
@@ -61417,9 +61405,8 @@ function () {
 
       if (params) {
         tx.data = {
-          params: params // params for __on_received
-
-        };
+          params: params
+        }; // params for __on_received
       }
 
       return this.sendTransactionCommit(tx, options);
@@ -61518,7 +61505,7 @@ function _extractSigners(tx, opts) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -61535,9 +61522,7 @@ var _require = __webpack_require__(/*! ../utils */ "./src/utils.js"),
 var _require2 = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
     codec = _require2.codec;
 
-var BaseProvider =
-/*#__PURE__*/
-function () {
+var BaseProvider = /*#__PURE__*/function () {
   function BaseProvider(endpoint, options, defOptions) {
     _classCallCheck(this, BaseProvider);
 
@@ -61640,7 +61625,7 @@ module.exports = BaseProvider;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -61663,9 +61648,7 @@ var BaseProvider = __webpack_require__(/*! ./BaseProvider */ "./src/providers/Ba
 
 var _fetch = typeof fetch !== 'undefined' ? fetch : __webpack_require__(/*! node-fetch */ "node-fetch");
 
-var HttpProvider =
-/*#__PURE__*/
-function (_BaseProvider) {
+var HttpProvider = /*#__PURE__*/function (_BaseProvider) {
   _inherits(HttpProvider, _BaseProvider);
 
   function HttpProvider() {
@@ -61717,7 +61700,7 @@ module.exports = HttpProvider;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -61742,9 +61725,7 @@ var WebsocketAsPromised = __webpack_require__(/*! websocket-as-promised */ "./no
 
 var W3CWebSocket = typeof WebSocket !== 'undefined' ? WebSocket : __webpack_require__(/*! websocket */ "websocket").w3cwebsocket;
 
-var WebsocketProvider =
-/*#__PURE__*/
-function (_BaseProvider) {
+var WebsocketProvider = /*#__PURE__*/function (_BaseProvider) {
   _inherits(WebsocketProvider, _BaseProvider);
 
   function WebsocketProvider(endpoint, options) {
@@ -62083,9 +62064,9 @@ var _ram = {
     var isExist = false;
 
     for (var i = 0; i < _ram.wallet.accounts.length; i++) {
-      var pKey1 = _ram.wallet.accounts[i];
+      var pKey1 = _ram.wallet.accounts[i].privateKey;
 
-      if (pKey1.equals(account.privateKey)) {
+      if (pKey1 === account.privateKey || typeof pKey1.equals === 'function' && pKey1.equals(account.privateKey)) {
         isExist = true;
         break;
       }
@@ -62182,9 +62163,7 @@ var _storage = {
   }
 };
 
-var Wallet =
-/*#__PURE__*/
-function () {
+var Wallet = /*#__PURE__*/function () {
   function Wallet() {
     _classCallCheck(this, Wallet);
   }
