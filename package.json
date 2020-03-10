@@ -1,6 +1,6 @@
 {
   "name": "@iceteachain/web3",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "A Web3-like client lib for Icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",
@@ -30,22 +30,22 @@
   },
   "homepage": "https://github.com/TradaTech/icetea-web3#readme",
   "dependencies": {
-    "@iceteachain/common": "^0.1.4",
+    "@iceteachain/common": "^0.1.5",
     "keythereum": "github:TradaTech/keythereum",
     "node-fetch": "^2.6.0",
-    "websocket": "^1.0.29",
-    "websocket-as-promised": "^0.10.1"
+    "websocket": "^1.0.31",
+    "websocket-as-promised": "^1.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
     "babel-loader": "^8.0.5",
     "babel-plugin-runtyper": "^0.4.0",
-    "rimraf": "^3.0.0",
-    "standard": "^14.1.0",
-    "webpack": "^4.39.3",
-    "webpack-bundle-analyzer": "^3.4.1",
-    "webpack-cli": "^3.3.8"
+    "rimraf": "^3.0.2",
+    "standard": "^14.3.1",
+    "webpack": "^4.42.0",
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-cli": "^3.3.11"
   }
 }
