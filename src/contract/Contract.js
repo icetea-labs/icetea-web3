@@ -33,15 +33,15 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   opts.where = opts.where || []
 
   // add address filter
-  const EVENTNAMES_SEP = '|'
-  const EMITTER_EVENTNAME_SEP = '%'
+  // const EVENTNAMES_SEP = '|'
+  const EMITTER_EVENTNAME_SEP = '/'
   const EVENTNAME_INDEX_SEP = '~'
-  const emitter = (contractAddr ? (EVENTNAMES_SEP + contractAddr) : '') + EMITTER_EVENTNAME_SEP
+  const emitter = (contractAddr || '') + EMITTER_EVENTNAME_SEP
   const isAll = (eventName === 'allEvents')
   if (isAll) {
     contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
   } else {
-    opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
+    opts.where.push(`EventNames CONTAINS '${emitter}${eventName}'`)
   }
 
   // add indexed field filter
