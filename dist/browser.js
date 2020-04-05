@@ -60688,10 +60688,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
     TxOp = _require.TxOp,
-    ecc = _require.ecc;
+    ecc = _require.ecc; // const { escapeQueryValue } = require('../utils')
 
-var _require2 = __webpack_require__(/*! ../utils */ "./src/utils.js"),
-    escapeQueryValue = _require2.escapeQueryValue;
 
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
@@ -60723,49 +60721,49 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
     callback = options;
   } else {
     opts = options;
-  }
-
-  opts = opts || {};
-  opts.where = opts.where || []; // add address filter
+  } // opts = opts || {}
+  // opts.where = opts.where || []
+  // add address filter
   // const EVENTNAMES_SEP = '|'
+  // const EMITTER_EVENTNAME_SEP = '/'
+  // const EVENTNAME_INDEX_SEP = '~'
+  // const emitter = contractAddr || ''
+  // const isAll = (eventName === 'allEvents')
+  // contractAddr && opts.where.push(`system/tx.to = '${emitter}'`)
+  // if (isAll) {
+  //   contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
+  // } else {
+  //   opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
+  // }
+  // add indexed field filter
 
-  var EMITTER_EVENTNAME_SEP = '/';
-  var EVENTNAME_INDEX_SEP = '~';
-  var emitter = (contractAddr || '') + EMITTER_EVENTNAME_SEP;
-  var isAll = eventName === 'allEvents';
 
-  if (isAll) {
-    contractAddr && opts.where.push("EventNames CONTAINS '".concat(emitter, "'"));
-  } else {
-    opts.where.push("EventNames CONTAINS '".concat(emitter).concat(eventName, "'"));
-  } // add indexed field filter
+  var filter = opts.filter || {}; // delete opts.filter
 
-
-  var filter = opts.filter || {};
-  delete opts.filter;
   var filterKeys = Object.keys(filter);
 
-  if (!isAll && filterKeys.length && !contractAddr) {
+  if (filterKeys.length && !contractAddr) {
     var _err = new Error('Cannot filter by indexed fields unless the contract address is specified.');
 
     return callback(_err);
-  }
+  } // filterKeys.forEach(key => {
+  // const value = escapeQueryValue(filter[key])
+  // if (isAll) {
+  // if (contractAddr) {
+  //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+  // } else {
+  //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+  // }
+  // } else {
+  // contractAddr should be truthy if reach here
+  // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+  // }
+  // opts.where.push(`${emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}=${value}`)
+  // })
 
-  filterKeys.forEach(function (key) {
-    var value = escapeQueryValue(filter[key]); // if (isAll) {
-    // if (contractAddr) {
-    //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // } else {
-    //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // }
-    // } else {
-    // contractAddr should be truthy if reach here
-    // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-    // }
 
-    opts.where.push("".concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
-  });
-  return tweb3.subscribe('Tx', opts, function (err, result) {
+  opts.emitter = contractAddr;
+  return tweb3.subscribe(eventName, opts, function (err, result) {
     if (err) {
       return callback(err);
     } // because we support one contract emit the same event only once per TX
@@ -60773,7 +60771,10 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
 
 
     var evs = result.data.value.TxResult.events;
-    return callback(undefined, isAll ? evs : evs[0].eventData, result);
+    var eventData = evs.filter(function (el) {
+      return el.eventName === eventName;
+    });
+    return callback(undefined, eventData, result); // return callback(undefined, isAll ? evs : evs[0].eventData, result)
   });
 } // contract
 
@@ -60895,8 +60896,7 @@ var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     decodeReturnValue = _require2.decodeReturnValue,
     removeItem = _require2.removeItem,
     isRegularAccount = _require2.isRegularAccount,
-    isBankAccount = _require2.isBankAccount,
-    escapeQueryValue = _require2.escapeQueryValue;
+    isBankAccount = _require2.isBankAccount;
 
 var Contract = __webpack_require__(/*! ./contract/Contract */ "./src/contract/Contract.js");
 
@@ -61098,27 +61098,28 @@ function () {
     value: function getPastEvents(eventName) {
       var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var options = arguments.length > 2 ? arguments[2] : undefined;
-      var EVENTNAMES_SEP = '|';
-      var EMITTER_EVENTNAME_SEP = '%';
-      var EVENTNAME_INDEX_SEP = '~';
+      var systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
+
+      if (!eventName) {
+        throw new Error('EventName is required');
+      }
+
+      var isSystemEvents = systemEvents.includes(eventName);
+      var EMITTER_EVENTNAME_SEP = '/';
       var query = '';
 
       if (typeof conditions === 'string') {
         query = conditions;
       } else {
-        var emitter = conditions.address;
-
-        if (!emitter) {
-          emitter = EMITTER_EVENTNAME_SEP;
-        } else {
-          if (Array.isArray(emitter)) {
-            throw new Error('getPastEvents: mutiple addresses are not supported.');
-          }
-
-          emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP;
+        if (!isSystemEvents && !conditions.emitter) {
+          throw new Error("When the event not the system event, Emitter is required");
         }
 
-        var arr = ["EventNames CONTAINS '".concat(emitter).concat(eventName).concat(EVENTNAMES_SEP, "'")];
+        if (conditions.emitter && Array.isArray(conditions.emitter)) {
+          throw new Error('getPastEvents: mutiple addresses are not supported.');
+        }
+
+        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter).concat(EMITTER_EVENTNAME_SEP).concat(eventName, ".eventName = '").concat(eventName, "'")];
 
         if (conditions.fromBlock) {
           arr.push("tx.height>".concat(+conditions.fromBlock - 1));
@@ -61130,31 +61131,31 @@ function () {
 
         if (conditions.atBlock) {
           arr.push("tx.height=".concat(conditions.fromBlock));
-        }
+        } // const filter = conditions.filter || {}
+        // Object.keys(filter).forEach(key => {
+        //   const value = escapeQueryValue(filter[key])
+        //   if (conditions.address) {
+        //     // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+        //     arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+        //   } else {
+        //     // it is very confusing to filter by event name without emitter, since many contracts may accidently
+        //     // to choose the same event name
+        //     throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
+        //   }
+        // })
+        // filter, equal only
+
 
         var filter = conditions.filter || {};
         Object.keys(filter).forEach(function (key) {
-          var value = escapeQueryValue(filter[key]);
-
-          if (conditions.address) {
-            // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-            arr.push("".concat(eventName).concat(EVENTNAME_INDEX_SEP).concat(key, "=").concat(value));
-          } else {
-            // it is very confusing to filter by event name without emitter, since many contracts may accidently
-            // to choose the same event name
-            throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.');
-          }
-        });
-        var tags = conditions.tags || {};
-        Object.keys(tags).forEach(function (key) {
-          var value = tags[key];
-          arr.push("".concat(key, "=").concat(value));
+          var value = filter[key];
+          arr.push("".concat(conditions.emitter).concat(EMITTER_EVENTNAME_SEP).concat(eventName, ".").concat(key, "='").concat(value, "'"));
         }); // raw tag conditions, can use >, <, =, CONTAINS
+        // const where = conditions.where || []
+        // where.forEach(w => {
+        //   arr.push(w)
+        // })
 
-        var where = conditions.where || [];
-        where.forEach(function (w) {
-          arr.push(w);
-        });
         query = arr.join(' AND ');
       }
 
@@ -61329,13 +61330,15 @@ function () {
 
       var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var callback = arguments.length > 2 ? arguments[2] : undefined;
+      var EMITTER_EVENTNAME_SEP = '/';
       if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.');
       var systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
 
-      if (eventName && !systemEvents.includes(eventName)) {
-        console.warn("Event ".concat(eventName, " is not one of known supported events: ").concat(systemEvents, "."));
+      if (!eventName) {
+        throw new Error('EventName is required');
       }
 
+      var isSystemEvents = systemEvents.includes(eventName);
       var query = '';
 
       if (typeof conditions === 'string') {
@@ -61346,7 +61349,11 @@ function () {
           conditions = {};
         }
 
-        var arr = eventName ? ["tm.event = '".concat(eventName, "'")] : [];
+        if (!isSystemEvents && !conditions.emitter) {
+          throw new Error("When the event not the system event, Emitter is required");
+        }
+
+        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter).concat(EMITTER_EVENTNAME_SEP).concat(eventName, ".eventName = '").concat(eventName, "'")]; // delete (conditions.emitter)
 
         if (conditions.fromBlock) {
           arr.push("tx.height>".concat(+conditions.fromBlock - 1));
@@ -61358,19 +61365,19 @@ function () {
 
         if (conditions.atBlock) {
           arr.push("tx.height=".concat(conditions.fromBlock));
-        } // tags, equal only
+        } // filter, equal only
 
 
-        var tags = conditions.tags || {};
-        Object.keys(tags).forEach(function (key) {
-          var value = tags[key];
-          arr.push("".concat(key, "=").concat(value));
+        var filter = conditions.filter || {};
+        Object.keys(filter).forEach(function (key) {
+          var value = filter[key];
+          arr.push("".concat(conditions.emitter).concat(EMITTER_EVENTNAME_SEP).concat(eventName, ".").concat(key, "='").concat(value, "'"));
         }); // raw tag conditions, can use >, <, =, CONTAINS
+        // const where = conditions.where || []
+        // where.forEach(w => {
+        //   arr.push(w)
+        // })
 
-        var where = conditions.where || [];
-        where.forEach(function (w) {
-          arr.push(w);
-        });
         query = arr.join(' AND ');
       } // ensure to return promise => simpler for clients
 
@@ -61420,7 +61427,7 @@ function () {
               var id = _ref.id,
                   callbacks = _ref.callbacks;
 
-              if (msg.id === id + '#event') {
+              if (msg.id === id) {
                 var error = msg.error;
                 var _result = msg.result;
 

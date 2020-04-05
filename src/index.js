@@ -8,8 +8,7 @@ const {
   decodeReturnValue,
   removeItem,
   isRegularAccount,
-  isBankAccount,
-  escapeQueryValue
+  isBankAccount
 } = require('./utils')
 const Contract = require('./contract/Contract')
 const Wallet = require('./wallet/Wallet')
@@ -171,26 +170,28 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @returns {Array} Array of tendermint transactions containing the event.
    */
   getPastEvents (eventName, conditions = {}, options) {
-    const EVENTNAMES_SEP = '|'
-    const EMITTER_EVENTNAME_SEP = '%'
-    const EVENTNAME_INDEX_SEP = '~'
+    const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
+      'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
+    if (!eventName) {
+      throw new Error('EventName is required')
+    }
+    const isSystemEvents = systemEvents.includes(eventName)
 
+    const EMITTER_EVENTNAME_SEP = '/'
     let query = ''
+
     if (typeof conditions === 'string') {
       query = conditions
     } else {
-      let emitter = conditions.address
-      if (!emitter) {
-        emitter = EMITTER_EVENTNAME_SEP
-      } else {
-        if (Array.isArray(emitter)) {
-          throw new Error('getPastEvents: mutiple addresses are not supported.')
-        }
-        emitter = EVENTNAMES_SEP + emitter + EMITTER_EVENTNAME_SEP
+      if (!isSystemEvents && !conditions.emitter) {
+        throw new Error(`When the event not the system event, Emitter is required`)
       }
 
-      const arr = [`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`]
+      if (conditions.emitter && Array.isArray(conditions.emitter)) {
+        throw new Error('getPastEvents: mutiple addresses are not supported.')
+      }
 
+      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.eventName = '${eventName}'`]
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
       }
@@ -203,34 +204,34 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`tx.height=${conditions.fromBlock}`)
       }
 
+      // const filter = conditions.filter || {}
+      // Object.keys(filter).forEach(key => {
+      //   const value = escapeQueryValue(filter[key])
+      //   if (conditions.address) {
+      //     // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+      //     arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+      //   } else {
+      //     // it is very confusing to filter by event name without emitter, since many contracts may accidently
+      //     // to choose the same event name
+      //     throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
+      //   }
+      // })
+
+      // filter, equal only
       const filter = conditions.filter || {}
       Object.keys(filter).forEach(key => {
-        const value = escapeQueryValue(filter[key])
-        if (conditions.address) {
-          // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-          arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-        } else {
-          // it is very confusing to filter by event name without emitter, since many contracts may accidently
-          // to choose the same event name
-          throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
-        }
-      })
-
-      const tags = conditions.tags || {}
-      Object.keys(tags).forEach(key => {
-        const value = tags[key]
-        arr.push(`${key}=${value}`)
+        const value = filter[key]
+        arr.push(`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}='${value}'`)
       })
 
       // raw tag conditions, can use >, <, =, CONTAINS
-      const where = conditions.where || []
-      where.forEach(w => {
-        arr.push(w)
-      })
+      // const where = conditions.where || []
+      // where.forEach(w => {
+      //   arr.push(w)
+      // })
 
       query = arr.join(' AND ')
     }
-
     return this.searchTransactions(query, options)
   }
 
@@ -354,12 +355,15 @@ exports.IceteaWeb3 = class IceteaWeb3 {
      * @param {MessageEvent} EventName
      */
   subscribe (eventName, conditions = {}, callback) {
+    const EMITTER_EVENTNAME_SEP = '/'
+
     if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.')
     const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
       'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
-    if (eventName && !systemEvents.includes(eventName)) {
-      console.warn(`Event ${eventName} is not one of known supported events: ${systemEvents}.`)
+    if (!eventName) {
+      throw new Error('EventName is required')
     }
+    const isSystemEvents = systemEvents.includes(eventName)
 
     let query = ''
     if (typeof conditions === 'string') {
@@ -370,7 +374,12 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         conditions = {}
       }
 
-      const arr = eventName ? [`tm.event = '${eventName}'`] : []
+      if (!isSystemEvents && !conditions.emitter) {
+        throw new Error(`When the event not the system event, Emitter is required`)
+      }
+
+      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.eventName = '${eventName}'`]
+      // delete (conditions.emitter)
 
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
@@ -384,22 +393,21 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`tx.height=${conditions.fromBlock}`)
       }
 
-      // tags, equal only
-      const tags = conditions.tags || {}
-      Object.keys(tags).forEach(key => {
-        const value = tags[key]
-        arr.push(`${key}=${value}`)
+      // filter, equal only
+      const filter = conditions.filter || {}
+      Object.keys(filter).forEach(key => {
+        const value = filter[key]
+        arr.push(`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}='${value}'`)
       })
 
       // raw tag conditions, can use >, <, =, CONTAINS
-      const where = conditions.where || []
-      where.forEach(w => {
-        arr.push(w)
-      })
+      // const where = conditions.where || []
+      // where.forEach(w => {
+      //   arr.push(w)
+      // })
 
       query = arr.join(' AND ')
     }
-
     // ensure to return promise => simpler for clients
     const unsubscribe = () => {
       const sub = this._wssub[query]
@@ -429,12 +437,11 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         query,
         callbacks: [callback]
       }
-
       this._wshandler = this._wshandler || {}
       if (!this._wshandler.onmessage) {
         this._wshandler.onmessage = msg => {
           Object.values(this._wssub).forEach(({ id, callbacks }) => {
-            if (msg.id === id + '#event') {
+            if (msg.id === id) {
               const error = msg.error
               const result = msg.result
 

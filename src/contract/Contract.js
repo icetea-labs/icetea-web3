@@ -1,5 +1,5 @@
 const { TxOp, ecc } = require('@iceteachain/common')
-const { escapeQueryValue } = require('../utils')
+// const { escapeQueryValue } = require('../utils')
 
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
@@ -29,48 +29,48 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   } else {
     opts = options
   }
-  opts = opts || {}
-  opts.where = opts.where || []
+  // opts = opts || {}
+  // opts.where = opts.where || []
 
   // add address filter
   // const EVENTNAMES_SEP = '|'
-  const EMITTER_EVENTNAME_SEP = '/'
-  const EVENTNAME_INDEX_SEP = '~'
-  const emitter = (contractAddr || '') + EMITTER_EVENTNAME_SEP
-  const isAll = (eventName === 'allEvents')
-  if (isAll) {
-    contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
-  } else {
-    opts.where.push(`EventNames CONTAINS '${emitter}${eventName}'`)
-  }
-
+  // const EMITTER_EVENTNAME_SEP = '/'
+  // const EVENTNAME_INDEX_SEP = '~'
+  // const emitter = contractAddr || ''
+  // const isAll = (eventName === 'allEvents')
+  // contractAddr && opts.where.push(`system/tx.to = '${emitter}'`)
+  // if (isAll) {
+  //   contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
+  // } else {
+  //   opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
+  // }
   // add indexed field filter
   const filter = opts.filter || {}
-  delete opts.filter
+  // delete opts.filter
   const filterKeys = Object.keys(filter)
-  if (!isAll && filterKeys.length && !contractAddr) {
+  if (filterKeys.length && !contractAddr) {
     const err = new Error('Cannot filter by indexed fields unless the contract address is specified.')
     return callback(err)
   }
 
-  filterKeys.forEach(key => {
-    const value = escapeQueryValue(filter[key])
-    // if (isAll) {
-    // if (contractAddr) {
-    //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // } else {
-    //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // }
+  // filterKeys.forEach(key => {
+  // const value = escapeQueryValue(filter[key])
+  // if (isAll) {
+  // if (contractAddr) {
+  //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+  // } else {
+  //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
+  // }
 
-    // } else {
-    // contractAddr should be truthy if reach here
-    // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-    // }
+  // } else {
+  // contractAddr should be truthy if reach here
+  // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+  // }
 
-    opts.where.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-  })
-
-  return tweb3.subscribe('Tx', opts, (err, result) => {
+  // opts.where.push(`${emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}=${value}`)
+  // })
+  opts.emitter = contractAddr
+  return tweb3.subscribe(eventName, opts, (err, result) => {
     if (err) {
       return callback(err)
     }
@@ -78,7 +78,11 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
     // because we support one contract emit the same event only once per TX
     // so r.events must be 0-length for now
     const evs = result.data.value.TxResult.events
-    return callback(undefined, isAll ? evs : evs[0].eventData, result)
+    const eventData = evs.filter(el => {
+      return el.eventName === eventName
+    })
+    return callback(undefined, eventData, result)
+    // return callback(undefined, isAll ? evs : evs[0].eventData, result)
   })
 }
 
