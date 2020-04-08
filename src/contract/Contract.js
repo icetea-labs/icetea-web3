@@ -29,21 +29,6 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   } else {
     opts = options
   }
-  // opts = opts || {}
-  // opts.where = opts.where || []
-
-  // add address filter
-  // const EVENTNAMES_SEP = '|'
-  // const EMITTER_EVENTNAME_SEP = '/'
-  // const EVENTNAME_INDEX_SEP = '~'
-  // const emitter = contractAddr || ''
-  // const isAll = (eventName === 'allEvents')
-  // contractAddr && opts.where.push(`system/tx.to = '${emitter}'`)
-  // if (isAll) {
-  //   contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
-  // } else {
-  //   opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
-  // }
   // add indexed field filter
   const filter = opts.filter || {}
   // delete opts.filter
@@ -53,36 +38,18 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
     return callback(err)
   }
 
-  // filterKeys.forEach(key => {
-  // const value = escapeQueryValue(filter[key])
-  // if (isAll) {
-  // if (contractAddr) {
-  //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-  // } else {
-  //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-  // }
-
-  // } else {
-  // contractAddr should be truthy if reach here
-  // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-  // }
-
-  // opts.where.push(`${emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}=${value}`)
-  // })
   opts.emitter = contractAddr
   return tweb3.subscribe(eventName, opts, (err, result) => {
     if (err) {
       return callback(err)
     }
-
     // because we support one contract emit the same event only once per TX
     // so r.events must be 0-length for now
     const evs = result.data.value.TxResult.events
-    const eventData = evs.filter(el => {
+    const ev = evs.filter(el => {
       return el.eventName === eventName
     })
-    return callback(undefined, eventData, result)
-    // return callback(undefined, isAll ? evs : evs[0].eventData, result)
+    return callback(undefined, ev[0].eventData, result)
   })
 }
 

@@ -3,7 +3,7 @@ const {
   switchEncoding,
   decodeTX,
   decodeEventData,
-  decodeTags,
+  decodeEvent,
   decode,
   decodeReturnValue,
   removeItem,
@@ -21,7 +21,7 @@ exports.utils = {
   decodeTxContent: decodeTX,
   decodeTxReturnValue: decodeReturnValue,
   decodeTxEvents: decodeEventData,
-  decodeTxTags: decodeTags,
+  decodeTxTags: decodeEvent,
   decodeTxResult: decode,
   isRegularAccount,
   isBankAccount
@@ -177,21 +177,21 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     }
     const isSystemEvents = systemEvents.includes(eventName)
 
-    const EMITTER_EVENTNAME_SEP = '/'
+    const EMITTER_EVENTNAME = '_ev'
     let query = ''
 
     if (typeof conditions === 'string') {
       query = conditions
     } else {
       if (!isSystemEvents && !conditions.emitter) {
-        throw new Error(`When the event not the system event, Emitter is required`)
+        throw new Error('When the event not the system event, Emitter is required')
       }
 
       if (conditions.emitter && Array.isArray(conditions.emitter)) {
         throw new Error('getPastEvents: mutiple addresses are not supported.')
       }
 
-      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.eventName = '${eventName}'`]
+      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}.${EMITTER_EVENTNAME} = '${eventName}'`]
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
       }
@@ -204,24 +204,11 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`tx.height=${conditions.fromBlock}`)
       }
 
-      // const filter = conditions.filter || {}
-      // Object.keys(filter).forEach(key => {
-      //   const value = escapeQueryValue(filter[key])
-      //   if (conditions.address) {
-      //     // arr.push(`${conditions.address}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-      //     arr.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-      //   } else {
-      //     // it is very confusing to filter by event name without emitter, since many contracts may accidently
-      //     // to choose the same event name
-      //     throw new Error('getPastEvents: filter are not supported unless you specify an emitter address.')
-      //   }
-      // })
-
       // filter, equal only
       const filter = conditions.filter || {}
       Object.keys(filter).forEach(key => {
         const value = filter[key]
-        arr.push(`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}='${value}'`)
+        arr.push(`${conditions.emitter}.${key}='${value}'`)
       })
 
       // raw tag conditions, can use >, <, =, CONTAINS
@@ -355,7 +342,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
      * @param {MessageEvent} EventName
      */
   subscribe (eventName, conditions = {}, callback) {
-    const EMITTER_EVENTNAME_SEP = '/'
+    const EMITTER_EVENTNAME = '_ev'
 
     if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.')
     const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
@@ -375,10 +362,10 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       }
 
       if (!isSystemEvents && !conditions.emitter) {
-        throw new Error(`When the event not the system event, Emitter is required`)
+        throw new Error('When the event not the system event, Emitter is required')
       }
 
-      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.eventName = '${eventName}'`]
+      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}.${EMITTER_EVENTNAME} = '${eventName}'`]
       // delete (conditions.emitter)
 
       if (conditions.fromBlock) {
@@ -397,7 +384,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       const filter = conditions.filter || {}
       Object.keys(filter).forEach(key => {
         const value = filter[key]
-        arr.push(`${conditions.emitter}${EMITTER_EVENTNAME_SEP}${eventName}.${key}='${value}'`)
+        arr.push(`${conditions.emitter}.${key}='${value}'`)
       })
 
       // raw tag conditions, can use >, <, =, CONTAINS

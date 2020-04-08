@@ -1,6 +1,6 @@
 const { codec } = require('@iceteachain/common')
 
-exports.tryParseJson = p => {
+exports.tryParseJson = (p) => {
   try {
     return JSON.parse(p)
   } catch (e) {
@@ -9,7 +9,7 @@ exports.tryParseJson = p => {
   }
 }
 
-exports.tryJsonStringify = p => {
+exports.tryJsonStringify = (p) => {
   if (typeof p === 'string') {
     return p
   }
@@ -49,7 +49,7 @@ exports.switchEncoding = (str, from, to) => {
   return exports.ensureBuffer(str, from).toString(to)
 }
 
-exports.decodeTags = (tx, keepEvents = false) => {
+exports.decodeEvent = (tx, keepEvents = false) => {
   const EMPTY_RESULT = []
 
   const b64Events = _getFieldValue(tx, 'events') || tx
@@ -61,86 +61,26 @@ exports.decodeTags = (tx, keepEvents = false) => {
   const events = b64Events.map(({ type, attributes }, i) => {
     return {
       type,
-      attributes: attributes.map(({ key, value }, j) => {
+      attributes: attributes.reduce((data, { key, value }) => {
         key = this.switchEncoding(key, 'base64', 'utf8')
         value = this.switchEncoding(value, 'base64', 'utf8')
-        value = this.tryParseJson(value)
-        return { key, value }
-      })
+        data[key] = this.tryParseJson(value)
+        return data
+      }, {})
     }
   })
-
-  // {emitter, eventName, eventData}
-  // b64Events.forEach((e, i) => {
-  //   const attributes = []
-  //   e.attributes.forEach(({ key, value }, j) => {
-  //     key = this.switchEncoding(key, 'base64', 'utf8')
-  //     value = this.switchEncoding(value, 'base64', 'utf8')
-  //     value = this.tryParseJson(value)
-  //     attributes[j] = { key, value }
-  //   })
-  //   events[i] = { type: e.type, attributes }
-  // })
-  // if (!keepEvents && events.EventNames) {
-  //   // remove event-related tags
-  //   const EVENTNAMES_SEP = '|'
-  //   const EMITTER_EVENTNAME_SEP = '%'
-  //   const events = tags.EventNames.split(EVENTNAMES_SEP)
-  //   events.forEach(e => {
-  //     if (e) {
-  //       const eventName = e.split(EMITTER_EVENTNAME_SEP)[1]
-  //       Object.keys(tags).forEach(key => {
-  //         if (key.indexOf(eventName) === 0) {
-  //           delete tags[key]
-  //         }
-  //       })
-  //       delete tags[e]
-  //     }
-  //   })
-  //   delete tags.EventNames
-  // }
   return events
 }
 
 exports.decodeEventData = (tx) => {
-  // const EMPTY_RESULT = []
-
-  const events = this.decodeTags(tx, true)
-
-  // if (!tags.EventNames) {
-  //   return EMPTY_RESULT
-  // }
-
-  // const EVENTNAMES_SEP = '|'
-  const EMITTER_EVENTNAME_SEP = '/'
-  // const EVENTNAME_INDEX_SEP = '~'
-
-  // const events = tags.EventNames.split(EVENTNAMES_SEP)
-  // if (!events.length) {
-  //   return EMPTY_RESULT
-  // }
-  const result = events.reduce((r, e) => {
-    if (e) {
-      const parts = e.type.split(EMITTER_EVENTNAME_SEP)
-      const emitter = parts[0]
-      const eventName = parts[1]
-      const eventData = e.attributes.reduce((data, { key, value }) => {
-        // const prefix = eventName + EVENTNAME_INDEX_SEP
-        // if (key.startsWith(prefix)) {
-        //   const name = key.substr(prefix.length)
-        //   const value = attributes[key]
-        //   data[name] = value
-        // } else if (key === eventName) {
-        //   Object.assign(data, attributes[key])
-        // }
-        data[key] = value
-        return data
-      }, {})
-      r.push({ emitter, eventName, eventData })
-    }
-    return r
-  }, [])
-
+  const EMITTER_EVENTNAME = '_ev'
+  const events = this.decodeEvent(tx, true)
+  // format events
+  const result = events.map(({ type, attributes }) => {
+    const eventName = attributes[EMITTER_EVENTNAME]
+    eventName && delete attributes[EMITTER_EVENTNAME]
+    return { emitter: type, eventName, eventData: attributes }
+  })
   return result
 }
 
@@ -148,7 +88,6 @@ exports.decode = (tx, keepEvents = false) => {
   this.decodeReturnValue(tx)
   if (tx.tx) tx.tx = this.decodeTX(tx.tx)
   tx.events = this.decodeEventData(tx)
-  tx.tags = [] // this.decodeTags(tx, keepEvents)
   return tx
 }
 
@@ -166,7 +105,7 @@ exports.removeItem = (array, item) => {
   return index >= 0 ? array.splice(index, 1) : array
 }
 
-exports.escapeQueryValue = value => {
+exports.escapeQueryValue = (value) => {
   if (typeof value === 'number') return value
   // escape all single quotes
   return "'" + String(value).replace(/'/g, "\\'") + "'"
