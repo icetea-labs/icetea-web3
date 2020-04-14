@@ -29,6 +29,19 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   } else {
     opts = options
   }
+
+  const isAll = (eventName === 'allEvents')
+  if (isAll) {
+    if (!opts.filter) {
+      throw new Error('Cannot filter with allEvents')
+    }
+    eventName = 'Tx'
+    opts.filter = { to: contractAddr }
+    opts.emitter = 'system'
+  } else {
+    opts.emitter = contractAddr
+  }
+
   // add indexed field filter
   const filter = opts.filter || {}
   // delete opts.filter
@@ -38,7 +51,6 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
     return callback(err)
   }
 
-  opts.emitter = contractAddr
   return tweb3.subscribe(eventName, opts, (err, result) => {
     if (err) {
       return callback(err)
@@ -46,10 +58,11 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
     // because we support one contract emit the same event only once per TX
     // so r.events must be 0-length for now
     const evs = result.data.value.TxResult.events
-    const ev = evs.filter(el => {
+    const data = isAll ? evs : evs.filter(el => {
       return el.eventName === eventName
-    })
-    return callback(undefined, ev[0].eventData, result)
+    })[0].eventData
+
+    return callback(undefined, data, result)
   })
 }
 

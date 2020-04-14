@@ -387,12 +387,6 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`${conditions.emitter}.${key}='${value}'`)
       })
 
-      // raw tag conditions, can use >, <, =, CONTAINS
-      // const where = conditions.where || []
-      // where.forEach(w => {
-      //   arr.push(w)
-      // })
-
       query = arr.join(' AND ')
     }
     // ensure to return promise => simpler for clients
@@ -417,7 +411,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       this._wssub[query].callbacks.push(callback)
       return Promise.resolve({ unsubscribe })
     }
-
+    
     return this.rpc.call('subscribe', { query: query }).then((result) => {
       this._wssub[query] = {
         id: result.id,
