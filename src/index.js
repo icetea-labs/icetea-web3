@@ -196,11 +196,11 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       }
 
       if (conditions.toBlock) {
-        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+        arr.push(`tx.height<${+conditions.toBlock + 1}`)
       }
 
       if (conditions.atBlock) {
-        arr.push(`tx.height=${conditions.fromBlock}`)
+        arr.push(`tx.height=${conditions.atBlock}`)
       }
 
       const filter = conditions.filter || {}
@@ -231,7 +231,15 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       query = arr.join(' AND ')
     }
 
-    return this.searchTransactions(query, options)
+    // console.log('query', query)
+    return this.searchTransactions(query, options).then((result) => {
+      result.txs.forEach(tx => {
+        tx.events = decodeEventData(tx)
+        // decode(tx)
+        // delete tx.tx_result
+      })
+      return result
+    })
   }
 
   /**
@@ -377,11 +385,11 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       }
 
       if (conditions.toBlock) {
-        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+        arr.push(`tx.height<${+conditions.toBlock + 1}`)
       }
 
       if (conditions.atBlock) {
-        arr.push(`tx.height=${conditions.fromBlock}`)
+        arr.push(`tx.height=${conditions.atBlock}`)
       }
 
       // tags, equal only
