@@ -37330,10 +37330,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_from\":\"elliptic@^6.5.2\",\"_id\":\"elliptic@6.5.2\",\"_inBundle\":false,\"_integrity\":\"sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==\",\"_location\":\"/@iceteachain/web3/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"elliptic@^6.5.2\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"^6.5.2\",\"saveSpec\":null,\"fetchSpec\":\"^6.5.2\"},\"_requiredBy\":[\"/@iceteachain/web3/browserify-sign\",\"/@iceteachain/web3/create-ecdh\",\"/@iceteachain/web3/secp256k1\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.2.tgz\",\"_shasum\":\"05c5678d7173c049d8ca433552224a495d0e3762\",\"_spec\":\"elliptic@^6.5.2\",\"_where\":\"/Users/hoanghuy226/Documents/Project/iceteaweb3/node_modules/secp256k1\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"deprecated\":false,\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.2\"}");
+module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.5.2\",\"/Users/hoanghuy226/Documents/Project/iceteaweb3\"]],\"_from\":\"elliptic@6.5.2\",\"_id\":\"elliptic@6.5.2\",\"_inBundle\":false,\"_integrity\":\"sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.5.2\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.5.2\",\"saveSpec\":null,\"fetchSpec\":\"6.5.2\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.2.tgz\",\"_spec\":\"6.5.2\",\"_where\":\"/Users/hoanghuy226/Documents/Project/iceteaweb3\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.2\"}");
 
 /***/ }),
 
@@ -60746,12 +60746,6 @@ exports.throwIf = (condition, message) => {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
     TxOp = _require.TxOp,
     ecc = _require.ecc; // const { escapeQueryValue } = require('../utils')
@@ -60786,16 +60780,22 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
   if (typeof options === 'function' && typeof callback === 'undefined') {
     callback = options;
   } else {
-    opts = options;
+    opts = Object.assign({}, options);
   }
 
+  opts = opts || {};
   var isAll = eventName === 'allEvents';
 
   if (isAll) {
+    if (opts.filter) {
+      console.log('opts.filter', opts.filter);
+      throw new Error('Cannot filter with allEvents');
+    }
+
     eventName = 'Tx';
-    opts.filter = _objectSpread({}, opts.filter, {
+    opts.filter = {
       to: contractAddr
-    });
+    };
     opts.emitter = 'system';
   } else {
     opts.emitter = contractAddr;
@@ -60820,11 +60820,22 @@ function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
 
 
     var evs = result.data.value.TxResult.events;
-    var ev = evs.filter(function (el) {
+    var data = isAll ? evs : evs.filter(function (el) {
       return el.eventName === eventName;
-    });
-    return callback(undefined, isAll ? evs : ev[0].eventData, result);
+    })[0].eventData;
+    return callback(undefined, data, result);
   });
+}
+
+function _registerPastEvents(tweb3, contractAddr, eventName, conditions, options) {
+  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+    var err = new Error('To getPast to event, you must resolve contract alias first.');
+    return err;
+  }
+
+  var conds = Object.assign({}, conditions);
+  conds.emitter = contractAddr;
+  return tweb3.getPastEvents(eventName, conds, options);
 } // contract
 
 
@@ -60899,6 +60910,13 @@ var Contract = function Contract(tweb3, address) {
     get: function get(obj, eventName) {
       return function (options, callback) {
         return _registerEvents(tweb3, contractAddr, eventName, options, callback);
+      };
+    }
+  });
+  this.getpast = new Proxy({}, {
+    get: function get(obj, eventName) {
+      return function (conditions, options) {
+        return _registerPastEvents(tweb3, contractAddr, eventName, conditions, options);
       };
     }
   });
@@ -61146,39 +61164,36 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
     value: function getPastEvents(eventName) {
       var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       var options = arguments.length > 2 ? arguments[2] : undefined;
-      var systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
-
-      if (!eventName) {
-        throw new Error('EventName is required');
-      }
-
-      var isSystemEvents = systemEvents.includes(eventName);
       var EMITTER_EVENTNAME = '_ev';
       var query = '';
 
       if (typeof conditions === 'string') {
         query = conditions;
       } else {
-        if (!isSystemEvents && !conditions.emitter) {
-          throw new Error('When the event not the system event, Emitter is required');
+        if (!eventName) {
+          throw new Error('EventName is required');
+        }
+
+        if (!conditions.emitter) {
+          throw new Error('Emitter is required');
         }
 
         if (conditions.emitter && Array.isArray(conditions.emitter)) {
           throw new Error('getPastEvents: mutiple addresses are not supported.');
         }
 
-        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")];
+        var arr = eventName === 'allEvents' ? ["system.to='".concat(conditions.emitter, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")];
 
         if (conditions.fromBlock) {
           arr.push("tx.height>".concat(+conditions.fromBlock - 1));
         }
 
         if (conditions.toBlock) {
-          arr.push("tx.height<".concat(+conditions.fromBlock + 1));
+          arr.push("tx.height<".concat(+conditions.toBlock + 1));
         }
 
         if (conditions.atBlock) {
-          arr.push("tx.height=".concat(conditions.fromBlock));
+          arr.push("tx.height=".concat(conditions.atBlock));
         } // filter, equal only
 
 
@@ -61186,16 +61201,18 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
         Object.keys(filter).forEach(function (key) {
           var value = filter[key];
           arr.push("".concat(conditions.emitter, ".").concat(key, "='").concat(value, "'"));
-        }); // raw tag conditions, can use >, <, =, CONTAINS
-        // const where = conditions.where || []
-        // where.forEach(w => {
-        //   arr.push(w)
-        // })
-
+        });
         query = arr.join(' AND ');
-      }
+      } // console.log('query', query)
 
-      return this.searchTransactions(query, options);
+
+      return this.searchTransactions(query, options).then(function (result) {
+        result.txs.forEach(function (tx) {
+          tx.events = decodeEventData(tx); // decode(tx)
+          // delete tx.tx_result
+        });
+        return result;
+      });
     }
     /**
      * @param {boolean} preferAlias whether to prefer alias, or just return address.
@@ -61389,18 +61406,18 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
           throw new Error('When the event not the system event, Emitter is required');
         }
 
-        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")]; // delete (conditions.emitter)
+        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")];
 
         if (conditions.fromBlock) {
           arr.push("tx.height>".concat(+conditions.fromBlock - 1));
         }
 
         if (conditions.toBlock) {
-          arr.push("tx.height<".concat(+conditions.fromBlock + 1));
+          arr.push("tx.height<".concat(+conditions.toBlock + 1));
         }
 
         if (conditions.atBlock) {
-          arr.push("tx.height=".concat(conditions.fromBlock));
+          arr.push("tx.height=".concat(conditions.atBlock));
         } // filter, equal only
 
 
@@ -61442,7 +61459,6 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
         });
       }
 
-      console.log('query', query);
       return this.rpc.call('subscribe', {
         query: query
       }).then(function (result) {

@@ -170,38 +170,36 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @returns {Array} Array of tendermint transactions containing the event.
    */
   getPastEvents (eventName, conditions = {}, options) {
-    const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
-      'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
-    if (!eventName) {
-      throw new Error('EventName is required')
-    }
-    const isSystemEvents = systemEvents.includes(eventName)
-
     const EMITTER_EVENTNAME = '_ev'
     let query = ''
 
     if (typeof conditions === 'string') {
       query = conditions
     } else {
-      if (!isSystemEvents && !conditions.emitter) {
-        throw new Error('When the event not the system event, Emitter is required')
+      if (!eventName) {
+        throw new Error('EventName is required')
+      }
+
+      if (!conditions.emitter) {
+        throw new Error('Emitter is required')
       }
 
       if (conditions.emitter && Array.isArray(conditions.emitter)) {
         throw new Error('getPastEvents: mutiple addresses are not supported.')
       }
 
-      const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}.${EMITTER_EVENTNAME} = '${eventName}'`]
+      const arr = eventName === 'allEvents' ? [`system.to='${conditions.emitter}'`] : [`${conditions.emitter}.${EMITTER_EVENTNAME} = '${eventName}'`]
+
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
       }
 
       if (conditions.toBlock) {
-        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+        arr.push(`tx.height<${+conditions.toBlock + 1}`)
       }
 
       if (conditions.atBlock) {
-        arr.push(`tx.height=${conditions.fromBlock}`)
+        arr.push(`tx.height=${conditions.atBlock}`)
       }
 
       // filter, equal only
@@ -211,15 +209,18 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`${conditions.emitter}.${key}='${value}'`)
       })
 
-      // raw tag conditions, can use >, <, =, CONTAINS
-      // const where = conditions.where || []
-      // where.forEach(w => {
-      //   arr.push(w)
-      // })
-
       query = arr.join(' AND ')
     }
-    return this.searchTransactions(query, options)
+
+    // console.log('query', query)
+    return this.searchTransactions(query, options).then((result) => {
+      result.txs.forEach(tx => {
+        tx.events = decodeEventData(tx)
+        // decode(tx)
+        // delete tx.tx_result
+      })
+      return result
+    })
   }
 
   /**
@@ -366,18 +367,17 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       }
 
       const arr = isSystemEvents ? [`tm.event = '${eventName}'`] : [`${conditions.emitter}.${EMITTER_EVENTNAME} = '${eventName}'`]
-      // delete (conditions.emitter)
 
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
       }
 
       if (conditions.toBlock) {
-        arr.push(`tx.height<${+conditions.fromBlock + 1}`)
+        arr.push(`tx.height<${+conditions.toBlock + 1}`)
       }
 
       if (conditions.atBlock) {
-        arr.push(`tx.height=${conditions.fromBlock}`)
+        arr.push(`tx.height=${conditions.atBlock}`)
       }
 
       // filter, equal only
@@ -411,7 +411,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       this._wssub[query].callbacks.push(callback)
       return Promise.resolve({ unsubscribe })
     }
-    
+
     return this.rpc.call('subscribe', { query: query }).then((result) => {
       this._wssub[query] = {
         id: result.id,

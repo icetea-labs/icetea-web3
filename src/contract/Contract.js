@@ -27,12 +27,14 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
   if (typeof options === 'function' && typeof callback === 'undefined') {
     callback = options
   } else {
-    opts = options
+    opts = Object.assign({}, options)
   }
+  opts = opts || {}
 
   const isAll = (eventName === 'allEvents')
   if (isAll) {
-    if (!opts.filter) {
+    if (opts.filter) {
+      console.log('opts.filter', opts.filter)
       throw new Error('Cannot filter with allEvents')
     }
     eventName = 'Tx'
@@ -64,6 +66,18 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
 
     return callback(undefined, data, result)
   })
+}
+
+function _registerPastEvents (tweb3, contractAddr, eventName, conditions, options) {
+  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+    const err = new Error('To getPast to event, you must resolve contract alias first.')
+    return err
+  }
+
+  const conds = Object.assign({}, conditions)
+  conds.emitter = contractAddr
+
+  return tweb3.getPastEvents(eventName, conds, options)
 }
 
 // contract
@@ -122,6 +136,14 @@ class Contract {
       get (obj, eventName) {
         return function (options, callback) {
           return _registerEvents(tweb3, contractAddr, eventName, options, callback)
+        }
+      }
+    })
+
+    this.getpast = new Proxy({}, {
+      get (obj, eventName) {
+        return function (conditions, options) {
+          return _registerPastEvents(tweb3, contractAddr, eventName, conditions, options)
         }
       }
     })
