@@ -72,7 +72,7 @@ function _query (httpEndpoint, path, data) {
     params.data = encode(data).toString('hex')
   }
 
-  return _call('abci_query', params).then(result => {
+  return _call(httpEndpoint, 'abci_query', params).then(result => {
     const r = result.response
 
     if (r.code) {

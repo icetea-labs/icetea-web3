@@ -37,7 +37,7 @@ exports.encodeTX = (txObj, enc = 'base64') => {
  * Decode tx encoded string, obtained from tendermint when querying for transaction.
  * @returns {object} the tx object.
  */
-exports.decodeTX = (data, enc = 'base64') => {
+exports.decodeTxContent = (data, enc = 'base64') => {
   return codec.decode(Buffer.from(data, enc))
 }
 
@@ -49,7 +49,8 @@ exports.switchEncoding = (str, from, to) => {
   return exports.ensureBuffer(str, from).toString(to)
 }
 
-exports.decodeEvent = (tx, keepEvents = false) => {
+exports.decodeTxEvents = (tx) => {
+  const EMITTER_EVENTNAME = '_ev'
   const EMPTY_RESULT = []
 
   const b64Events = _getFieldValue(tx, 'events') || tx
@@ -58,7 +59,7 @@ exports.decodeEvent = (tx, keepEvents = false) => {
   }
 
   // decode events
-  const events = b64Events.map(({ type, attributes }, i) => {
+  const events = b64Events.map(({ type, attributes }) => {
     return {
       type,
       attributes: attributes.reduce((data, { key, value }) => {
@@ -69,35 +70,29 @@ exports.decodeEvent = (tx, keepEvents = false) => {
       }, {})
     }
   })
-  return events
-}
 
-exports.decodeEventData = (tx) => {
-  const EMITTER_EVENTNAME = '_ev'
-  const events = this.decodeEvent(tx, true)
-  // format events
-  const result = events.map(({ type, attributes }) => {
+  return events.map(({ type, attributes }) => {
     const eventName = attributes[EMITTER_EVENTNAME]
     eventName && delete attributes[EMITTER_EVENTNAME]
     return { emitter: type, eventName, eventData: attributes }
   })
-  return result
 }
 
-exports.decode = (tx, keepEvents = false) => {
-  this.decodeReturnValue(tx)
-  if (tx.tx) tx.tx = this.decodeTX(tx.tx)
+exports.decodeTxResult = (srcTx) => {
+  const tx = Object.assign({}, srcTx)
+  tx.returnValue = this.decodeTxReturnValue(tx)
+  if (tx.tx) tx.tx = this.decodeTxContent(tx.tx)
   tx.events = this.decodeEventData(tx)
   return tx
 }
 
-exports.decodeReturnValue = (tx, fieldName = 'returnValue') => {
-  const data = _getFieldValue(tx, 'data')
+exports.decodeTxReturnValue = (tx) => {
+  let data = _getFieldValue(tx, 'data')
   if (data) {
-    tx[fieldName] = codec.decode(Buffer.from(data, 'base64'))
+    data = codec.decode(Buffer.from(data, 'base64'))
   }
-
-  return tx
+  
+  return data
 }
 
 exports.removeItem = (array, item) => {

@@ -1,5 +1,5 @@
 const { TxOp, ecc } = require('@iceteachain/common')
-// const { escapeQueryValue } = require('../utils')
+const { escapeQueryValue } = require('../utils')
 
 function _serializeData (address, method, params = [], options = {}) {
   var formData = {}
@@ -18,7 +18,7 @@ function _serializeData (address, method, params = [], options = {}) {
 }
 
 function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
-  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
     const err = new Error('To subscribe to event, you must resolve contract alias first.')
     return callback(err)
   }
@@ -30,70 +30,56 @@ function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
     opts = Object.assign({}, options)
   }
   opts = opts || {}
+  opts.where = opts.where || []
 
   const isAll = (eventName === 'allEvents')
   if (isAll) {
-    if (opts.filter) {
-      console.log('opts.filter', opts.filter)
-      throw new Error('Cannot filter with allEvents')
-    }
-    eventName = 'Tx'
-    opts.filter = { to: contractAddr }
-    opts.emitter = 'system'
+    opts.where.push(`${contractAddr}._ev EXISTS`)
   } else {
-    opts.emitter = contractAddr
+    opts.where.push(`${contractAddr}._ev=${escapeQueryValue(eventName)}`)
   }
 
   // add indexed field filter
   const filter = opts.filter || {}
   // delete opts.filter
   const filterKeys = Object.keys(filter)
-  if (filterKeys.length && !contractAddr) {
-    const err = new Error('Cannot filter by indexed fields unless the contract address is specified.')
-    return callback(err)
-  }
+  filterKeys.forEach(key => {
+    const value = escapeQueryValue(filter[key])
+    opts.where.push(`${contractAddr}.${key}=${value}`)
+  })
 
-  return tweb3.subscribe(eventName, opts, (err, result) => {
+  return tweb3.subscribe('Tx', opts, (err, result) => {
     if (err) {
       return callback(err)
     }
-    // because we support one contract emit the same event only once per TX
-    // so r.events must be 0-length for now
     const evs = result.data.value.TxResult.events
     const data = isAll ? evs : evs.filter(el => {
       return el.eventName === eventName
-    })[0].eventData
+    })
 
     return callback(undefined, data, result)
   })
 }
 
-function _registerPastEvents (tweb3, contractAddr, eventName, conditions, options) {
-  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
-    const err = new Error('To getPast to event, you must resolve contract alias first.')
-    return err
-  }
-
-  const conds = Object.assign({}, conditions)
-  conds.emitter = contractAddr
-
-  return tweb3.getPastEvents(eventName, conds, options)
-}
-
 // contract
 class Contract {
   constructor (tweb3, address, options = {}) {
+
+    if (!address) {
+      throw new Error('Contract address is required.')
+    }
+
     this.options = options // default options
 
     if (typeof address === 'string') {
       this.address = address
-    } else if (address != null) {
+    } else {
       this.address = address.address || address.returnValue
       this.hash = address.hash
       this.height = address.height
     }
 
-    if (this.address && this.address.indexOf('.') < 0) {
+    if (this.address !== 'system' && this.address.indexOf('.') < 0) {
       ecc.validateAddress(this.address)
     }
 
@@ -140,10 +126,10 @@ class Contract {
       }
     })
 
-    this.getpast = new Proxy({}, {
+    this.pastEvents = new Proxy({}, {
       get (obj, eventName) {
         return function (conditions, options) {
-          return _registerPastEvents(tweb3, contractAddr, eventName, conditions, options)
+          return tweb3.getContractEvents(contractAddr, eventName, conditions, options)
         }
       }
     })
