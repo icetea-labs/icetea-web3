@@ -1,6 +1,6 @@
 const { codec } = require('@iceteachain/common')
 
-exports.tryParseJson = p => {
+exports.tryParseJson = (p) => {
   try {
     return JSON.parse(p)
   } catch (e) {
@@ -9,7 +9,7 @@ exports.tryParseJson = p => {
   }
 }
 
-exports.tryJsonStringify = p => {
+exports.tryJsonStringify = (p) => {
   if (typeof p === 'string') {
     return p
   }
@@ -37,7 +37,7 @@ exports.encodeTX = (txObj, enc = 'base64') => {
  * Decode tx encoded string, obtained from tendermint when querying for transaction.
  * @returns {object} the tx object.
  */
-exports.decodeTX = (data, enc = 'base64') => {
+exports.decodeTxContent = (data, enc = 'base64') => {
   return codec.decode(Buffer.from(data, enc))
 }
 
@@ -49,100 +49,50 @@ exports.switchEncoding = (str, from, to) => {
   return exports.ensureBuffer(str, from).toString(to)
 }
 
-exports.decodeTags = (tx, keepEvents = false) => {
-  const EMPTY_RESULT = {}
-  const b64Tags = _getFieldValue(tx, 'tags') || tx
-  if (!b64Tags.length) {
-    return EMPTY_RESULT
-  }
-
-  const tags = {}
-  // decode tags
-  b64Tags.forEach(t => {
-    const key = this.switchEncoding(t.key, 'base64', 'utf8')
-    const value = this.switchEncoding(t.value, 'base64', 'utf8')
-    tags[key] = this.tryParseJson(value)
-  })
-
-  if (!keepEvents && tags.EventNames) {
-    // remove event-related tags
-    const EVENTNAMES_SEP = '|'
-    const EMITTER_EVENTNAME_SEP = '%'
-    const events = tags.EventNames.split(EVENTNAMES_SEP)
-    events.forEach(e => {
-      if (e) {
-        const eventName = e.split(EMITTER_EVENTNAME_SEP)[1]
-        Object.keys(tags).forEach(key => {
-          if (key.indexOf(eventName) === 0) {
-            delete tags[key]
-          }
-        })
-        delete tags[e]
-      }
-    })
-    delete tags.EventNames
-  }
-
-  return tags
-}
-
-exports.decodeEventData = (tx) => {
+exports.decodeTxEvents = (tx) => {
+  const EMITTER_EVENTNAME = '_ev'
   const EMPTY_RESULT = []
 
-  const tags = this.decodeTags(tx, true)
-
-  if (!tags.EventNames) {
+  const b64Events = _getFieldValue(tx, 'events') || tx
+  if (!b64Events.length) {
     return EMPTY_RESULT
   }
 
-  const EVENTNAMES_SEP = '|'
-  const EMITTER_EVENTNAME_SEP = '%'
-  const EVENTNAME_INDEX_SEP = '~'
-
-  const events = tags.EventNames.split(EVENTNAMES_SEP)
-  if (!events.length) {
-    return EMPTY_RESULT
-  }
-
-  const result = events.reduce((r, e) => {
-    if (e) {
-      const parts = e.split(EMITTER_EVENTNAME_SEP)
-      const emitter = parts[0]
-      const eventName = parts[1]
-      const eventData = Object.keys(tags).reduce((data, key) => {
-        const prefix = eventName + EVENTNAME_INDEX_SEP
-        if (key.startsWith(prefix)) {
-          const name = key.substr(prefix.length)
-          const value = tags[key]
-          data[name] = value
-        } else if (key === eventName) {
-          Object.assign(data, tags[key])
-        }
+  // decode events
+  const events = b64Events.map(({ type, attributes }) => {
+    return {
+      type,
+      attributes: attributes.reduce((data, { key, value }) => {
+        key = this.switchEncoding(key, 'base64', 'utf8')
+        value = this.switchEncoding(value, 'base64', 'utf8')
+        data[key] = this.tryParseJson(value)
         return data
       }, {})
-      r.push({ emitter, eventName, eventData })
     }
-    return r
-  }, [])
+  })
 
-  return result
+  return events.map(({ type, attributes }) => {
+    const eventName = attributes[EMITTER_EVENTNAME]
+    eventName && delete attributes[EMITTER_EVENTNAME]
+    return { emitter: type, eventName, eventData: attributes }
+  })
 }
 
-exports.decode = (tx, keepEvents = false) => {
-  this.decodeReturnValue(tx)
-  if (tx.tx) tx.tx = this.decodeTX(tx.tx)
-  tx.events = this.decodeEventData(tx)
-  tx.tags = this.decodeTags(tx, keepEvents)
+exports.decodeTxResult = (srcTx) => {
+  const tx = Object.assign({}, srcTx)
+  tx.returnValue = this.decodeTxReturnValue(tx)
+  if (tx.tx) tx.tx = this.decodeTxContent(tx.tx)
+  tx.events = this.decodeTxEvents(tx)
   return tx
 }
 
-exports.decodeReturnValue = (tx, fieldName = 'returnValue') => {
-  const data = _getFieldValue(tx, 'data')
+exports.decodeTxReturnValue = (tx) => {
+  let data = _getFieldValue(tx, 'data')
   if (data) {
-    tx[fieldName] = codec.decode(Buffer.from(data, 'base64'))
+    data = codec.decode(Buffer.from(data, 'base64'))
   }
 
-  return tx
+  return data
 }
 
 exports.removeItem = (array, item) => {
@@ -150,7 +100,7 @@ exports.removeItem = (array, item) => {
   return index >= 0 ? array.splice(index, 1) : array
 }
 
-exports.escapeQueryValue = value => {
+exports.escapeQueryValue = (value) => {
   if (typeof value === 'number') return value
   // escape all single quotes
   return "'" + String(value).replace(/'/g, "\\'") + "'"

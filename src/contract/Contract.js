@@ -17,122 +17,142 @@ function _serializeData (address, method, params = [], options = {}) {
   return formData
 }
 
-function _registerEvents (tweb3, contractAddr, eventName, options, callback) {
-  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
+function _sendTx (instance, options, sendMode, { contractAddr, method, params }) {
+  const opts = Object.assign({}, instance.options, options || {})
+  const tx = _serializeData(contractAddr, method, params, opts)
+  return instance.web3.sendTransaction(tx, opts, sendMode)
+}
+
+async function _registerEvents (tweb3, contractAddr, eventName, options, callback, once) {
+  if (contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
     const err = new Error('To subscribe to event, you must resolve contract alias first.')
-    return callback(err)
+    callback(err)
+    return
   }
 
   let opts
   if (typeof options === 'function' && typeof callback === 'undefined') {
     callback = options
   } else {
-    opts = options
+    opts = Object.assign({}, options)
   }
   opts = opts || {}
-  opts.where = opts.where || []
 
-  // add address filter
-  const EVENTNAMES_SEP = '|'
-  const EMITTER_EVENTNAME_SEP = '%'
-  const EVENTNAME_INDEX_SEP = '~'
-  const emitter = (contractAddr ? (EVENTNAMES_SEP + contractAddr) : '') + EMITTER_EVENTNAME_SEP
-  const isAll = (eventName === 'allEvents')
+  opts.rawFilter = typeof opts.rawFilter === 'string' ? [opts.rawFilter] : (opts.rawFilter || [])
+  opts.rawFilter.map(w => {
+    const prefix = contractAddr + '.'
+    return w.startsWith(prefix) ? w : (prefix + w)
+  })
+
+  const isAll = ['allEvents', '*'].includes(eventName)
   if (isAll) {
-    contractAddr && opts.where.push(`EventNames CONTAINS '${emitter}'`)
+    opts.rawFilter.push(`${contractAddr}._ev EXISTS`)
   } else {
-    opts.where.push(`EventNames CONTAINS '${emitter}${eventName}${EVENTNAMES_SEP}'`)
+    opts.rawFilter.push(`${contractAddr}._ev=${escapeQueryValue(eventName)}`)
   }
 
   // add indexed field filter
   const filter = opts.filter || {}
   delete opts.filter
   const filterKeys = Object.keys(filter)
-  if (!isAll && filterKeys.length && !contractAddr) {
-    const err = new Error('Cannot filter by indexed fields unless the contract address is specified.')
-    return callback(err)
-  }
-
   filterKeys.forEach(key => {
     const value = escapeQueryValue(filter[key])
-    // if (isAll) {
-    // if (contractAddr) {
-    //   opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${key.replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // } else {
-    //   opts.where.push(`${key.replace('.', EMITTER_EVENTNAME_SEP).replace('.', EVENTNAME_INDEX_SEP)}=${value}`)
-    // }
-
-    // } else {
-    // contractAddr should be truthy if reach here
-    // opts.where.push(`${contractAddr}${EMITTER_EVENTNAME_SEP}${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
-    // }
-
-    opts.where.push(`${eventName}${EVENTNAME_INDEX_SEP}${key}=${value}`)
+    opts.rawFilter.push(`${contractAddr}.${key}=${value}`)
   })
 
+  let handle
   return tweb3.subscribe('Tx', opts, (err, result) => {
     if (err) {
-      return callback(err)
+      callback(err)
+      once && handle && handle.off && handle.off()
+      return
     }
 
-    // because we support one contract emit the same event only once per TX
-    // so r.events must be 0-length for now
-    const evs = result.data.value.TxResult.events
-    return callback(undefined, isAll ? evs : evs[0].eventData, result)
+    const tx = result.data.value.TxResult
+    const evs = tx.events
+    let called = false
+    evs.forEach(e => {
+      if (e.emitter === contractAddr && (isAll || e.eventName === eventName)) {
+        if (once && called) return
+        called = true
+        callback(undefined, e, tx)
+      }
+    })
+
+    once && handle && handle.off && handle.off()
+  }).then(r => {
+    handle = { off: r.unsubscribe }
+    return handle
   })
 }
 
 // contract
 class Contract {
   constructor (tweb3, address, options = {}) {
+    if (!address) {
+      throw new Error('Contract address is required.')
+    }
+
+    const self = this
+
+    this.web3 = tweb3
     this.options = options // default options
 
     if (typeof address === 'string') {
       this.address = address
-    } else if (address != null) {
+    } else {
       this.address = address.address || address.returnValue
       this.hash = address.hash
       this.height = address.height
     }
 
-    if (this.address && this.address.indexOf('.') < 0) {
+    if (this.address !== 'system' && this.address.indexOf('.') < 0) {
       ecc.validateAddress(this.address)
     }
 
     const contractAddr = this.address
 
+    this.prepareMethod = function (method, ...params) {
+      return {
+        call: function (options = {}) {
+          return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
+        },
+        callPure: function (options = {}) {
+          return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
+        },
+        getMetadata: function () {
+          return tweb3.getMetadata(params)
+        },
+        sendAsync: function (options = {}) {
+          return _sendTx(self, options, 'async', { contractAddr, method, params })
+        },
+        sendSync: function (options = {}) {
+          return _sendTx(self, options, 'sync', { contractAddr, method, params })
+        },
+        sendCommit: function (options = {}) {
+          return _sendTx(self, options, 'commit', { contractAddr, method, params })
+        },
+        send: function (options = {}) {
+          return _sendTx(self, options, undefined, { contractAddr, method, params })
+        }
+      }
+    }
+
     this.methods = new Proxy({}, {
       get (obj, method) {
         return function (...params) {
-          return {
-            call: function (options = {}) {
-              return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
-            },
-            callPure: function (options = {}) {
-              return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options))
-            },
-            getMetadata: function () {
-              return tweb3.getMetadata(params)
-            },
-            sendAsync: function (options = {}) {
-              var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(contractAddr, method, params, opts)
-              return tweb3.sendTransactionAsync(tx, opts)
-            },
-            sendSync: function (options = {}) {
-              var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(contractAddr, method, params, opts)
-              return tweb3.sendTransactionSync(tx, opts)
-            },
-            sendCommit: function (options = {}) {
-              var opts = Object.assign({}, this.options, options)
-              var tx = _serializeData(contractAddr, method, params, opts)
-              return tweb3.sendTransactionCommit(tx, opts)
-            }
-          }
+          return self.prepareMethod(method, ...params)
         }
       }
     })
+
+    this.on = function (eventName, options, callback) {
+      return _registerEvents(tweb3, contractAddr, eventName, options, callback)
+    }
+
+    this.once = function (eventName, options, callback) {
+      return _registerEvents(tweb3, contractAddr, eventName, options, callback, true)
+    }
 
     this.events = new Proxy({}, {
       get (obj, eventName) {
@@ -141,6 +161,10 @@ class Contract {
         }
       }
     })
+
+    this.getPastEvents = function (eventName, conditions, options) {
+      return tweb3.getContractEvents(contractAddr, eventName, conditions, options)
+    }
   }
 }
 

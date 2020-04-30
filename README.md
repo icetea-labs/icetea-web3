@@ -17,7 +17,7 @@ npm install @iceteachain/web3
 ```
 ### <script> tags
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@iceteachain/web3@0.1.22/dist/browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@iceteachain/web3@0.2.0/dist/browser.min.js"></script>
 ```
 
 > **NOTE** This package is under development and not ready for production.

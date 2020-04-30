@@ -2,8 +2,6 @@
 // It is ES6 module, intended for use in browser only with bundler
 // NodeJS could use the 'heavy' index.js, as the size does not matter
 
-import { encode, decode } from '@iceteachain/common/src/codec'
-
 function _sanitizeParams (params) {
   params = params || {}
   Object.keys(params).forEach(k => {
@@ -65,14 +63,24 @@ function _call (httpEndpoint, method, params) {
   })
 }
 
+function _toHex (s) {
+  // utf8 to latin1
+  s = unescape(encodeURIComponent(s))
+  let h = ''
+  for (let i = 0; i < s.length; i++) {
+    h += s.charCodeAt(i).toString(16)
+  }
+  return h
+}
+
 // query application state (read)
 function _query (httpEndpoint, path, data) {
   const params = { path }
   if (data) {
-    params.data = encode(data).toString('hex')
+    params.data = _toHex(JSON.stringify(data))
   }
 
-  return _call('abci_query', params).then(result => {
+  return _call(httpEndpoint, 'abci_query', params).then(result => {
     const r = result.response
 
     if (r.code) {
@@ -83,7 +91,7 @@ function _query (httpEndpoint, path, data) {
       throw err
     }
 
-    return decode(Buffer.from(r.value, 'base64'))
+    return r.value
   })
 }
 
@@ -92,9 +100,9 @@ function _callMethod (httpEndpoint, callType, contract, method, params) {
 }
 
 export function callView (httpEndpoint, contract, method, ...params) {
-  return _callMethod(httpEndpoint, 'invokeView', contract, method, params)
+  return _callMethod(httpEndpoint, 'json_invokeView', contract, method, params)
 }
 
 export function callPure (httpEndpoint, contract, method, ...params) {
-  return _callMethod(httpEndpoint, 'invokePure', contract, method, params)
+  return _callMethod(httpEndpoint, 'json_invokePure', contract, method, params)
 }

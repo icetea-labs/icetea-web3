@@ -1,0 +1,8 @@
+<script type="module">
+    import { callView, callPure } from '../src/light.js'
+  
+    const httpEndpoint = 'http://localhost:26657'
+    callView(httpEndpoint, 'system.alias', 'resolve', 'account.thi')
+        .then(console.log)
+        .catch(console.error)
+</script>
