@@ -136,7 +136,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @param {*} options optional, e.g. {prove: true} to request proof.
    * @return {*} the tendermint transaction.
    */
-  getTransaction (hash, options) {
+  async getTransaction (hash, options) {
     if (!hash) {
       throw new Error('hash is required')
     }
@@ -151,12 +151,15 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @param {boolean} rawResult whether to return raw result or decoded result, default false (decoded).
    * @returns {Array} Array of tendermint transactions.
    */
-  searchTransactions (query, options, rawResult) {
+  async searchTransactions (query, options, rawResult) {
     if (!query) {
       throw new Error('query is required, example "tx.height>0"')
     }
     const r = this.rpc.call('tx_search', { query, ...options })
-    return rawResult ? r: r.then(r => r.txs = r.txs.map(decodeTxResult))
+    return rawResult ? r : r.then(r => {
+      r.txs = r.txs.map(decodeTxResult)
+      return r
+    })
   }
 
   /**
@@ -164,12 +167,13 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * @param {string} contract address of the contract that emits events.
    * @param {string} eventName the event name, e.g. "transfer"
    * @param {object} conditions required
-   * Example: {fromBlock: 0, toBlock: 100, filter: {someIndexedField: "xxx"}, where: ["someIndexField CONTAINS 'abc'"]}.
+   * Example: {fromBlock: 0, toBlock: 100, filter: {someIndexedField: "xxx"}, rawFilter: ["someIndexField CONTAINS 'abc'"]}.
    * Note that conditions are combined using AND, no support for OR.
    * @param {*} options additional options, e.g. {order_by: 'desc', prove: true, page: 2, per_page: 20}
    * @returns {Array} Array of tendermint transactions containing the event.
    */
-  getContractEvents (contract, eventName, conditions = {}, options) {
+  async getContractEvents (contract, eventName, conditions, options) {
+    conditions = conditions || {}
     const EMITTER_EVENTNAME = '_ev'
 
     if (!contract) {
@@ -181,7 +185,10 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     }
 
     const path = `${contract}.${EMITTER_EVENTNAME}`
-    const arr = eventName === 'allEvents' ? [`${path} EXISTS`] : [`${path} = '${escapeQueryValue(eventName)}'`]
+    const isAll = ['*', 'allEvents'].includes(eventName)
+    // as of v.0.33.4, tendermint only supports EXISTS for subscribe, not tx_search
+    // https://github.com/tendermint/tendermint/issues/4763
+    const arr = isAll ? [`${path} CONTAINS ''`] : [`${path}=${escapeQueryValue(eventName)}`]
 
     if (conditions.fromBlock) {
       arr.push(`tx.height>${+conditions.fromBlock - 1}`)
@@ -195,10 +202,6 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       arr.push(`tx.height=${conditions.atBlock}`)
     }
 
-    if (conditions.txHash) {
-      arr.push(`tx.hash=${conditions.txHash}`)
-    }
-
     // filter, equal only
     const filter = conditions.filter || {}
     Object.keys(filter).forEach(key => {
@@ -206,19 +209,34 @@ exports.IceteaWeb3 = class IceteaWeb3 {
       arr.push(`${contract}.${key}=${value}`)
     })
 
-    // where, for advanced users
-    const where = conditions.where || []
-    where.forEach(w => {
-      if (!w.startsWith(contract + '.')) {
-        w = contract + '.' + w
+    // raw filter, for advanced users
+    const rawFilter = conditions.rawFilter
+    if (rawFilter) {
+      if (rawFilter.forEach) {
+        rawFilter.forEach(w => {
+          if (!w.startsWith(contract + '.')) {
+            w = contract + '.' + w
+          }
+          arr.push(w)
+        })
+      } else {
+        arr.push(rawFilter)
       }
-      arr.push(w)
-    })
+    }
 
     const query = arr.join(' AND ')
 
-    // console.log('query', query)
     return this.searchTransactions(query, options, false)
+      .then(r => {
+        return r.txs.reduce((list, tx) => {
+          const events = tx.events.filter(e => (e.emitter === contract && (isAll || e.eventName === eventName)))
+            .map(e => {
+              e.tx = tx
+              return e
+            })
+          return list.concat(events)
+        }, [])
+      })
   }
 
   /**
@@ -263,9 +281,9 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     return this.rpc.query('state')
   }
 
-  sendTransaction (tx, signers, waitOption) {
-    waitOption = waitOption || (signers && signers.waitOption) || 'commit'
-    return _signAndSend(this.rpc, tx, 'broadcast_tx_' + waitOption, this.wallet, signers)
+  sendTransaction (tx, signers, sendMode) {
+    sendMode = sendMode || (signers && signers.sendMode) || 'commit'
+    return _signAndSend(this.rpc, tx, 'broadcast_tx_' + sendMode, this.wallet, signers)
   }
 
   /**
@@ -339,15 +357,14 @@ exports.IceteaWeb3 = class IceteaWeb3 {
    * One of ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
    *   'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
    */
-  subscribe (sysEventName, conditions = {}, callback) {
-
+  async subscribe (sysEventName, conditions = {}, callback) {
     if (!this.isWebSocket) throw new Error('subscribe: supports WebSocketProvider only.')
 
     const systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
       'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
-    
+
     if (sysEventName && !systemEvents.includes(sysEventName)) {
-        console.warn(`Event ${sysEventName} is not one of known supported events: ${systemEvents}.`)
+      console.warn(`Event ${sysEventName} is not one of known supported events: ${systemEvents}.`)
     }
 
     let query = ''
@@ -359,7 +376,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         conditions = {}
       }
 
-      const arr = [`tm.event = '${escapeQueryValue(sysEventName)}'`]
+      const arr = [`tm.event=${escapeQueryValue(sysEventName)}`]
 
       if (conditions.fromBlock) {
         arr.push(`tx.height>${+conditions.fromBlock - 1}`)
@@ -380,24 +397,22 @@ exports.IceteaWeb3 = class IceteaWeb3 {
         arr.push(`${key}=${value}`)
       })
 
-      // where, for advanced users
-      const where = conditions.where || []
-      where.forEach(w => {
-        arr.push(w)
-      })
+      // raw filter, for advanced users
+      const rawFilter = typeof conditions.rawFilter === 'string' ? [conditions.rawFilter] : conditions.rawFilter
+      rawFilter && arr.push(...rawFilter)
 
       query = arr.join(' AND ')
     }
     // ensure to return promise => simpler for clients
-    const unsubscribe = () => {
+    const unsubscribe = async () => {
       const sub = this._wssub[query]
       if (!sub) {
-        return Promise.resolve(undefined)
+        return
       }
 
       removeItem(sub.callbacks, callback)
       if (sub.callbacks.length > 0) {
-        return Promise.resolve(undefined)
+        return
       }
 
       return this.rpc.call('unsubscribe', { query }).then(res => {
@@ -408,7 +423,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
 
     if (this._wssub[query]) {
       this._wssub[query].callbacks.push(callback)
-      return Promise.resolve({ unsubscribe })
+      return { unsubscribe }
     }
 
     return this.rpc.call('subscribe', { query: query }).then((result) => {
@@ -443,6 +458,14 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     }).catch(callback)
   }
 
+  unsubscribeAll () {
+    return this.rpc,call('/unsubscribe_all')
+  }
+
+  clearSubscriptions () {
+    return this.unsubscribeAll()
+  }
+
   registerEventListener (event, callback) {
     if (!this.isWebSocket) throw new Error('registerEventListener is for WebSocketProvider only.')
     this.rpc.registerEventListener(event, callback)
@@ -462,38 +485,38 @@ exports.IceteaWeb3 = class IceteaWeb3 {
     return new Contract(this, ...args)
   }
 
-  deploy (mode, src, params = [], options = {}) {
-    const tx = _serializeDataForDeploy(mode, src, params, options)
-    return this.sendTransactionCommit(tx, options)
+  deploy (contractInfo, options) {
+    const tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments)
+    return this.sendTransaction(tx, options)
       .then(res => this.contract(res))
   }
 
-  deployJs (src, params = [], options = {}) {
-    return this.deploy(ContractMode.JS_RAW, src, params, options)
-  }
-
-  deployWasm (wasmBuffer, params = [], options = {}) {
-    return this.deploy(ContractMode.WASM, wasmBuffer, params, options)
-  }
-
-  transfer (to, value, options = {}, params = options.params) {
+  transfer (to, value, options) {
+    options = options || {}
     const tx = { from: options.from, to, value, fee: options.fee, payer: options.payer }
-    if (params) {
-      tx.data = { params } // params for __on_received
+    if (options.params) {
+      tx.data = { params: options.params } // params for __on_received
     }
-    return this.sendTransactionCommit(tx, options)
+    return this.sendTransaction(tx, options)
   }
 }
 
 exports.IceteaWeb3.utils = exports.utils
 
-function _serializeDataForDeploy (mode, src, params, options) {
+function _serializeDataForDeploy (mode, src, params = [], options = {}) {
   var formData = {}
   var txData = {
     op: TxOp.DEPLOY_CONTRACT,
     mode: mode,
     params: params
   }
+
+  if (mode == null || mode === 'js') {
+    mode = ContractMode.JS_RAW
+  } else if (mode === 'wasm') {
+    mode = ContractMode.WASM
+  }
+
   if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
     txData.src = switchEncoding(src, 'utf8', 'base64')
   } else {
@@ -514,7 +537,7 @@ function _serializeDataForDeploy (mode, src, params, options) {
   return formData
 }
 
-function _sendSignedTx (rpc, tx, method) {
+async function _sendSignedTx (rpc, tx, method) {
   if (!tx.evidence || !tx.evidence.length) {
     throw new Error('Transaction was not signed yet.')
   }

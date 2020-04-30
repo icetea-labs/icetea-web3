@@ -82,7 +82,7 @@ exports.decodeTxResult = (srcTx) => {
   const tx = Object.assign({}, srcTx)
   tx.returnValue = this.decodeTxReturnValue(tx)
   if (tx.tx) tx.tx = this.decodeTxContent(tx.tx)
-  tx.events = this.decodeEventData(tx)
+  tx.events = this.decodeTxEvents(tx)
   return tx
 }
 
@@ -91,7 +91,7 @@ exports.decodeTxReturnValue = (tx) => {
   if (data) {
     data = codec.decode(Buffer.from(data, 'base64'))
   }
-  
+
   return data
 }
 
