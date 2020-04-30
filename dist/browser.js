@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.1.22 */
+/*! @iceteachain/web3 v0.2.0 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -37330,10 +37330,10 @@ utils.intFromLE = intFromLE;
 /*!********************************************!*\
   !*** ./node_modules/elliptic/package.json ***!
   \********************************************/
-/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, bugs, dependencies, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
+/*! exports provided: _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _shasum, _spec, _where, author, bugs, bundleDependencies, dependencies, deprecated, description, devDependencies, files, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_args\":[[\"elliptic@6.5.2\",\"/Users/hoanghuy226/Documents/Project/iceteaweb3\"]],\"_from\":\"elliptic@6.5.2\",\"_id\":\"elliptic@6.5.2\",\"_inBundle\":false,\"_integrity\":\"sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"elliptic@6.5.2\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"6.5.2\",\"saveSpec\":null,\"fetchSpec\":\"6.5.2\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.2.tgz\",\"_spec\":\"6.5.2\",\"_where\":\"/Users/hoanghuy226/Documents/Project/iceteaweb3\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.2\"}");
+module.exports = JSON.parse("{\"_from\":\"elliptic@^6.0.0\",\"_id\":\"elliptic@6.5.2\",\"_inBundle\":false,\"_integrity\":\"sha512-f4x70okzZbIQl/NSRLkI/+tteV/9WqL98zx+SQ69KbXxmVrmjwsNUPn/gYJJ0sHvEak24cZgHIPegRePAtA/xw==\",\"_location\":\"/elliptic\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"range\",\"registry\":true,\"raw\":\"elliptic@^6.0.0\",\"name\":\"elliptic\",\"escapedName\":\"elliptic\",\"rawSpec\":\"^6.0.0\",\"saveSpec\":null,\"fetchSpec\":\"^6.0.0\"},\"_requiredBy\":[\"/browserify-sign\",\"/create-ecdh\"],\"_resolved\":\"https://registry.npmjs.org/elliptic/-/elliptic-6.5.2.tgz\",\"_shasum\":\"05c5678d7173c049d8ca433552224a495d0e3762\",\"_spec\":\"elliptic@^6.0.0\",\"_where\":\"/Users/thi/gh/Documents/GitHub/iceteaweb3/node_modules/browserify-sign\",\"author\":{\"name\":\"Fedor Indutny\",\"email\":\"fedor@indutny.com\"},\"bugs\":{\"url\":\"https://github.com/indutny/elliptic/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"bn.js\":\"^4.4.0\",\"brorand\":\"^1.0.1\",\"hash.js\":\"^1.0.0\",\"hmac-drbg\":\"^1.0.0\",\"inherits\":\"^2.0.1\",\"minimalistic-assert\":\"^1.0.0\",\"minimalistic-crypto-utils\":\"^1.0.0\"},\"deprecated\":false,\"description\":\"EC cryptography\",\"devDependencies\":{\"brfs\":\"^1.4.3\",\"coveralls\":\"^3.0.8\",\"grunt\":\"^1.0.4\",\"grunt-browserify\":\"^5.0.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-connect\":\"^1.0.0\",\"grunt-contrib-copy\":\"^1.0.0\",\"grunt-contrib-uglify\":\"^1.0.1\",\"grunt-mocha-istanbul\":\"^3.0.1\",\"grunt-saucelabs\":\"^9.0.1\",\"istanbul\":\"^0.4.2\",\"jscs\":\"^3.0.7\",\"jshint\":\"^2.10.3\",\"mocha\":\"^6.2.2\"},\"files\":[\"lib\"],\"homepage\":\"https://github.com/indutny/elliptic\",\"keywords\":[\"EC\",\"Elliptic\",\"curve\",\"Cryptography\"],\"license\":\"MIT\",\"main\":\"lib/elliptic.js\",\"name\":\"elliptic\",\"repository\":{\"type\":\"git\",\"url\":\"git+ssh://git@github.com/indutny/elliptic.git\"},\"scripts\":{\"jscs\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"jshint\":\"jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js\",\"lint\":\"npm run jscs && npm run jshint\",\"test\":\"npm run lint && npm run unit\",\"unit\":\"istanbul test _mocha --reporter=spec test/index.js\",\"version\":\"grunt dist && git add dist/\"},\"version\":\"6.5.2\"}");
 
 /***/ }),
 
@@ -60746,10 +60746,16 @@ exports.throwIf = (condition, message) => {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@iceteachain/common/dist/browser.js"),
     TxOp = _require.TxOp,
-    ecc = _require.ecc; // const { escapeQueryValue } = require('../utils')
+    ecc = _require.ecc;
 
+var _require2 = __webpack_require__(/*! ../utils */ "./src/utils.js"),
+    escapeQueryValue = _require2.escapeQueryValue;
 
 function _serializeData(address, method) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
@@ -60769,143 +60775,201 @@ function _serializeData(address, method) {
   return formData;
 }
 
-function _registerEvents(tweb3, contractAddr, eventName, options, callback) {
-  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
-    var err = new Error('To subscribe to event, you must resolve contract alias first.');
-    return callback(err);
-  }
+function _sendTx(instance, options, sendMode, _ref) {
+  var contractAddr = _ref.contractAddr,
+      method = _ref.method,
+      params = _ref.params;
+  var opts = Object.assign({}, instance.options, options || {});
 
-  var opts;
+  var tx = _serializeData(contractAddr, method, params, opts);
 
-  if (typeof options === 'function' && typeof callback === 'undefined') {
-    callback = options;
-  } else {
-    opts = Object.assign({}, options);
-  }
-
-  opts = opts || {};
-  var isAll = eventName === 'allEvents';
-
-  if (isAll) {
-    if (opts.filter) {
-      console.log('opts.filter', opts.filter);
-      throw new Error('Cannot filter with allEvents');
-    }
-
-    eventName = 'Tx';
-    opts.filter = {
-      to: contractAddr
-    };
-    opts.emitter = 'system';
-  } else {
-    opts.emitter = contractAddr;
-  } // add indexed field filter
-
-
-  var filter = opts.filter || {}; // delete opts.filter
-
-  var filterKeys = Object.keys(filter);
-
-  if (filterKeys.length && !contractAddr) {
-    var _err = new Error('Cannot filter by indexed fields unless the contract address is specified.');
-
-    return callback(_err);
-  }
-
-  return tweb3.subscribe(eventName, opts, function (err, result) {
-    if (err) {
-      return callback(err);
-    } // because we support one contract emit the same event only once per TX
-    // so r.events must be 0-length for now
-
-
-    var evs = result.data.value.TxResult.events;
-    var data = isAll ? evs : evs.filter(function (el) {
-      return el.eventName === eventName;
-    })[0].eventData;
-    return callback(undefined, data, result);
-  });
+  return instance.web3.sendTransaction(tx, opts, sendMode);
 }
 
-function _registerPastEvents(tweb3, contractAddr, eventName, conditions, options) {
-  if (contractAddr && contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0) {
-    var err = new Error('To getPast to event, you must resolve contract alias first.');
-    return err;
-  }
-
-  var conds = Object.assign({}, conditions);
-  conds.emitter = contractAddr;
-  return tweb3.getPastEvents(eventName, conds, options);
+function _registerEvents(_x, _x2, _x3, _x4, _x5, _x6) {
+  return _registerEvents2.apply(this, arguments);
 } // contract
 
+
+function _registerEvents2() {
+  _registerEvents2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(tweb3, contractAddr, eventName, options, callback, once) {
+    var err, opts, isAll, filter, filterKeys, handle;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!(contractAddr.indexOf('.') >= 0 && contractAddr.indexOf('system.') !== 0)) {
+              _context.next = 4;
+              break;
+            }
+
+            err = new Error('To subscribe to event, you must resolve contract alias first.');
+            callback(err);
+            return _context.abrupt("return");
+
+          case 4:
+            if (typeof options === 'function' && typeof callback === 'undefined') {
+              callback = options;
+            } else {
+              opts = Object.assign({}, options);
+            }
+
+            opts = opts || {};
+            opts.rawFilter = typeof opts.rawFilter === 'string' ? [opts.rawFilter] : opts.rawFilter || [];
+            opts.rawFilter.map(function (w) {
+              var prefix = contractAddr + '.';
+              return w.startsWith(prefix) ? w : prefix + w;
+            });
+            isAll = ['allEvents', '*'].includes(eventName);
+
+            if (isAll) {
+              opts.rawFilter.push("".concat(contractAddr, "._ev EXISTS"));
+            } else {
+              opts.rawFilter.push("".concat(contractAddr, "._ev=").concat(escapeQueryValue(eventName)));
+            } // add indexed field filter
+
+
+            filter = opts.filter || {};
+            delete opts.filter;
+            filterKeys = Object.keys(filter);
+            filterKeys.forEach(function (key) {
+              var value = escapeQueryValue(filter[key]);
+              opts.rawFilter.push("".concat(contractAddr, ".").concat(key, "=").concat(value));
+            });
+            return _context.abrupt("return", tweb3.subscribe('Tx', opts, function (err, result) {
+              if (err) {
+                callback(err);
+                once && handle && handle.off && handle.off();
+                return;
+              }
+
+              var tx = result.data.value.TxResult;
+              var evs = tx.events;
+              var called = false;
+              evs.forEach(function (e) {
+                if (e.emitter === contractAddr && (isAll || e.eventName === eventName)) {
+                  if (once && called) return;
+                  called = true;
+                  callback(undefined, e, tx);
+                }
+              });
+              once && handle && handle.off && handle.off();
+            }).then(function (r) {
+              handle = {
+                off: r.unsubscribe
+              };
+              return handle;
+            }));
+
+          case 15:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _registerEvents2.apply(this, arguments);
+}
 
 var Contract = function Contract(tweb3, address) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   _classCallCheck(this, Contract);
 
+  if (!address) {
+    throw new Error('Contract address is required.');
+  }
+
+  var self = this;
+  this.web3 = tweb3;
   this.options = options; // default options
 
   if (typeof address === 'string') {
     this.address = address;
-  } else if (address != null) {
+  } else {
     this.address = address.address || address.returnValue;
     this.hash = address.hash;
     this.height = address.height;
   }
 
-  if (this.address && this.address.indexOf('.') < 0) {
+  if (this.address !== 'system' && this.address.indexOf('.') < 0) {
     ecc.validateAddress(this.address);
   }
 
   var contractAddr = this.address;
+
+  this.prepareMethod = function (method) {
+    for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
+
+    return {
+      call: function call() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
+      },
+      callPure: function callPure() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
+      },
+      getMetadata: function getMetadata() {
+        return tweb3.getMetadata(params);
+      },
+      sendAsync: function sendAsync() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return _sendTx(self, options, 'async', {
+          contractAddr: contractAddr,
+          method: method,
+          params: params
+        });
+      },
+      sendSync: function sendSync() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return _sendTx(self, options, 'sync', {
+          contractAddr: contractAddr,
+          method: method,
+          params: params
+        });
+      },
+      sendCommit: function sendCommit() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return _sendTx(self, options, 'commit', {
+          contractAddr: contractAddr,
+          method: method,
+          params: params
+        });
+      },
+      send: function send() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        return _sendTx(self, options, undefined, {
+          contractAddr: contractAddr,
+          method: method,
+          params: params
+        });
+      }
+    };
+  };
+
   this.methods = new Proxy({}, {
     get: function get(obj, method) {
       return function () {
-        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
-          params[_key] = arguments[_key];
+        for (var _len2 = arguments.length, params = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          params[_key2] = arguments[_key2];
         }
 
-        return {
-          call: function call() {
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            return tweb3.callReadonlyContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
-          },
-          callPure: function callPure() {
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            return tweb3.callPureContractMethod(contractAddr, method, params, Object.assign({}, this.options, options));
-          },
-          getMetadata: function getMetadata() {
-            return tweb3.getMetadata(params);
-          },
-          sendAsync: function sendAsync() {
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var opts = Object.assign({}, this.options, options);
-
-            var tx = _serializeData(contractAddr, method, params, opts);
-
-            return tweb3.sendTransactionAsync(tx, opts);
-          },
-          sendSync: function sendSync() {
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var opts = Object.assign({}, this.options, options);
-
-            var tx = _serializeData(contractAddr, method, params, opts);
-
-            return tweb3.sendTransactionSync(tx, opts);
-          },
-          sendCommit: function sendCommit() {
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var opts = Object.assign({}, this.options, options);
-
-            var tx = _serializeData(contractAddr, method, params, opts);
-
-            return tweb3.sendTransactionCommit(tx, opts);
-          }
-        };
+        return self.prepareMethod.apply(self, [method].concat(params));
       };
     }
   });
+
+  this.on = function (eventName, options, callback) {
+    return _registerEvents(tweb3, contractAddr, eventName, options, callback);
+  };
+
+  this.once = function (eventName, options, callback) {
+    return _registerEvents(tweb3, contractAddr, eventName, options, callback, true);
+  };
+
   this.events = new Proxy({}, {
     get: function get(obj, eventName) {
       return function (options, callback) {
@@ -60913,13 +60977,10 @@ var Contract = function Contract(tweb3, address) {
       };
     }
   });
-  this.getpast = new Proxy({}, {
-    get: function get(obj, eventName) {
-      return function (conditions, options) {
-        return _registerPastEvents(tweb3, contractAddr, eventName, conditions, options);
-      };
-    }
-  });
+
+  this.getPastEvents = function (eventName, conditions, options) {
+    return tweb3.getContractEvents(contractAddr, eventName, conditions, options);
+  };
 };
 
 module.exports = Contract;
@@ -60939,11 +61000,23 @@ function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _co
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -60958,12 +61031,12 @@ var _require = __webpack_require__(/*! @iceteachain/common */ "./node_modules/@i
 
 var _require2 = __webpack_require__(/*! ./utils */ "./src/utils.js"),
     switchEncoding = _require2.switchEncoding,
-    decodeTX = _require2.decodeTX,
-    decodeEventData = _require2.decodeEventData,
-    decodeEvent = _require2.decodeEvent,
-    decode = _require2.decode,
-    decodeReturnValue = _require2.decodeReturnValue,
+    decodeTxContent = _require2.decodeTxContent,
+    decodeTxEvents = _require2.decodeTxEvents,
+    decodeTxResult = _require2.decodeTxResult,
+    decodeTxReturnValue = _require2.decodeTxReturnValue,
     removeItem = _require2.removeItem,
+    escapeQueryValue = _require2.escapeQueryValue,
     isRegularAccount = _require2.isRegularAccount,
     isBankAccount = _require2.isBankAccount;
 
@@ -60977,11 +61050,10 @@ var WebsocketProvider = __webpack_require__(/*! ./providers/WebsocketProvider */
 
 var signTransaction = helper.signTransaction;
 exports.utils = {
-  decodeTxContent: decodeTX,
-  decodeTxReturnValue: decodeReturnValue,
-  decodeTxEvents: decodeEventData,
-  decodeTxTags: decodeEvent,
-  decodeTxResult: decode,
+  decodeTxContent: decodeTxContent,
+  decodeTxReturnValue: decodeTxReturnValue,
+  decodeTxEvents: decodeTxEvents,
+  decodeTxResult: decodeTxResult,
   isRegularAccount: isRegularAccount,
   isBankAccount: isBankAccount
 };
@@ -61120,100 +61192,192 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
 
   }, {
     key: "getTransaction",
-    value: function getTransaction(hash, options) {
-      if (!hash) {
-        throw new Error('hash is required');
+    value: function () {
+      var _getTransaction = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(hash, options) {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (hash) {
+                  _context.next = 2;
+                  break;
+                }
+
+                throw new Error('hash is required');
+
+              case 2:
+                return _context.abrupt("return", this.rpc.call('tx', _objectSpread({
+                  hash: switchEncoding(hash, 'hex', 'base64')
+                }, options)).then(decodeTxResult));
+
+              case 3:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function getTransaction(_x, _x2) {
+        return _getTransaction.apply(this, arguments);
       }
 
-      return this.rpc.call('tx', _objectSpread({
-        hash: switchEncoding(hash, 'hex', 'base64')
-      }, options)).then(decode);
-    }
+      return getTransaction;
+    }()
     /**
      * Search for transactions met the query specified.
      * @param {string} query required, query based on tendermint indexed tags, e.g. "tx.height>0".
-     * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
+     * @param {*} options additional options, e.g. {order_by: 'desc', page: 2, per_page: 20, prove: true}
+     * @param {boolean} rawResult whether to return raw result or decoded result, default false (decoded).
      * @returns {Array} Array of tendermint transactions.
      */
 
   }, {
     key: "searchTransactions",
-    value: function searchTransactions(query, options) {
-      if (!query) {
-        throw new Error('query is required, example "tx.height>0"');
+    value: function () {
+      var _searchTransactions = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(query, options, rawResult) {
+        var r;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (query) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                throw new Error('query is required, example "tx.height>0"');
+
+              case 2:
+                r = this.rpc.call('tx_search', _objectSpread({
+                  query: query
+                }, options));
+                return _context2.abrupt("return", rawResult ? r : r.then(function (r) {
+                  r.txs = r.txs.map(decodeTxResult);
+                  return r;
+                }));
+
+              case 4:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function searchTransactions(_x3, _x4, _x5) {
+        return _searchTransactions.apply(this, arguments);
       }
 
-      return this.rpc.call('tx_search', _objectSpread({
-        query: query
-      }, options));
-    }
+      return searchTransactions;
+    }()
     /**
      * Search for events emit by contracts.
-     * @param {string} eventName the event name, e.g. "Transferred"
-     * @param {string} emitter optional, the contract address, or "system"
-     * @param {*} conditions required, string or object literal.
-     * string example: "tx.height>0 AND someIndexedField CONTAINS 'kkk'".
-     * Object example: {fromBlock: 0, toBlock: 100, address: "xxx", filter: {someIndexedField: "xxx"}, tags: {tx.from: "yyy"}}.
+     * @param {string} contract address of the contract that emits events.
+     * @param {string} eventName the event name, e.g. "transfer"
+     * @param {object} conditions required
+     * Example: {fromBlock: 0, toBlock: 100, filter: {someIndexedField: "xxx"}, rawFilter: ["someIndexField CONTAINS 'abc'"]}.
      * Note that conditions are combined using AND, no support for OR.
-     * @param {*} options additional options, e.g. {prove: true, page: 2, per_page: 20}
+     * @param {*} options additional options, e.g. {order_by: 'desc', prove: true, page: 2, per_page: 20}
      * @returns {Array} Array of tendermint transactions containing the event.
      */
 
   }, {
-    key: "getPastEvents",
-    value: function getPastEvents(eventName) {
-      var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var options = arguments.length > 2 ? arguments[2] : undefined;
-      var EMITTER_EVENTNAME = '_ev';
-      var query = '';
+    key: "getContractEvents",
+    value: function () {
+      var _getContractEvents = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(contract, eventName, conditions, options) {
+        var EMITTER_EVENTNAME, path, isAll, arr, filter, rawFilter, query;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                conditions = conditions || {};
+                EMITTER_EVENTNAME = '_ev';
 
-      if (typeof conditions === 'string') {
-        query = conditions;
-      } else {
-        if (!eventName) {
-          throw new Error('EventName is required');
-        }
+                if (contract) {
+                  _context3.next = 4;
+                  break;
+                }
 
-        if (!conditions.emitter) {
-          throw new Error('Emitter is required');
-        }
+                throw new Error('getPastEvents: contract address is required');
 
-        if (conditions.emitter && Array.isArray(conditions.emitter)) {
-          throw new Error('getPastEvents: mutiple addresses are not supported.');
-        }
+              case 4:
+                if (eventName) {
+                  _context3.next = 6;
+                  break;
+                }
 
-        var arr = eventName === 'allEvents' ? ["system.to='".concat(conditions.emitter, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")];
+                throw new Error('getPastEvents: eventName is required');
 
-        if (conditions.fromBlock) {
-          arr.push("tx.height>".concat(+conditions.fromBlock - 1));
-        }
+              case 6:
+                path = "".concat(contract, ".").concat(EMITTER_EVENTNAME);
+                isAll = ['*', 'allEvents'].includes(eventName); // as of v.0.33.4, tendermint only supports EXISTS for subscribe, not tx_search
+                // https://github.com/tendermint/tendermint/issues/4763
 
-        if (conditions.toBlock) {
-          arr.push("tx.height<".concat(+conditions.toBlock + 1));
-        }
+                arr = isAll ? ["".concat(path, " CONTAINS ''")] : ["".concat(path, "=").concat(escapeQueryValue(eventName))];
 
-        if (conditions.atBlock) {
-          arr.push("tx.height=".concat(conditions.atBlock));
-        } // filter, equal only
+                if (conditions.fromBlock) {
+                  arr.push("tx.height>".concat(+conditions.fromBlock - 1));
+                }
 
+                if (conditions.toBlock) {
+                  arr.push("tx.height<".concat(+conditions.toBlock + 1));
+                }
 
-        var filter = conditions.filter || {};
-        Object.keys(filter).forEach(function (key) {
-          var value = filter[key];
-          arr.push("".concat(conditions.emitter, ".").concat(key, "='").concat(value, "'"));
-        });
-        query = arr.join(' AND ');
-      } // console.log('query', query)
+                if (conditions.atBlock) {
+                  arr.push("tx.height=".concat(conditions.atBlock));
+                } // filter, equal only
 
 
-      return this.searchTransactions(query, options).then(function (result) {
-        result.txs.forEach(function (tx) {
-          tx.events = decodeEventData(tx); // decode(tx)
-          // delete tx.tx_result
-        });
-        return result;
-      });
-    }
+                filter = conditions.filter || {};
+                Object.keys(filter).forEach(function (key) {
+                  var value = escapeQueryValue(filter[key]);
+                  arr.push("".concat(contract, ".").concat(key, "=").concat(value));
+                }); // raw filter, for advanced users
+
+                rawFilter = conditions.rawFilter;
+
+                if (rawFilter) {
+                  if (rawFilter.forEach) {
+                    rawFilter.forEach(function (w) {
+                      if (!w.startsWith(contract + '.')) {
+                        w = contract + '.' + w;
+                      }
+
+                      arr.push(w);
+                    });
+                  } else {
+                    arr.push(rawFilter);
+                  }
+                }
+
+                query = arr.join(' AND ');
+                return _context3.abrupt("return", this.searchTransactions(query, options, false).then(function (r) {
+                  return r.txs.reduce(function (list, tx) {
+                    var events = tx.events.filter(function (e) {
+                      return e.emitter === contract && (isAll || e.eventName === eventName);
+                    }).map(function (e) {
+                      e.tx = tx;
+                      return e;
+                    });
+                    return list.concat(events);
+                  }, []);
+                }));
+
+              case 18:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      function getContractEvents(_x6, _x7, _x8, _x9) {
+        return _getContractEvents.apply(this, arguments);
+      }
+
+      return getContractEvents;
+    }()
     /**
      * @param {boolean} preferAlias whether to prefer alias, or just return address.
      * @return {string[]} Get all deployed smart contracts.
@@ -61268,9 +61432,9 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
     }
   }, {
     key: "sendTransaction",
-    value: function sendTransaction(tx, signers, waitOption) {
-      waitOption = waitOption || signers && signers.waitOption || 'commit';
-      return _signAndSend(this.rpc, tx, 'broadcast_tx_' + waitOption, this.wallet, signers);
+    value: function sendTransaction(tx, signers, sendMode) {
+      sendMode = sendMode || signers && signers.sendMode || 'commit';
+      return _signAndSend(this.rpc, tx, 'broadcast_tx_' + sendMode, this.wallet, signers);
     }
     /**
      * Send a transaction and return immediately.
@@ -61369,138 +61533,212 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
       });
     }
     /**
-       * Subscribes by event (for WebSocket only)
-       *
-       * @method subscribe
-       *
-       * @param {MessageEvent} EventName
-       */
+     * Subscribes for tendermint event (Tx, NewBlock, NewBlockHeader). This is NOT the contract event.
+     * @param {string} sysEventName
+     * One of ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound',
+     *   'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString']
+     */
 
   }, {
     key: "subscribe",
-    value: function subscribe(eventName) {
-      var _this = this;
+    value: function () {
+      var _subscribe = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(sysEventName) {
+        var _this = this;
 
-      var conditions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var callback = arguments.length > 2 ? arguments[2] : undefined;
-      var EMITTER_EVENTNAME = '_ev';
-      if (!this.isWebSocket) throw new Error('"subscribe" supports only WebSocketProvider.');
-      var systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
+        var conditions,
+            callback,
+            systemEvents,
+            query,
+            arr,
+            filter,
+            rawFilter,
+            unsubscribe,
+            _args5 = arguments;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                conditions = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : {};
+                callback = _args5.length > 2 ? _args5[2] : undefined;
 
-      if (!eventName) {
-        throw new Error('EventName is required');
-      }
-
-      var isSystemEvents = systemEvents.includes(eventName);
-      var query = '';
-
-      if (typeof conditions === 'string') {
-        query = conditions;
-      } else {
-        if (typeof conditions === 'function' && typeof callback === 'undefined') {
-          callback = conditions;
-          conditions = {};
-        }
-
-        if (!isSystemEvents && !conditions.emitter) {
-          throw new Error('When the event not the system event, Emitter is required');
-        }
-
-        var arr = isSystemEvents ? ["tm.event = '".concat(eventName, "'")] : ["".concat(conditions.emitter, ".").concat(EMITTER_EVENTNAME, " = '").concat(eventName, "'")];
-
-        if (conditions.fromBlock) {
-          arr.push("tx.height>".concat(+conditions.fromBlock - 1));
-        }
-
-        if (conditions.toBlock) {
-          arr.push("tx.height<".concat(+conditions.toBlock + 1));
-        }
-
-        if (conditions.atBlock) {
-          arr.push("tx.height=".concat(conditions.atBlock));
-        } // filter, equal only
-
-
-        var filter = conditions.filter || {};
-        Object.keys(filter).forEach(function (key) {
-          var value = filter[key];
-          arr.push("".concat(conditions.emitter, ".").concat(key, "='").concat(value, "'"));
-        });
-        query = arr.join(' AND ');
-      } // ensure to return promise => simpler for clients
-
-
-      var unsubscribe = function unsubscribe() {
-        var sub = _this._wssub[query];
-
-        if (!sub) {
-          return Promise.resolve(undefined);
-        }
-
-        removeItem(sub.callbacks, callback);
-
-        if (sub.callbacks.length > 0) {
-          return Promise.resolve(undefined);
-        }
-
-        return _this.rpc.call('unsubscribe', {
-          query: query
-        }).then(function (res) {
-          delete _this._wssub[query];
-          return res;
-        });
-      };
-
-      if (this._wssub[query]) {
-        this._wssub[query].callbacks.push(callback);
-
-        return Promise.resolve({
-          unsubscribe: unsubscribe
-        });
-      }
-
-      return this.rpc.call('subscribe', {
-        query: query
-      }).then(function (result) {
-        _this._wssub[query] = {
-          id: result.id,
-          query: query,
-          callbacks: [callback]
-        };
-        _this._wshandler = _this._wshandler || {};
-
-        if (!_this._wshandler.onmessage) {
-          _this._wshandler.onmessage = function (msg) {
-            Object.values(_this._wssub).forEach(function (_ref) {
-              var id = _ref.id,
-                  callbacks = _ref.callbacks;
-
-              if (msg.id === id) {
-                var error = msg.error;
-                var _result = msg.result;
-
-                if (_result && _result.data && _result.data.type === 'tendermint/event/Tx') {
-                  var r = _result.data.value.TxResult;
-                  r.tx_result = r.result; // rename for utils.decode
-
-                  decode(r);
-                  delete r.tx_result;
+                if (this.isWebSocket) {
+                  _context5.next = 4;
+                  break;
                 }
 
-                callbacks.forEach(function (cb) {
-                  return cb(error, _result);
+                throw new Error('subscribe: supports WebSocketProvider only.');
+
+              case 4:
+                systemEvents = ['NewBlock', 'NewBlockHeader', 'Tx', 'RoundState', 'NewRound', 'CompleteProposal', 'Vote', 'ValidatorSetUpdates', 'ProposalString'];
+
+                if (sysEventName && !systemEvents.includes(sysEventName)) {
+                  console.warn("Event ".concat(sysEventName, " is not one of known supported events: ").concat(systemEvents, "."));
+                }
+
+                query = '';
+
+                if (typeof conditions === 'string') {
+                  query = conditions;
+                } else {
+                  if (typeof conditions === 'function' && typeof callback === 'undefined') {
+                    callback = conditions;
+                    conditions = {};
+                  }
+
+                  arr = ["tm.event=".concat(escapeQueryValue(sysEventName))];
+
+                  if (conditions.fromBlock) {
+                    arr.push("tx.height>".concat(+conditions.fromBlock - 1));
+                  }
+
+                  if (conditions.toBlock) {
+                    arr.push("tx.height<".concat(+conditions.toBlock + 1));
+                  }
+
+                  if (conditions.atBlock) {
+                    arr.push("tx.height=".concat(conditions.atBlock));
+                  } // filter, equal only
+
+
+                  filter = conditions.filter || {};
+                  Object.keys(filter).forEach(function (key) {
+                    var value = escapeQueryValue(filter[key]);
+                    arr.push("".concat(key, "=").concat(value));
+                  }); // raw filter, for advanced users
+
+                  rawFilter = typeof conditions.rawFilter === 'string' ? [conditions.rawFilter] : conditions.rawFilter;
+                  rawFilter && arr.push.apply(arr, _toConsumableArray(rawFilter));
+                  query = arr.join(' AND ');
+                } // ensure to return promise => simpler for clients
+
+
+                unsubscribe = /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+                    var sub;
+                    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                      while (1) {
+                        switch (_context4.prev = _context4.next) {
+                          case 0:
+                            sub = _this._wssub[query];
+
+                            if (sub) {
+                              _context4.next = 3;
+                              break;
+                            }
+
+                            return _context4.abrupt("return");
+
+                          case 3:
+                            removeItem(sub.callbacks, callback);
+
+                            if (!(sub.callbacks.length > 0)) {
+                              _context4.next = 6;
+                              break;
+                            }
+
+                            return _context4.abrupt("return");
+
+                          case 6:
+                            return _context4.abrupt("return", _this.rpc.call('unsubscribe', {
+                              query: query
+                            }).then(function (res) {
+                              delete _this._wssub[query];
+                              return res;
+                            }));
+
+                          case 7:
+                          case "end":
+                            return _context4.stop();
+                        }
+                      }
+                    }, _callee4);
+                  }));
+
+                  return function unsubscribe() {
+                    return _ref.apply(this, arguments);
+                  };
+                }();
+
+                if (!this._wssub[query]) {
+                  _context5.next = 12;
+                  break;
+                }
+
+                this._wssub[query].callbacks.push(callback);
+
+                return _context5.abrupt("return", {
+                  unsubscribe: unsubscribe
                 });
-              }
-            });
-          };
 
-          _this.rpc.registerEventListener('onResponse', _this._wshandler.onmessage);
-        }
+              case 12:
+                return _context5.abrupt("return", this.rpc.call('subscribe', {
+                  query: query
+                }).then(function (result) {
+                  _this._wssub[query] = {
+                    id: result.id,
+                    query: query,
+                    callbacks: [callback]
+                  };
+                  _this._wshandler = _this._wshandler || {};
 
-        return {
-          unsubscribe: unsubscribe
-        };
-      })["catch"](callback);
+                  if (!_this._wshandler.onmessage) {
+                    _this._wshandler.onmessage = function (msg) {
+                      Object.values(_this._wssub).forEach(function (_ref2) {
+                        var id = _ref2.id,
+                            callbacks = _ref2.callbacks;
+
+                        if (msg.id === id) {
+                          var error = msg.error;
+                          var _result = msg.result;
+
+                          if (_result && _result.data && _result.data.type === 'tendermint/event/Tx') {
+                            var r = _result.data.value.TxResult;
+
+                            if (!r.tx_result && r.result) {
+                              r.tx_result = r.result; // rename for utils.decodeTxResult
+                            }
+
+                            _result.data.value.TxResult = decodeTxResult(r);
+                          }
+
+                          callbacks.forEach(function (cb) {
+                            return cb(error, _result);
+                          });
+                        }
+                      });
+                    };
+
+                    _this.rpc.registerEventListener('onResponse', _this._wshandler.onmessage);
+                  }
+
+                  return {
+                    unsubscribe: unsubscribe
+                  };
+                })["catch"](callback));
+
+              case 13:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function subscribe(_x10) {
+        return _subscribe.apply(this, arguments);
+      }
+
+      return subscribe;
+    }()
+  }, {
+    key: "unsubscribeAll",
+    value: function unsubscribeAll() {
+      return this.rpc.call('/unsubscribe_all');
+    }
+  }, {
+    key: "clearSubscriptions",
+    value: function clearSubscriptions() {
+      return this.unsubscribeAll();
     }
   }, {
     key: "registerEventListener",
@@ -61531,37 +61769,19 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
     }
   }, {
     key: "deploy",
-    value: function deploy(mode, src) {
+    value: function deploy(contractInfo, options) {
       var _this2 = this;
 
-      var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-      var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+      var tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments);
 
-      var tx = _serializeDataForDeploy(mode, src, params, options);
-
-      return this.sendTransactionCommit(tx, options).then(function (res) {
+      return this.sendTransaction(tx, options).then(function (res) {
         return _this2.contract(res);
       });
     }
   }, {
-    key: "deployJs",
-    value: function deployJs(src) {
-      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.deploy(ContractMode.JS_RAW, src, params, options);
-    }
-  }, {
-    key: "deployWasm",
-    value: function deployWasm(wasmBuffer) {
-      var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      return this.deploy(ContractMode.WASM, wasmBuffer, params, options);
-    }
-  }, {
     key: "transfer",
-    value: function transfer(to, value) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      var params = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : options.params;
+    value: function transfer(to, value, options) {
+      options = options || {};
       var tx = {
         from: options.from,
         to: to,
@@ -61570,13 +61790,13 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
         payer: options.payer
       };
 
-      if (params) {
+      if (options.params) {
         tx.data = {
-          params: params
+          params: options.params
         }; // params for __on_received
       }
 
-      return this.sendTransactionCommit(tx, options);
+      return this.sendTransaction(tx, options);
     }
   }]);
 
@@ -61585,13 +61805,21 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
 
 exports.IceteaWeb3.utils = exports.utils;
 
-function _serializeDataForDeploy(mode, src, params, options) {
+function _serializeDataForDeploy(mode, src) {
+  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+  var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var formData = {};
   var txData = {
     op: TxOp.DEPLOY_CONTRACT,
     mode: mode,
     params: params
   };
+
+  if (mode == null || mode === 'js') {
+    mode = ContractMode.JS_RAW;
+  } else if (mode === 'wasm') {
+    mode = ContractMode.WASM;
+  }
 
   if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
     txData.src = switchEncoding(src, 'utf8', 'base64');
@@ -61614,15 +61842,34 @@ function _serializeDataForDeploy(mode, src, params, options) {
   return formData;
 }
 
-function _sendSignedTx(rpc, tx, method) {
-  if (!tx.evidence || !tx.evidence.length) {
-    throw new Error('Transaction was not signed yet.');
-  } // if (tx.hasOwnProperty('from') && tx.evidence.length === 1 && tx.from === ecc.toAddress(tx.evidence[0].pubkey)) {
-  //   delete tx.from // save some bits
-  // }
+function _sendSignedTx(_x11, _x12, _x13) {
+  return _sendSignedTx2.apply(this, arguments);
+}
 
+function _sendSignedTx2() {
+  _sendSignedTx2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(rpc, tx, method) {
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            if (!(!tx.evidence || !tx.evidence.length)) {
+              _context6.next = 2;
+              break;
+            }
 
-  return rpc.send(method, tx).then(decode);
+            throw new Error('Transaction was not signed yet.');
+
+          case 2:
+            return _context6.abrupt("return", rpc.send(method, tx).then(decodeTxResult));
+
+          case 3:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6);
+  }));
+  return _sendSignedTx2.apply(this, arguments);
 }
 
 function _signTx(tx, wallet, signers) {
@@ -62013,7 +62260,7 @@ exports.encodeTX = function (txObj) {
  */
 
 
-exports.decodeTX = function (data) {
+exports.decodeTxContent = function (data) {
   var enc = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'base64';
   return codec.decode(Buffer.from(data, enc));
 };
@@ -62026,8 +62273,8 @@ exports.switchEncoding = function (str, from, to) {
   return exports.ensureBuffer(str, from).toString(to);
 };
 
-exports.decodeEvent = function (tx) {
-  var keepEvents = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+exports.decodeTxEvents = function (tx) {
+  var EMITTER_EVENTNAME = '_ev';
   var EMPTY_RESULT = [];
   var b64Events = _getFieldValue(tx, 'events') || tx;
 
@@ -62036,7 +62283,7 @@ exports.decodeEvent = function (tx) {
   } // decode events
 
 
-  var events = b64Events.map(function (_ref, i) {
+  var events = b64Events.map(function (_ref) {
     var type = _ref.type,
         attributes = _ref.attributes;
     return {
@@ -62051,16 +62298,7 @@ exports.decodeEvent = function (tx) {
       }, {})
     };
   });
-  return events;
-};
-
-exports.decodeEventData = function (tx) {
-  var EMITTER_EVENTNAME = '_ev';
-
-  var events = _this.decodeEvent(tx, true); // format events
-
-
-  var result = events.map(function (_ref3) {
+  return events.map(function (_ref3) {
     var type = _ref3.type,
         attributes = _ref3.attributes;
     var eventName = attributes[EMITTER_EVENTNAME];
@@ -62071,29 +62309,24 @@ exports.decodeEventData = function (tx) {
       eventData: attributes
     };
   });
-  return result;
 };
 
-exports.decode = function (tx) {
-  var keepEvents = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-  _this.decodeReturnValue(tx);
-
-  if (tx.tx) tx.tx = _this.decodeTX(tx.tx);
-  tx.events = _this.decodeEventData(tx);
+exports.decodeTxResult = function (srcTx) {
+  var tx = Object.assign({}, srcTx);
+  tx.returnValue = _this.decodeTxReturnValue(tx);
+  if (tx.tx) tx.tx = _this.decodeTxContent(tx.tx);
+  tx.events = _this.decodeTxEvents(tx);
   return tx;
 };
 
-exports.decodeReturnValue = function (tx) {
-  var fieldName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'returnValue';
-
+exports.decodeTxReturnValue = function (tx) {
   var data = _getFieldValue(tx, 'data');
 
   if (data) {
-    tx[fieldName] = codec.decode(Buffer.from(data, 'base64'));
+    data = codec.decode(Buffer.from(data, 'base64'));
   }
 
-  return tx;
+  return data;
 };
 
 exports.removeItem = function (array, item) {

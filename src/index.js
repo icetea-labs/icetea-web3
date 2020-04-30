@@ -459,7 +459,7 @@ exports.IceteaWeb3 = class IceteaWeb3 {
   }
 
   unsubscribeAll () {
-    return this.rpc,call('/unsubscribe_all')
+    return this.rpc.call('/unsubscribe_all')
   }
 
   clearSubscriptions () {

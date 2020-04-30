@@ -124,16 +124,16 @@ class Contract {
           return tweb3.getMetadata(params)
         },
         sendAsync: function (options = {}) {
-          return _sendTx(self, options, 'async', {contractAddr, method, params})
+          return _sendTx(self, options, 'async', { contractAddr, method, params })
         },
         sendSync: function (options = {}) {
-          return _sendTx(self, options, 'sync', {contractAddr, method, params})
+          return _sendTx(self, options, 'sync', { contractAddr, method, params })
         },
         sendCommit: function (options = {}) {
-          return _sendTx(self, options, 'commit', {contractAddr, method, params})
+          return _sendTx(self, options, 'commit', { contractAddr, method, params })
         },
         send: function (options = {}) {
-          return _sendTx(self, options, undefined, {contractAddr, method, params})
+          return _sendTx(self, options, undefined, { contractAddr, method, params })
         }
       }
     }
