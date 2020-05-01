@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.2.0 */
+/*! @iceteachain/web3 v0.2.1 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -61772,7 +61772,13 @@ exports.IceteaWeb3 = /*#__PURE__*/function () {
     value: function deploy(contractInfo, options) {
       var _this2 = this;
 
-      var tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments);
+      if (typeof contractInfo === 'string') {
+        contractInfo = {
+          data: contractInfo
+        };
+      }
+
+      var tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments, options);
 
       return this.sendTransaction(tx, options).then(function (res) {
         return _this2.contract(res);
@@ -61809,17 +61815,18 @@ function _serializeDataForDeploy(mode, src) {
   var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
   var formData = {};
-  var txData = {
-    op: TxOp.DEPLOY_CONTRACT,
-    mode: mode,
-    params: params
-  };
 
   if (mode == null || mode === 'js') {
     mode = ContractMode.JS_RAW;
   } else if (mode === 'wasm') {
     mode = ContractMode.WASM;
   }
+
+  var txData = {
+    op: TxOp.DEPLOY_CONTRACT,
+    mode: mode,
+    params: params
+  };
 
   if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
     txData.src = switchEncoding(src, 'utf8', 'base64');
