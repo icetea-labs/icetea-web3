@@ -486,7 +486,10 @@ exports.IceteaWeb3 = class IceteaWeb3 {
   }
 
   deploy (contractInfo, options) {
-    const tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments)
+    if (typeof contractInfo === 'string') {
+      contractInfo = { data: contractInfo }
+    }
+    const tx = _serializeDataForDeploy(contractInfo.mode, contractInfo.data, contractInfo.arguments, options)
     return this.sendTransaction(tx, options)
       .then(res => this.contract(res))
   }
@@ -504,17 +507,16 @@ exports.IceteaWeb3 = class IceteaWeb3 {
 exports.IceteaWeb3.utils = exports.utils
 
 function _serializeDataForDeploy (mode, src, params = [], options = {}) {
-  var formData = {}
-  var txData = {
-    op: TxOp.DEPLOY_CONTRACT,
-    mode: mode,
-    params: params
-  }
-
+  const formData = {}
   if (mode == null || mode === 'js') {
     mode = ContractMode.JS_RAW
   } else if (mode === 'wasm') {
     mode = ContractMode.WASM
+  }
+  const txData = {
+    op: TxOp.DEPLOY_CONTRACT,
+    mode: mode,
+    params: params
   }
 
   if (mode === ContractMode.JS_DECORATED || mode === ContractMode.JS_RAW) {
