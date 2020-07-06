@@ -41,7 +41,14 @@ module.exports = env => ({
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env'],
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  "exclude": ["@babel/plugin-transform-async-to-generator", "@babel/plugin-transform-regenerator"]
+                }
+              ]
+            ],
             plugins: babelPlugins
           }
         }
