@@ -104,6 +104,7 @@ class Contract {
       this.address = address.address || address.returnValue
       this.hash = address.hash
       this.height = address.height
+      this.deployTxResult = address
     }
 
     if (this.address !== 'system' && this.address.indexOf('.') < 0) {
@@ -111,6 +112,14 @@ class Contract {
     }
 
     const contractAddr = this.address
+
+    this.getBalance = function() {
+      return tweb3.getBalance(contractAddr)
+    }
+
+    this.getMetadata = function (contractAddr) {
+      return tweb3.getMetadata(contractAddr)
+    }
 
     this.prepareMethod = function (method, ...params) {
       return {

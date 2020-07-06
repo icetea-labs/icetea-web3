@@ -1,6 +1,6 @@
 {
   "name": "@iceteachain/web3",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A Web3-like client lib for Icetea blockchain.",
   "main": "src/index.js",
   "browser": "dist/browser.js",
@@ -40,7 +40,9 @@
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.7",
+    "@babel/plugin-transform-runtime": "^7.10.4",
     "@babel/preset-env": "^7.8.7",
+    "@babel/runtime": "^7.10.4",
     "babel-loader": "^8.0.5",
     "babel-plugin-runtyper": "^0.4.0",
     "jest": "^25.4.0",
