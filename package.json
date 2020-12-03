@@ -33,23 +33,23 @@
   "dependencies": {
     "@iceteachain/common": "^0.1.6",
     "keythereum": "github:TradaTech/keythereum",
-    "node-fetch": "^2.6.0",
-    "websocket": "^1.0.31",
-    "websocket-as-promised": "^1.0.1"
+    "node-fetch": "^2.6.1",
+    "websocket": "^1.0.32",
+    "websocket-as-promised": "^1.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.10.4",
-    "@babel/preset-env": "^7.8.7",
-    "@babel/runtime": "^7.10.4",
-    "babel-loader": "^8.0.5",
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "@babel/runtime": "^7.12.5",
+    "babel-loader": "^8.2.2",
     "babel-plugin-runtyper": "^0.4.0",
-    "jest": "^25.4.0",
+    "jest": "^25.5.4",
     "rimraf": "^3.0.2",
-    "standard": "^14.3.1",
-    "webpack": "^4.42.0",
-    "webpack-bundle-analyzer": "^3.6.0",
-    "webpack-cli": "^3.3.11"
+    "standard": "^14.3.4",
+    "webpack": "^4.44.2",
+    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack-cli": "^3.3.12"
   }
 }
