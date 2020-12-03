@@ -8,7 +8,7 @@
     "lint": "standard --fix",
     "test": "jest",
     "clean": "rimraf dist",
-    "prepare": "npm run clean && npm test && npm run build:dev",
+    "prepare": "npm run clean && npm run build:dev",
     "build:dev": "webpack --env dev",
     "build": "webpack --env prod"
   },
