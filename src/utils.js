@@ -42,7 +42,10 @@ exports.decodeTxContent = (data, enc = 'base64') => {
 }
 
 exports.ensureBuffer = (buf, enc) => {
-  return Buffer.isBuffer(buf) ? buf : Buffer.from(buf, enc)
+  if(buf != null) {
+    return Buffer.isBuffer(buf) ? buf : Buffer.from(buf, enc)
+  }
+  return buf + ""
 }
 
 exports.switchEncoding = (str, from, to) => {
