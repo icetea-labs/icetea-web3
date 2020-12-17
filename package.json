@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/TradaTech/icetea-web3#readme",
   "dependencies": {
-    "@iceteachain/common": "^0.1.6",
+    "@iceteachain/common": "^0.1.7",
     "keythereum": "github:TradaTech/keythereum",
     "node-fetch": "^2.6.1",
     "websocket": "^1.0.32",

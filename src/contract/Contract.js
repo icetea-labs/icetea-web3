@@ -113,7 +113,7 @@ class Contract {
 
     const contractAddr = this.address
 
-    this.getBalance = function() {
+    this.getBalance = function () {
       return tweb3.getBalance(contractAddr)
     }
 
