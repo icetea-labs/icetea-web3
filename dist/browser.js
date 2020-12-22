@@ -1,4 +1,4 @@
-/*! @iceteachain/web3 v0.2.6 */
+/*! @iceteachain/web3 v0.2.7 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! @iceteachain/common v0.1.7 */
+/*! @iceteachain/common v0.1.8 */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -22315,6 +22315,11 @@ function signTransaction(txData, privateKey) {
   txData.evidence = txData.evidence || [];
   var evidence = {};
   evidence.pubkey = ecc.toPublicKey(privateKey);
+  txData.evidence.forEach(function (e) {
+    if (e.pubkey === evidence.pubkey) {
+      throw new Error('[signTransaction] The transaction was already signed with the specified private key.');
+    }
+  });
   var tx = new Tx(txData);
   evidence.signature = toDataString(ecc.sign(tx.sigHash, privateKey).signature);
   txData.evidence.push(evidence);
